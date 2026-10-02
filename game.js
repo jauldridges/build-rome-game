@@ -78,12 +78,14 @@ function addFarmer(x, y) {
 }
 for (let i = 0; i < 3; i++) addFarmer(400 + i * 50, 440 + (i % 2) * 40);
 
-const NEW_FARMERS = { house: 1, forum: 3 };
+const NEW_FARMERS = { house: { n: 1, say: 'msg_farmer_arrives' }, forum: { n: 3, say: 'msg_farmers_arrive' } };
 function onBuilt(b) {
-  const n = NEW_FARMERS[b.type];
-  if (!n) return;
+  const arrival = NEW_FARMERS[b.type];
+  if (!arrival) return;
+  const n = arrival.n;
   for (let i = 0; i < n; i++) addFarmer(b.x + b.w / 2 + (i - (n - 1) / 2) * 20, b.y + b.h + 12);
-  setMsg(n === 1 ? 'A new farmer arrives.' : n + ' new farmers arrive.');
+  const l = line(arrival.say);
+  if (l) setMsg(l.text, l.english);
 }
 
 function toWorld(e) { return { x: e.clientX + cam.x, y: e.clientY + cam.y }; }
@@ -193,10 +195,12 @@ function setPlacing(type) {
 }
 
 let msgTimer = null;
-function setMsg(text) {
-  document.getElementById('msg').textContent = text;
+function setMsg(text, english) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.title = english || ''; // English on hover when the message is Latin
   clearTimeout(msgTimer);
-  if (text && !placing) msgTimer = setTimeout(() => { document.getElementById('msg').textContent = ''; }, 3000);
+  if (text && !placing) msgTimer = setTimeout(() => { el.textContent = ''; el.title = ''; }, 6000);
 }
 
 function tryPlace(p) {

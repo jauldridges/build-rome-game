@@ -287,5 +287,23 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-072",
   "review_status": "approved"
+ },
+ {
+  "id": "msg_farmer_arrives",
+  "latin": "Agricola novus advenit.",
+  "english": "A new farmer arrives.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-074",
+  "review_status": "approved"
+ },
+ {
+  "id": "msg_farmers_arrive",
+  "latin": "Trēs agricolae novī adveniunt.",
+  "english": "Three new farmers arrive.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-074",
+  "review_status": "draft"
  }
 ];
