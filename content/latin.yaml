@@ -273,8 +273,7 @@
   review_status: approved
 
 # ---- Arrival notices ----
-# The singular line is J. Sullivan's text and is approved. The plural line was drafted by the assistant and needs proofreading:
-#  1. "Trēs agricolae novī adveniunt." Macrons on trēs and novī. Is the number fine here as exposure?
+# Both lines proofread and approved by J. Sullivan.
 
 - id: msg_farmer_arrives
   latin: "Agricola novus advenit."
@@ -290,5 +289,5 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-074   # also MS-020 (nominative plural), MS-044 (adjective agreement, number)
-  review_status: draft
+  review_status: approved
 

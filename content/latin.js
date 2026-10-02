@@ -304,6 +304,6 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-074",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];
