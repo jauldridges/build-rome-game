@@ -41,6 +41,7 @@ canvas { display: block; image-rendering: pixelated; }
   box-shadow: 4px 4px 0 rgba(0,0,0,0.4); min-height: 190px; }
 #speaker { font-size: 18px; font-weight: bold; color: #8a5a1e; min-height: 1.2em; }
 #mtext { font-size: 38px; font-weight: bold; margin: 8px 0 10px; }
-#mhint { font-size: 18px; font-style: italic; color: #5b4a2e; min-height: 2.6em; opacity: 1; transition: opacity 3s; }
-#mhint.fade { opacity: 0; }
+#mtext.hasHint { text-decoration: underline dotted #8a5a1e 3px; text-underline-offset: 6px; cursor: help; }
+#mhint { font-size: 18px; font-style: italic; color: #5b4a2e; min-height: 2.6em; visibility: hidden; }
+#mtext:hover + #mhint { visibility: visible; }
 #mok { margin-top: 6px; padding: 7px 18px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 17px; font-weight: bold; }

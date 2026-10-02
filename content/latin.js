@@ -242,5 +242,50 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
   "review_status": "approved"
+ },
+ {
+  "id": "msg_romulus_send",
+  "latin": "Bene! Mitte quattuor agricolās ad aquam.",
+  "english": "Good! Send four farmers to the water.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_wall",
+  "latin": "Bene! Aedificā mūrum.",
+  "english": "Good! Build a wall.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-050",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_gate",
+  "latin": "Bene! Aedificā portam.",
+  "english": "Good! Build a gate.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-050",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_forum",
+  "latin": "Bene! Aedificā forum.",
+  "english": "Good! Build a forum.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-050",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_final",
+  "latin": "Optimē! Rōma crescit.",
+  "english": "Excellent! Rome is growing.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-072",
+  "review_status": "draft"
  }
 ];

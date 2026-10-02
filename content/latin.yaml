@@ -228,3 +228,50 @@
   nle_category: morphosyntax
   spec_node_id: MS-077
   review_status: approved
+
+# ---- Rōmulus's later orders (DRAFT, not yet proofread) ----
+# Questions for proofreading:
+#  1. "Mitte quattuor agricolās ad aquam." is the design file's example: imperative, number, plural, ad + accusative.
+#     The spec has no node for numbers, so quattuor is not tagged.
+#  2. "Rōma crescit." (Rome grows) is a third conjugation present tense, closing this stage. Fine as exposure?
+
+- id: msg_romulus_send
+  latin: "Bene! Mitte quattuor agricolās ad aquam."
+  english: "Good! Send four farmers to the water."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-077   # also MS-021 (accusative plural), MS-084 (ad + accusative)
+  review_status: draft
+
+- id: msg_romulus_wall
+  latin: "Bene! Aedificā mūrum."
+  english: "Good! Build a wall."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-050   # also MS-023
+  review_status: draft
+
+- id: msg_romulus_gate
+  latin: "Bene! Aedificā portam."
+  english: "Good! Build a gate."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-050   # also MS-019
+  review_status: draft
+
+- id: msg_romulus_forum
+  latin: "Bene! Aedificā forum."
+  english: "Good! Build a forum."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-050   # also MS-026
+  review_status: draft
+
+- id: msg_romulus_final
+  latin: "Optimē! Rōma crescit."
+  english: "Excellent! Rome is growing."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-072   # also MS-018
+  review_status: draft
+

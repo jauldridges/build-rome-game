@@ -379,7 +379,7 @@ function updateHud() {
 }
 
 // ---- Messages from Romulus ----
-let boxOpen = false, boxAfter = null, hintTimer = null;
+let boxOpen = false, boxAfter = null;
 const messagesSeen = new Set(); // messages whose English hint has already been shown
 
 function showMessage(id, face, after) {
@@ -391,10 +391,8 @@ function showMessage(id, face, after) {
   document.getElementById('speaker').textContent = name ? name.text : '';
   document.getElementById('mtext').textContent = l.text;
   const hint = document.getElementById('mhint');
-  hint.textContent = first ? l.english : '';
-  hint.classList.remove('fade');
-  clearTimeout(hintTimer);
-  if (first) hintTimer = setTimeout(() => hint.classList.add('fade'), 5000);
+  hint.textContent = first ? l.english : ''; // shown only while the mouse is over the Latin, and only the first time
+  document.getElementById('mtext').classList.toggle('hasHint', first);
 
   // Portrait: a flat silhouette with the speaker's name stands in until the art file is found
   const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
@@ -411,7 +409,6 @@ function showMessage(id, face, after) {
 function closeMessage() {
   if (!boxOpen) return;
   boxOpen = false;
-  clearTimeout(hintTimer);
   document.getElementById('msgbox').style.display = 'none';
   const after = boxAfter; boxAfter = null;
   if (after) after();
@@ -420,12 +417,24 @@ document.getElementById('mok').addEventListener('click', closeMessage);
 window.addEventListener('keydown', e => { if (boxOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); closeMessage(); } });
 
 // ---- The opening orders: one at a time, each waits for the player to do it ----
+const GATHER_ORDERS = Object.keys(RES).map(k => RES[k].order);
+const isBuilt = (type, n) => buildings.filter(b => b.type === type && b.done).length >= (n || 1);
+// How many farmers are standing at a pond
+const farmersAtWater = () => farmers.filter(f => f.state === 'idle' && nodes.some(n => n.type === 'water' && Math.hypot(n.x - f.x, n.y - f.y) < 80)).length;
+
+// say: the message. expects: the work order that is right now. allow: other work orders that are never a mistake here.
 const BEATS = [
   { say: 'msg_romulus_intro', face: 'pleased', expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
   { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
   { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
-  { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'],  done: () => buildings.some(b => b.type === 'house' && b.done) },
-  { say: 'msg_romulus_done',  face: 'pleased', expects: null, done: null },
+  { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
+  { say: 'msg_romulus_done', face: 'pleased', expects: null, done: () => true },
+  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], done: () => stock.water >= 5 },
+  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_ambula_ad_aquam'], done: () => farmersAtWater() >= 4 },
+  { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, done: () => isBuilt('wall', 4) },
+  { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
+  { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, done: () => isBuilt('forum') },
+  { say: 'msg_romulus_final', face: 'pleased', expects: null, done: null },
 ];
 const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
 let beat = -1;
@@ -446,7 +455,7 @@ function checkBeat() {
 // Romulus sighs when the player works on something other than the current order
 function checkOrder(id) {
   const b = BEATS[beat];
-  if (!b || !b.expects || boxOpen || !WORK_ORDERS.includes(id) || b.expects.includes(id)) return;
+  if (!b || !b.expects || boxOpen || !WORK_ORDERS.includes(id) || b.expects.includes(id) || (b.allow && b.allow.includes(id))) return;
   // The English hints come back after a mistake: for the message, and for the buttons the player should have used
   messagesSeen.delete(b.say); messagesSeen.delete('msg_romulus_relege');
   b.expects.forEach(o => {
