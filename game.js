@@ -309,13 +309,17 @@ const COMMANDS = [
 COMMANDS.push({ id: 'cmd_relege', direct: () => replayOrder() });
 let openCommand = null;
 
+// Words and orders whose English hover has been used up; cleared again after a mistake
+const hintsSeen = new Set();
+
 function makeButton(id, onClick) {
   const l = line(id);
   if (!l) return null;
   const b = document.createElement('button');
   b.textContent = l.text;
-  b.title = l.english; // English hint on hover
-  b.addEventListener('click', () => { b.blur(); onClick(); });
+  // English hint on hover: only until this line has been seen or used once; it returns after a mistake
+  b.addEventListener('mouseenter', () => { b.title = hintsSeen.has(id) ? '' : l.english; });
+  b.addEventListener('click', () => { b.blur(); onClick(); hintsSeen.add(id); });
   return b;
 }
 
@@ -352,7 +356,8 @@ function renderCommands() {
 function showOrder(id) {
   const l = line(id), el = document.getElementById('order');
   el.textContent = l ? l.text : '';
-  el.title = l ? l.english : '';
+  el.title = l && !hintsSeen.has(id) ? l.english : '';
+  hintsSeen.add(id);
   checkOrder(id);
 }
 
@@ -375,13 +380,13 @@ function updateHud() {
 
 // ---- Messages from Romulus ----
 let boxOpen = false, boxAfter = null, hintTimer = null;
-const hintsSeen = new Set(); // messages whose English hint has already been shown
+const messagesSeen = new Set(); // messages whose English hint has already been shown
 
 function showMessage(id, face, after) {
   const l = line(id);
   if (!l) { if (after) after(); return; } // an unapproved line is simply skipped
-  const first = !hintsSeen.has(id);
-  hintsSeen.add(id);
+  const first = !messagesSeen.has(id);
+  messagesSeen.add(id);
   const name = line('name_romulus');
   document.getElementById('speaker').textContent = name ? name.text : '';
   document.getElementById('mtext').textContent = l.text;
@@ -442,7 +447,13 @@ function checkBeat() {
 function checkOrder(id) {
   const b = BEATS[beat];
   if (!b || !b.expects || boxOpen || !WORK_ORDERS.includes(id) || b.expects.includes(id)) return;
-  hintsSeen.delete(b.say); hintsSeen.delete('msg_romulus_relege'); // the English hint comes back after a mistake
+  // The English hints come back after a mistake: for the message, and for the buttons the player should have used
+  messagesSeen.delete(b.say); messagesSeen.delete('msg_romulus_relege');
+  b.expects.forEach(o => {
+    hintsSeen.delete(o);
+    const cmd = COMMANDS.find(c => c.orders && c.orders.some(x => x.id === o));
+    if (cmd) hintsSeen.delete(cmd.id);
+  });
   showMessage('msg_romulus_relege', 'neutral', () => showMessage(b.say, b.face));
 }
 
