@@ -35,8 +35,11 @@ canvas { display: block; image-rendering: pixelated; }
 #mbox { display: flex; align-items: flex-end; gap: 0; width: min(900px, 96vw); margin-bottom: 16px; }
 #pframe { flex: 0 0 auto; width: 230px; height: 345px; margin-right: -8px; z-index: 1; background: #d9c38a; border: 4px solid #3d2a0e; box-shadow: 4px 4px 0 rgba(0,0,0,0.4); }
 #portrait { display: block; width: 100%; height: 100%; object-fit: cover; }
-#placeholder { display: none; width: 100%; height: 100%; align-items: flex-end; justify-content: center; box-sizing: border-box; padding: 8px;
+#placeholder { display: none; position: relative; overflow: hidden; width: 100%; height: 100%; align-items: flex-end; justify-content: center; box-sizing: border-box; padding: 8px;
   background: #5b3a1a; color: #f3e6c4; font-size: 22px; font-weight: bold; }
+#placeholder span { position: relative; z-index: 1; }
+#placeholder::before { content: ''; position: absolute; left: 50%; top: 16%; width: 96px; height: 96px; margin-left: -48px; border-radius: 50%; background: rgba(0,0,0,0.45); }
+#placeholder::after { content: ''; position: absolute; left: 50%; top: 46%; width: 210px; height: 300px; margin-left: -105px; border-radius: 105px 105px 0 0; background: rgba(0,0,0,0.45); }
 #mbody { flex: 1; box-sizing: border-box; padding: 18px 22px 18px 30px; background: #f1e4c0; color: #2a1c08; border: 4px solid #8a5a1e; outline: 3px solid #3d2a0e;
   box-shadow: 4px 4px 0 rgba(0,0,0,0.4); min-height: 190px; }
 #speaker { font-size: 18px; font-weight: bold; color: #8a5a1e; min-height: 1.2em; }
@@ -46,3 +49,20 @@ canvas { display: block; image-rendering: pixelated; }
 #mtext:hover + #mhint { visibility: visible; }
 #mok { margin-top: 6px; padding: 7px 18px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 17px; font-weight: bold; }
 #tip .en { font-size: 14px; font-weight: normal; font-style: italic; color: #5b4a2e; }
+
+/* Countdown while the Sabines approach: a red bar that empties */
+#clock { display: none; height: 14px; margin-top: 8px; background: #d9c38a; border: 2px solid #3d2a0e; }
+#clockfill { height: 100%; width: 100%; background: #b3261e; }
+
+/* Ending card */
+#card { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); z-index: 6; }
+#cardbox { width: min(760px, 92vw); box-sizing: border-box; padding: 30px 40px; background: #f1e4c0; color: #2a1c08; border: 4px solid #8a5a1e; outline: 3px solid #3d2a0e; box-shadow: 6px 6px 0 rgba(0,0,0,0.4); }
+#cardlatin { font-size: 46px; font-weight: bold; margin-bottom: 14px; }
+#cardenglish { font-size: 22px; line-height: 1.5; margin-bottom: 22px; }
+#cardok { padding: 8px 22px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 18px; font-weight: bold; }
+
+/* Explanation box beside a new building */
+#popup { position: fixed; display: none; transform: translate(-50%, -100%); pointer-events: none; z-index: 2; text-align: center;
+  padding: 8px 16px; background: #f1e4c0; color: #2a1c08; border: 3px solid #3d2a0e; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); }
+#popup .latin { font-size: 24px; font-weight: bold; }
+#popup .en { font-size: 15px; font-style: italic; color: #5b4a2e; margin-top: 2px; }

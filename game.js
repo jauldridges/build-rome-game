@@ -1,7 +1,8 @@
-// Step 5: Romulus gives the opening orders in message boxes with portraits.
-// Orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
+// Step 6: the Sabine attack (see attack.js) and the ending card.
+// Romulus gives the opening orders in message boxes with portraits. Orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
 // Placeholder art only.
 const TILE = 32, COLS = 60, ROWS = 40;
+const FOREST_H = 128; // the forest along the north edge, where the Sabines come from
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -78,34 +79,80 @@ function addFarmer(x, y) {
 }
 for (let i = 0; i < 3; i++) addFarmer(400 + i * 50, 440 + (i % 2) * 40);
 
+const soldiers = []; // made in attack.js when the warning comes
+
 const NEW_FARMERS = { house: { n: 1, say: 'msg_farmer_arrives' }, forum: { n: 3, say: 'msg_farmers_arrive' } };
+// A box beside the new building that explains the arrival, then fades away
+let popup = null;
+function showPopup(b, l) {
+  const el = document.getElementById('popup');
+  el.textContent = '';
+  const latin = document.createElement('div'), en = document.createElement('div');
+  latin.className = 'latin'; latin.textContent = l.text;
+  en.className = 'en'; en.textContent = l.english;
+  el.appendChild(latin); el.appendChild(en);
+  popup = { x: b.x + b.w / 2, y: b.y - 6, t: 0 };
+  el.style.display = 'block'; el.style.opacity = 1;
+}
+function updatePopup(dt) {
+  if (!popup) return;
+  const el = document.getElementById('popup');
+  popup.t += dt;
+  el.style.left = sx(popup.x) + 'px'; el.style.top = sy(popup.y) + 'px';
+  el.style.opacity = popup.t < 6 ? 1 : Math.max(0, 1 - (popup.t - 6) / 1.5);
+  if (popup.t > 7.5) { el.style.display = 'none'; popup = null; }
+}
+
 function onBuilt(b) {
   const arrival = NEW_FARMERS[b.type];
   if (!arrival) return;
   const n = arrival.n;
   for (let i = 0; i < n; i++) addFarmer(b.x + b.w / 2 + (i - (n - 1) / 2) * 20, b.y + b.h + 12);
   const l = line(arrival.say);
-  if (l) setMsg(l.text, l.english);
+  if (l) showPopup(b, l);
 }
 
 function toWorld(e) { return { x: e.clientX + cam.x, y: e.clientY + cam.y }; }
 
-// Mouse: a click selects or gives an order; dragging scrolls the map
-let drag = null;
-canvas.addEventListener('mousedown', e => { drag = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y, moved: false }; });
+// Mouse: a click selects or gives an order; dragging with the left button draws a selection box;
+// dragging with the right button scrolls the map (the arrow keys scroll too).
+let drag = null;   // scrolling the map
+let box = null;    // drawing a selection box
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 2 || (e.button === 0 && keys[' '])) drag = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y, moved: false }; // right button, or Space held
+  else if (e.button === 0) box = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY, moved: false };
+});
 window.addEventListener('mousemove', e => {
-  if (!drag) return;
-  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-  if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
-  if (drag.moved) { cam.x = drag.cx - dx; cam.y = drag.cy - dy; clampCam(); }
+  if (drag) {
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
+    if (drag.moved) { cam.x = drag.cx - dx; cam.y = drag.cy - dy; clampCam(); }
+  }
+  if (box) {
+    box.x1 = e.clientX; box.y1 = e.clientY;
+    if (Math.abs(box.x1 - box.x0) + Math.abs(box.y1 - box.y0) > 6) box.moved = true;
+  }
 });
 canvas.addEventListener('mousemove', e => { cursor = { x: e.clientX, y: e.clientY }; });
 canvas.addEventListener('mouseleave', () => { cursor = null; });
-canvas.addEventListener('contextmenu', e => { e.preventDefault(); setPlacing(null); });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
 window.addEventListener('mouseup', e => {
-  if (drag && !drag.moved) handleClick(toWorld(e), e.shiftKey);
-  drag = null;
+  if (drag && (e.button === 2 || e.button === 0)) { if (!drag.moved && e.button === 2) setPlacing(null); drag = null; } // a plain right-click cancels placing
+  if (e.button === 0 && box) {
+    const b = box; box = null;
+    if (!b.moved) handleClick(toWorld(e), e.shiftKey);
+    else selectInBox(b, e.shiftKey);
+  }
 });
+
+function selectInBox(b, shift) {
+  const x0 = Math.min(b.x0, b.x1) + cam.x, x1 = Math.max(b.x0, b.x1) + cam.x;
+  const y0 = Math.min(b.y0, b.y1) + cam.y, y1 = Math.max(b.y0, b.y1) + cam.y;
+  farmers.concat(soldiers).forEach(f => {
+    const inside = f.x >= x0 && f.x <= x1 && f.y >= y0 && f.y <= y1;
+    if (inside) f.selected = true; else if (!shift) f.selected = false;
+  });
+}
 
 // What a click at world point p would act on: an unfinished building, or a tree, rock or pond
 function targetAt(p) {
@@ -120,20 +167,21 @@ let lastTip = null;
 function updateTip() {
   const tip = document.getElementById('tip');
   let id = null;
-  if (cursor && !boxOpen && !placing && !(drag && drag.moved)) {
+  if (cursor && !boxOpen && !placing && !(drag && drag.moved) && !(box && box.moved)) {
     const p = { x: cursor.x + cam.x, y: cursor.y + cam.y };
     if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_agricola'; // so students know what they are
+    else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_miles';
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
       if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
     }
   }
-  if (lastTip === 'vocab_agricola' && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
+  if ((lastTip === 'vocab_agricola' || lastTip === 'vocab_miles') && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
   lastTip = id;
   const l = id && line(id);
   if (!l) { tip.style.display = 'none'; return; }
   tip.textContent = l.text;
-  if (id === 'vocab_agricola' && !hintsSeen.has(id)) { // English under the Latin, first time only
+  if ((id === 'vocab_agricola' || id === 'vocab_miles') && !hintsSeen.has(id)) { // English under the Latin, first time only
     const en = document.createElement('div'); en.className = 'en'; en.textContent = l.english; tip.appendChild(en);
   }
   tip.style.left = cursor.x + 'px';
@@ -143,9 +191,10 @@ function updateTip() {
 
 function handleClick(p, shift) {
   if (placing) { tryPlace(p); return; }
-  const hit = farmers.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
+  const people = farmers.concat(soldiers);
+  const hit = people.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
   if (hit) {
-    if (!shift) farmers.forEach(f => f.selected = false);
+    if (!shift) people.forEach(f => f.selected = false);
     hit.selected = shift ? !hit.selected : true;
     return;
   }
@@ -156,9 +205,10 @@ function handleClick(p, shift) {
     if (sel.length) { sel.forEach(f => sendGather(f, target.node)); showOrder(RES[target.node.type].order); }
     return;
   }
-  if (sel.length) showOrder('cmd_ambula');
-  sel.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
-    f.state = 'move'; f.node = null; f.site = null;
+  const walkers = sel.concat(soldiers.filter(f => f.selected));
+  if (walkers.length) showOrder('cmd_ambula');
+  walkers.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
+    f.state = 'move'; f.node = null; f.site = null; f.guard = null;
     f.tx = Math.max(10, Math.min(MAP_W - 10, p.x + (i % 3 - 1) * 24));
     f.ty = Math.max(10, Math.min(MAP_H - 10, p.y + Math.floor(i / 3) * 24));
   });
@@ -175,7 +225,7 @@ function afford(cost) { return Object.keys(cost).every(k => stock[k] >= cost[k])
 function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
 
 function canPlace(r) {
-  if (r.x < 0 || r.y < 0 || r.x + r.w > MAP_W || r.y + r.h > MAP_H) return false;
+  if (r.x < 0 || r.y < FOREST_H || r.x + r.w > MAP_W || r.y + r.h > MAP_H) return false;
   if (overlaps(r, store)) return false;
   if (buildings.some(b => overlaps(r, b))) return false;
   const pad = 16; // keep clear of trees, rocks and ponds
@@ -241,7 +291,11 @@ function nextBuild(f) {
 
 // Keyboard scrolling
 const keys = {};
-window.addEventListener('keydown', e => { keys[e.key] = true; if (e.key === 'Escape') setPlacing(null); });
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === 'Escape') setPlacing(null);
+  if ((e.key === 'a' || e.key === 'A') && !boxOpen && !cardOpen) farmers.forEach(f => f.selected = true); // A selects every farmer
+});
 window.addEventListener('keyup', e => { keys[e.key] = false; });
 
 // Walk toward (tx, ty); returns true when arrived
@@ -405,12 +459,13 @@ function updateHud() {
 let boxOpen = false, boxAfter = null;
 const messagesSeen = new Set(); // messages whose English hint has already been shown
 
-function showMessage(id, face, after) {
+function showMessage(id, face, after, speaker) {
+  speaker = speaker || 'romulus';
   const l = line(id);
   if (!l) { if (after) after(); return; } // an unapproved line is simply skipped
   const first = !messagesSeen.has(id);
   messagesSeen.add(id);
-  const name = line('name_romulus');
+  const name = line('name_' + speaker);
   document.getElementById('speaker').textContent = name ? name.text : '';
   document.getElementById('mtext').textContent = l.text;
   const hint = document.getElementById('mhint');
@@ -419,10 +474,12 @@ function showMessage(id, face, after) {
 
   // Portrait: a flat silhouette with the speaker's name stands in until the art file is found
   const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
-  ph.textContent = name ? name.text : '';
+  ph.textContent = '';
+  const label = document.createElement('span'); label.textContent = name ? name.text : ''; ph.appendChild(label);
+  ph.style.background = { romulus: '#5b3a1a', scout: '#2d4a5a', tatius: '#4a2d5a' }[speaker] || '#5b3a1a';
   img.style.display = 'block'; ph.style.display = 'none';
   img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
-  img.src = 'assets/portraits/portrait_romulus_' + face + '.png';
+  img.src = 'assets/portraits/portrait_' + speaker + '_' + face + '.png';
 
   boxOpen = true; boxAfter = after || null;
   document.getElementById('msgbox').style.display = 'flex';
@@ -453,11 +510,12 @@ const BEATS = [
   { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
   { say: 'msg_romulus_done', face: 'pleased', expects: null, done: () => true },
   { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], done: () => stock.water >= 5 },
-  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_ambula_ad_aquam'], done: () => farmersAtWater() >= 4 },
   { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, done: () => isBuilt('wall', 4) },
   { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
   { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, done: () => isBuilt('forum') },
-  { say: 'msg_romulus_final', face: 'pleased', expects: null, done: null },
+  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_ambula_ad_aquam'], done: () => farmersAtWater() >= 4 },
+  { say: 'msg_romulus_final', face: 'pleased', expects: null, done: () => true },
+  { run: () => beginWarning(), expects: null, done: null }, // the warning, the attack and the ending (attack.js)
 ];
 const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
 let beat = -1;
@@ -466,6 +524,7 @@ const recent = []; // the last three orders Romulus gave
 function startBeat(i) {
   beat = i;
   const b = BEATS[i];
+  if (b.run) { b.run(); return; }
   if (b.expects) { recent.push(b.say); if (recent.length > 3) recent.shift(); renderRecent(); }
   showMessage(b.say, b.face);
 }
@@ -492,7 +551,7 @@ function checkOrder(id) {
 // Relege: hear the current order again
 function replayOrder() {
   const b = BEATS[beat];
-  if (b && !boxOpen) showMessage(b.say, b.face);
+  if (b && b.say && !boxOpen) showMessage(b.say, b.face);
 }
 
 function renderRecent() {
@@ -517,9 +576,11 @@ function frame(now) {
   if (keys.ArrowUp) cam.y -= scroll;
   if (keys.ArrowDown) cam.y += scroll;
   clampCam();
-  if (!boxOpen) { // the clock stops while a message is open
+  updatePopup(dt);
+  if (!boxOpen && !cardOpen) { // the clock stops while a message or the ending card is open
     farmers.forEach(f => update(f, dt));
     checkBeat();
+    updateAttack(dt);
   }
   for (let i = nodes.length - 1; i >= 0; i--) if (nodes[i].amount <= 0) nodes.splice(i, 1);
   draw();
@@ -552,6 +613,7 @@ function draw() {
       ctx.fillStyle = GROUND_COLORS[ground[r][c]];
       ctx.fillRect(c * TILE - Math.round(cam.x), r * TILE - Math.round(cam.y), TILE, TILE);
     }
+  drawForest();
   // Storehouse
   ctx.fillStyle = '#b8a47e'; ctx.fillRect(sx(store.x), sy(store.y), store.w, store.h);
   ctx.fillStyle = '#a0522d'; ctx.fillRect(sx(store.x) - 4, sy(store.y) - 10, store.w + 8, 14);
@@ -559,8 +621,14 @@ function draw() {
   // Everything with a position draws back to front
   const things = nodes.map(n => ({ y: n.y, draw: () => drawNode(n) }))
     .concat(buildings.map(b => ({ y: b.y + b.h, draw: () => drawBuilding(b) })))
-    .concat(farmers.map(f => ({ y: f.y, draw: () => drawFarmer(f) })));
+    .concat(farmers.map(f => ({ y: f.y, draw: () => drawFarmer(f) })))
+    .concat(attackThings());
   things.sort((a, b) => a.y - b.y).forEach(t => t.draw());
+  drawAttackOverlay();
+  if (box && box.moved) {
+    ctx.fillStyle = 'rgba(243,230,196,0.15)'; ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2;
+    ctx.fillRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0); ctx.strokeRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0);
+  }
 
   if (placing && cursor) { // ghost of the building being placed, red where it can't go
     const r = ghostRect(placing, { x: cursor.x + cam.x, y: cursor.y + cam.y });
@@ -621,8 +689,11 @@ function drawFarmer(f) {
   if (f.state === 'move') { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(sx(f.tx) - 2, sy(f.ty) - 2, 4, 4); }
 }
 
-resize();
-renderCommands();
-updateHud();
-startBeat(0);
-requestAnimationFrame(frame);
+// Called at the end of attack.js, once everything has loaded
+function startGame() {
+  resize();
+  renderCommands();
+  updateHud();
+  startBeat(0);
+  requestAnimationFrame(frame);
+}
