@@ -250,7 +250,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_wall",
@@ -259,7 +259,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_gate",
@@ -268,7 +268,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_forum",
@@ -277,7 +277,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_final",
@@ -286,6 +286,6 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-072",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];

@@ -63,11 +63,11 @@ addNodes('wood',  [[620, 220], [660, 250], [700, 210], [640, 290], [720, 270], [
 addNodes('stone', [[160, 520], [200, 560], [130, 580], [220, 500]], 80);
 addNodes('water', [[820, 440], [860, 470], [840, 510], [880, 440], [800, 480]], 150);
 
-// Farmers
+// Farmers: three to start. A finished house brings one more, a finished forum three more.
 const farmers = [];
-for (let i = 0; i < 5; i++) {
+function addFarmer(x, y) {
   farmers.push({
-    x: 400 + i * 50, y: 440 + (i % 2) * 40, speed: 110,
+    x, y, speed: 110,
     selected: false,
     state: 'idle',        // idle | move | toNode | gather | toStore | toBuild | build
     tx: 0, ty: 0,         // where it is walking
@@ -75,6 +75,15 @@ for (let i = 0; i < 5; i++) {
     site: null,           // building it is putting up
     carry: null, carryN: 0, timer: 0,
   });
+}
+for (let i = 0; i < 3; i++) addFarmer(400 + i * 50, 440 + (i % 2) * 40);
+
+const NEW_FARMERS = { house: 1, forum: 3 };
+function onBuilt(b) {
+  const n = NEW_FARMERS[b.type];
+  if (!n) return;
+  for (let i = 0; i < n; i++) addFarmer(b.x + b.w / 2 + (i - (n - 1) / 2) * 20, b.y + b.h + 12);
+  setMsg(n === 1 ? 'A new farmer arrives.' : n + ' new farmers arrive.');
 }
 
 function toWorld(e) { return { x: e.clientX + cam.x, y: e.clientY + cam.y }; }
@@ -104,17 +113,27 @@ function targetAt(p) {
   return node ? { node } : null;
 }
 
+let lastTip = null;
 // The Latin order floats above the cursor when farmers are selected and the mouse is over something they can work on
 function updateTip() {
   const tip = document.getElementById('tip');
   let id = null;
-  if (cursor && !boxOpen && !placing && !(drag && drag.moved) && farmers.some(f => f.selected)) {
-    const t = targetAt({ x: cursor.x + cam.x, y: cursor.y + cam.y });
-    if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
+  if (cursor && !boxOpen && !placing && !(drag && drag.moved)) {
+    const p = { x: cursor.x + cam.x, y: cursor.y + cam.y };
+    if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_agricola'; // so students know what they are
+    else if (farmers.some(f => f.selected)) {
+      const t = targetAt(p);
+      if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
+    }
   }
+  if (lastTip === 'vocab_agricola' && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
+  lastTip = id;
   const l = id && line(id);
   if (!l) { tip.style.display = 'none'; return; }
   tip.textContent = l.text;
+  if (id === 'vocab_agricola' && !hintsSeen.has(id)) { // English under the Latin, first time only
+    const en = document.createElement('div'); en.className = 'en'; en.textContent = l.english; tip.appendChild(en);
+  }
   tip.style.left = cursor.x + 'px';
   tip.style.top = (cursor.y - 22) + 'px';
   tip.style.display = 'block';
@@ -251,7 +270,7 @@ function update(f, dt) {
     const s = f.site;
     if (s.done) { nextBuild(f); return; }
     s.progress += dt;
-    if (s.progress >= BUILD[s.type].work) { s.done = true; nextBuild(f); }
+    if (s.progress >= BUILD[s.type].work) { s.done = true; onBuilt(s); nextBuild(f); }
   } else if (f.state === 'toStore') {
     if (walk(f, storeSpot.x, storeSpot.y, dt, 4)) {
       stock[f.carry] += f.carryN; f.carry = null; f.carryN = 0;

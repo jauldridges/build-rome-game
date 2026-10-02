@@ -45,3 +45,4 @@ canvas { display: block; image-rendering: pixelated; }
 #mhint { font-size: 18px; font-style: italic; color: #5b4a2e; min-height: 2.6em; visibility: hidden; }
 #mtext:hover + #mhint { visibility: visible; }
 #mok { margin-top: 6px; padding: 7px 18px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 17px; font-weight: bold; }
+#tip .en { font-size: 14px; font-weight: normal; font-style: italic; color: #5b4a2e; }
