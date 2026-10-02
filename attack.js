@@ -14,8 +14,9 @@ function beginWarning() {
   renderCommands();
   // scout, then Romulus twice; the clock starts when the last box is closed
   showMessage('msg_scout_warning', 'alarmed', () =>
-    showMessage('msg_romulus_hurry', 'alarmed', () =>
-      showMessage('msg_romulus_soldiers', 'neutral', startClock), 'romulus'), 'scout');
+    showCards(['culture_sabine_women'], () =>
+      showMessage('msg_romulus_hurry', 'alarmed', () =>
+        showMessage('msg_romulus_soldiers', 'neutral', startClock), 'romulus')), 'scout');
 }
 
 function spawnSoldiers(n) {
@@ -144,21 +145,18 @@ function lostWave() {
 
 function wonWave() {
   war.phase = 'won';
-  showMessage('msg_tatius_peace', 'neutral', () => showMessage('msg_romulus_peace', 'pleased', showCard), 'tatius');
+  showMessage('msg_tatius_peace', 'neutral', () => showMessage('msg_romulus_peace', 'pleased', () =>
+    showCards(['culture_sabine_women_end', 'culture_tatius', 'culture_kings', 'culture_story_history'], endMission)), 'tatius');
 }
 
-// ---- The ending card: one page for each culture note ----
-const CARD_PAGES = [
-  'culture_hills', 'culture_romulus_remus', 'culture_pomerium', 'culture_asylum',
-  'culture_sabines', 'culture_why_war', 'culture_sabine_women', 'culture_tatius',
-  'culture_senate', 'culture_kings', 'culture_story_history',
-];
-let cardPages = [], cardAt = 0;
+// ---- History cards: shown at set moments in the mission and after the battle ----
+// Each card is a Latin heading with an English paragraph. A card pauses the game until it is dismissed.
+let cardPages = [], cardAt = 0, cardAfter = null;
 
-function showCard() {
-  cardPages = CARD_PAGES.map(line).filter(Boolean);
-  cardAt = 0;
-  if (!cardPages.length) { endMission(); return; }
+function showCards(ids, after) {
+  cardPages = ids.map(line).filter(Boolean); // unapproved cards are simply skipped
+  cardAt = 0; cardAfter = after || null;
+  if (!cardPages.length) { if (after) after(); return; }
   cardOpen = true;
   document.getElementById('card').style.display = 'flex';
   renderCardPage();
@@ -167,9 +165,10 @@ function showCard() {
 function renderCardPage() {
   const p = cardPages[cardAt];
   document.getElementById('cardlatin').textContent = p.text;
-  document.getElementById('cardpage').textContent = (cardAt + 1) + ' / ' + cardPages.length;
-  document.getElementById('cardok').textContent = cardAt + 1 < cardPages.length ? 'Next' : 'Continue';
   document.getElementById('cardenglish').textContent = p.english;
+  document.getElementById('cardpage').textContent = cardPages.length > 1 ? (cardAt + 1) + ' / ' + cardPages.length : '';
+  document.getElementById('cardok').textContent = cardAt + 1 < cardPages.length ? 'Next' : 'Continue';
+  document.getElementById('cardenglish').scrollTop = 0;
   document.getElementById('cardok').focus();
 }
 
@@ -178,10 +177,10 @@ function nextCardPage() {
   if (++cardAt < cardPages.length) { renderCardPage(); return; }
   cardOpen = false;
   document.getElementById('card').style.display = 'none';
-  endMission();
+  const after = cardAfter; cardAfter = null;
+  if (after) after();
 }
 document.getElementById('cardok').addEventListener('click', nextCardPage);
-window.addEventListener('keydown', e => { if (cardOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); nextCardPage(); } });
 
 // Step 7 (the five-question closing check) will start here.
 function endMission() { war.phase = 'over'; }

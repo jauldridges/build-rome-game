@@ -494,7 +494,11 @@ function closeMessage() {
   if (after) after();
 }
 document.getElementById('mok').addEventListener('click', closeMessage);
-window.addEventListener('keydown', e => { if (boxOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); closeMessage(); } });
+window.addEventListener('keydown', e => { // Enter or Space dismisses whichever box is open (never both at once)
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  if (cardOpen) { e.preventDefault(); nextCardPage(); }
+  else if (boxOpen) { e.preventDefault(); closeMessage(); }
+});
 
 // ---- The opening orders: one at a time, each waits for the player to do it ----
 const GATHER_ORDERS = Object.keys(RES).map(k => RES[k].order);
@@ -504,17 +508,17 @@ const farmersAtWater = () => farmers.filter(f => f.state === 'idle' && nodes.som
 
 // say: the message. expects: the work order that is right now. allow: other work orders that are never a mistake here.
 const BEATS = [
-  { say: 'msg_romulus_intro', face: 'pleased', expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
+  { say: 'msg_romulus_intro', face: 'pleased', pre: ['culture_romulus_remus'], expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
   { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
   { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
   { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
-  { say: 'msg_romulus_done', face: 'pleased', expects: null, done: () => true },
-  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], done: () => stock.water >= 5 },
-  { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, done: () => isBuilt('wall', 4) },
+  { say: 'msg_romulus_done', face: 'pleased', expects: null, post: ['culture_asylum'], done: () => true },
+  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], post: ['culture_hills'], done: () => stock.water >= 5 },
+  { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, post: ['culture_pomerium'], done: () => isBuilt('wall', 4) },
   { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
-  { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, done: () => isBuilt('forum') },
+  { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, post: ['culture_senate'], done: () => isBuilt('forum') },
   { say: 'msg_romulus_send', face: 'pleased', expects: ['order_ambula_ad_aquam'], done: () => farmersAtWater() >= 4 },
-  { say: 'msg_romulus_final', face: 'pleased', expects: null, done: () => true },
+  { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines', 'culture_why_war'], done: () => true },
   { run: () => beginWarning(), expects: null, done: null }, // the warning, the attack and the ending (attack.js)
 ];
 const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
@@ -524,6 +528,7 @@ const recent = []; // the last three orders Romulus gave
 function startBeat(i) {
   beat = i;
   const b = BEATS[i];
+  if (b.pre && !b.preShown) { b.preShown = true; showCards(b.pre, () => startBeat(i)); return; } // history cards before the message
   if (b.run) { b.run(); return; }
   if (b.expects) { recent.push(b.say); if (recent.length > 3) recent.shift(); renderRecent(); }
   showMessage(b.say, b.face);
@@ -531,7 +536,10 @@ function startBeat(i) {
 
 function checkBeat() {
   const b = BEATS[beat];
-  if (b && b.done && b.done()) startBeat(beat + 1);
+  if (b && b.done && b.done()) {
+    if (b.post) showCards(b.post, () => startBeat(beat + 1)); // history cards after the step is done
+    else startBeat(beat + 1);
+  }
 }
 
 // Romulus sighs when the player works on something other than the current order

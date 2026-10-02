@@ -426,7 +426,16 @@ const LATIN = [
  {
   "id": "culture_sabine_women",
   "latin": "Sabīnae fēminae",
-  "english": "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back. When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons.",
+  "english": "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back.",
+  "type": "culture_note",
+  "nle_category": "culture",
+  "spec_node_id": "unmapped",
+  "review_status": "approved"
+ },
+ {
+  "id": "culture_sabine_women_end",
+  "latin": "Sabīnae fēminae",
+  "english": "When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
@@ -448,7 +457,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-001",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_asylum",
@@ -457,7 +466,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_sabines",
@@ -466,7 +475,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-006",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_why_war",
@@ -475,7 +484,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_senate",
@@ -484,7 +493,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-016",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_kings",
@@ -493,7 +502,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-009",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_story_history",
@@ -502,6 +511,6 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];

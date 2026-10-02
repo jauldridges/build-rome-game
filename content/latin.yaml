@@ -292,7 +292,8 @@
   review_status: approved
 
 # ---- Step 6: the Sabine attack and the ending (proofread and approved by J. Sullivan) ----
-# Culture notes: "latin" is the heading shown on the ending card; "english" is the paragraph shown beneath it.
+# Culture notes: "latin" is the heading shown on a history card; "english" is the paragraph shown beneath it.
+# The cards appear at set moments during the mission and at its end (see BEATS in game.js and attack.js).
 
 - id: name_scout
   latin: "Explōrātor"
@@ -400,7 +401,15 @@
 
 - id: culture_sabine_women
   latin: "Sabīnae fēminae"
-  english: "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back. When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons."
+  english: "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: unmapped
+  review_status: approved
+
+- id: culture_sabine_women_end
+  latin: "Sabīnae fēminae"
+  english: "When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
@@ -414,13 +423,8 @@
   spec_node_id: RW-009
   review_status: approved
 
-# ---- Fuller ending card (DRAFT, not yet proofread) ----
+# ---- Fuller history cards (proofread and approved by J. Sullivan) ----
 # More historical context: the setting, who the Sabines were, why they fought Rome, and what came next.
-# Written as legend where the sources are legend ("according to..."). Please check every claim.
-# Questions for proofreading:
-#  1. Sabine history: the 290 BCE absorption, Sabine as an Italic language related to Latin, and the Sabine ties of Numa, Quirinus and the Claudii.
-#  2. The three old tribes and the Senate of one hundred: told as tradition, not fact. Is the hedging right?
-#  3. The card is now eleven pages. Which pages would you cut for a 15-20 minute mission?
 
 - id: culture_hills
   latin: "Septem collēs"
@@ -428,7 +432,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-001   # also RW-005
-  review_status: draft
+  review_status: approved
 
 - id: culture_asylum
   latin: "Asylum"
@@ -436,7 +440,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
-  review_status: draft
+  review_status: approved
 
 - id: culture_sabines
   latin: "Sabīnī"
@@ -444,7 +448,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-006
-  review_status: draft
+  review_status: approved
 
 - id: culture_why_war
   latin: "Cūr bellum?"
@@ -452,7 +456,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: culture_senate
   latin: "Senātus"
@@ -460,7 +464,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-016   # also RW-022 (patricians)
-  review_status: draft
+  review_status: approved
 
 - id: culture_kings
   latin: "Septem rēgēs"
@@ -468,7 +472,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-009   # also RW-011
-  review_status: draft
+  review_status: approved
 
 - id: culture_story_history
   latin: "Fābula et historia"
@@ -476,5 +480,5 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
-  review_status: draft
+  review_status: approved
 
