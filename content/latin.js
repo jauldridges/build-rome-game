@@ -179,5 +179,68 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
   "review_status": "approved"
+ },
+ {
+  "id": "name_romulus",
+  "latin": "Rōmulus",
+  "english": "Romulus",
+  "type": "ui_label",
+  "nle_category": "culture",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "cmd_relege",
+  "latin": "Relege",
+  "english": "Read it again!",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_start",
+  "latin": "Salvē! Collige lignum.",
+  "english": "Hello. Gather wood. The tall green things with leaves.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_stone",
+  "latin": "Bene! Collige lapidem.",
+  "english": "Good. Now stone. The grey lumps that stay where you put them.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_house",
+  "latin": "Bene! Aedificā casam.",
+  "english": "Good. Now build a house. Yes, even the king needs one.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-050",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_done",
+  "latin": "Optimē! Casa bona est.",
+  "english": "Excellent. A decent house. Remus will say it is too small, if he ever turns up.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-042",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_relege",
+  "latin": "Relege.",
+  "english": "Read it again. Slowly.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
  }
 ];

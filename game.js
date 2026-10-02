@@ -1,4 +1,5 @@
-// Step 4: orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
+// Step 5: Romulus gives the opening orders in message boxes with portraits.
+// Orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
 // Placeholder art only.
 const TILE = 32, COLS = 60, ROWS = 40;
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
@@ -107,7 +108,7 @@ function targetAt(p) {
 function updateTip() {
   const tip = document.getElementById('tip');
   let id = null;
-  if (cursor && !placing && !(drag && drag.moved) && farmers.some(f => f.selected)) {
+  if (cursor && !boxOpen && !placing && !(drag && drag.moved) && farmers.some(f => f.selected)) {
     const t = targetAt({ x: cursor.x + cam.x, y: cursor.y + cam.y });
     if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
   }
@@ -305,6 +306,7 @@ const COMMANDS = [
     { id: 'order_ambula_ad_forum', run: () => walkOrder('order_ambula_ad_forum', 'forum') },
   ] },
 ];
+COMMANDS.push({ id: 'cmd_relege', direct: () => replayOrder() });
 let openCommand = null;
 
 function makeButton(id, onClick) {
@@ -325,7 +327,10 @@ function renderCommands() {
   const verbs = document.getElementById('cmds'), orders = document.getElementById('orders');
   verbs.textContent = ''; orders.textContent = '';
   COMMANDS.forEach(cmd => {
-    const b = makeButton(cmd.id, () => { openCommand = openCommand === cmd.id ? null : cmd.id; setPlacing(null); renderCommands(); });
+    const b = makeButton(cmd.id, () => {
+      if (cmd.direct) { cmd.direct(); return; }
+      openCommand = openCommand === cmd.id ? null : cmd.id; setPlacing(null); renderCommands();
+    });
     if (!b) return;
     if (openCommand === cmd.id) b.classList.add('active');
     verbs.appendChild(b);
@@ -348,6 +353,7 @@ function showOrder(id) {
   const l = line(id), el = document.getElementById('order');
   el.textContent = l ? l.text : '';
   el.title = l ? l.english : '';
+  checkOrder(id);
 }
 
 function updateHud() {
@@ -367,6 +373,97 @@ function updateHud() {
   });
 }
 
+// ---- Messages from Romulus ----
+let boxOpen = false, boxAfter = null, hintTimer = null;
+const hintsSeen = new Set(); // messages whose English hint has already been shown
+
+function showMessage(id, face, after) {
+  const l = line(id);
+  if (!l) { if (after) after(); return; } // an unapproved line is simply skipped
+  const first = !hintsSeen.has(id);
+  hintsSeen.add(id);
+  const name = line('name_romulus');
+  document.getElementById('speaker').textContent = name ? name.text : '';
+  document.getElementById('mtext').textContent = l.text;
+  const hint = document.getElementById('mhint');
+  hint.textContent = first ? l.english : '';
+  hint.classList.remove('fade');
+  clearTimeout(hintTimer);
+  if (first) hintTimer = setTimeout(() => hint.classList.add('fade'), 5000);
+
+  // Portrait: a flat silhouette with the speaker's name stands in until the art file is found
+  const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
+  ph.textContent = name ? name.text : '';
+  img.style.display = 'block'; ph.style.display = 'none';
+  img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+  img.src = 'assets/portraits/portrait_romulus_' + face + '.png';
+
+  boxOpen = true; boxAfter = after || null;
+  document.getElementById('msgbox').style.display = 'flex';
+  document.getElementById('mok').focus();
+}
+
+function closeMessage() {
+  if (!boxOpen) return;
+  boxOpen = false;
+  clearTimeout(hintTimer);
+  document.getElementById('msgbox').style.display = 'none';
+  const after = boxAfter; boxAfter = null;
+  if (after) after();
+}
+document.getElementById('mok').addEventListener('click', closeMessage);
+window.addEventListener('keydown', e => { if (boxOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); closeMessage(); } });
+
+// ---- The opening orders: one at a time, each waits for the player to do it ----
+const BEATS = [
+  { say: 'msg_romulus_start', face: 'neutral', expects: ['order_collige_lignum'],  done: () => stock.wood >= 8 },
+  { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
+  { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'],  done: () => buildings.some(b => b.type === 'house' && b.done) },
+  { say: 'msg_romulus_done',  face: 'pleased', expects: null, done: null },
+];
+const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
+let beat = -1;
+const recent = []; // the last three orders Romulus gave
+
+function startBeat(i) {
+  beat = i;
+  const b = BEATS[i];
+  if (b.expects) { recent.push(b.say); if (recent.length > 3) recent.shift(); renderRecent(); }
+  showMessage(b.say, b.face);
+}
+
+function checkBeat() {
+  const b = BEATS[beat];
+  if (b && b.done && b.done()) startBeat(beat + 1);
+}
+
+// Romulus sighs when the player works on something other than the current order
+function checkOrder(id) {
+  const b = BEATS[beat];
+  if (!b || !b.expects || boxOpen || !WORK_ORDERS.includes(id) || b.expects.includes(id)) return;
+  hintsSeen.delete(b.say); hintsSeen.delete('msg_romulus_relege'); // the English hint comes back after a mistake
+  showMessage('msg_romulus_relege', 'neutral', () => showMessage(b.say, b.face));
+}
+
+// Relege: hear the current order again
+function replayOrder() {
+  const b = BEATS[beat];
+  if (b && !boxOpen) showMessage(b.say, b.face);
+}
+
+function renderRecent() {
+  const el = document.getElementById('recent');
+  el.textContent = '';
+  recent.forEach((id, i) => {
+    const l = line(id);
+    if (!l) return;
+    const d = document.createElement('div');
+    d.textContent = l.text;
+    if (i === recent.length - 1) d.className = 'current';
+    el.appendChild(d);
+  });
+}
+
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
@@ -376,7 +473,10 @@ function frame(now) {
   if (keys.ArrowUp) cam.y -= scroll;
   if (keys.ArrowDown) cam.y += scroll;
   clampCam();
-  farmers.forEach(f => update(f, dt));
+  if (!boxOpen) { // the clock stops while a message is open
+    farmers.forEach(f => update(f, dt));
+    checkBeat();
+  }
   for (let i = nodes.length - 1; i >= 0; i--) if (nodes[i].amount <= 0) nodes.splice(i, 1);
   draw();
   updateTip();
@@ -480,4 +580,5 @@ function drawFarmer(f) {
 resize();
 renderCommands();
 updateHud();
+startBeat(0);
 requestAnimationFrame(frame);

@@ -1,5 +1,6 @@
 # Condenda Roma: all Latin text for the game lives here, never in code.
-# Proofread and approved by J. Sullivan. Student-facing builds show only review_status: approved.
+# Entries marked approved were proofread by J. Sullivan. Entries marked draft have NOT been proofread.
+# Student-facing builds show only review_status: approved. Add ?drafts=1 to the address to see drafts.
 #
 # spec_node_id holds the main node from latin1-spec.yaml that the item practices.
 # Where an item also practices other nodes, they are listed in a comment on that entry.
@@ -168,3 +169,66 @@
   nle_category: morphosyntax
   spec_node_id: MS-084   # also practices MS-050, MS-026
   review_status: approved
+
+# ---- Rōmulus's opening messages (DRAFT, not yet proofread) ----
+# Questions for proofreading:
+#  1. Salvē! is the singular greeting, since Rōmulus speaks to the player as one foreman. OK?
+#  2. Bene! after a finished task, and Optimē! at the end. Good level for Latin I?
+#  3. "Casa bona est." is adjective + est. Is this too early, or fine as a short glossed phrase?
+#  4. Relege. is the same word as the command Relege in the design file (read again).
+
+- id: name_romulus
+  latin: "Rōmulus"
+  english: "Romulus"
+  type: ui_label
+  nle_category: culture
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: cmd_relege
+  latin: "Relege"
+  english: "Read it again!"
+  type: order
+  nle_category: morphosyntax
+  spec_node_id: MS-077
+  review_status: draft
+
+- id: msg_romulus_start
+  latin: "Salvē! Collige lignum."
+  english: "Hello. Gather wood. The tall green things with leaves."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-077
+  review_status: draft
+
+- id: msg_romulus_stone
+  latin: "Bene! Collige lapidem."
+  english: "Good. Now stone. The grey lumps that stay where you put them."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-077
+  review_status: draft
+
+- id: msg_romulus_house
+  latin: "Bene! Aedificā casam."
+  english: "Good. Now build a house. Yes, even the king needs one."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-050
+  review_status: draft
+
+- id: msg_romulus_done
+  latin: "Optimē! Casa bona est."
+  english: "Excellent. A decent house. Remus will say it is too small, if he ever turns up."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-042   # adjective bona agrees with casa
+  review_status: draft
+
+- id: msg_romulus_relege
+  latin: "Relege."
+  english: "Read it again. Slowly."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-077
+  review_status: draft
