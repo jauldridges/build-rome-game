@@ -1,4 +1,4 @@
-// Step 2: farmers gather wood, stone and water and carry it to the storehouse. Placeholder art only.
+// Step 3: farmers gather resources and put up buildings. Placeholder art only.
 const TILE = 32, COLS = 60, ROWS = 40;
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
@@ -33,6 +33,17 @@ const stock = { wood: 0, stone: 0, water: 0 };
 const store = { x: 330, y: 330, w: 56, h: 48 };
 const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
+// Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
+const BUILD = {
+  house: { label: 'House', w: 2, h: 2, cost: { wood: 8 },            work: 6 },
+  wall:  { label: 'Wall',  w: 1, h: 1, cost: { stone: 2 },           work: 2 },
+  gate:  { label: 'Gate',  w: 2, h: 1, cost: { wood: 4, stone: 2 },  work: 3 },
+  forum: { label: 'Forum', w: 4, h: 3, cost: { stone: 12, wood: 8 }, work: 12 },
+};
+const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
+let placing = null;     // key of the building being placed, or null
+let cursor = null;      // screen position of the mouse over the map
+
 // Resource nodes: trees to the north-east, rocks to the south-west, a pond to the east
 const nodes = [];
 function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
@@ -46,9 +57,10 @@ for (let i = 0; i < 5; i++) {
   farmers.push({
     x: 400 + i * 50, y: 440 + (i % 2) * 40, speed: 110,
     selected: false,
-    state: 'idle',        // idle | move | toNode | gather | toStore
+    state: 'idle',        // idle | move | toNode | gather | toStore | toBuild | build
     tx: 0, ty: 0,         // where it is walking
     node: null,           // resource node it is working on
+    site: null,           // building it is putting up
     carry: null, carryN: 0, timer: 0,
   });
 }
@@ -64,12 +76,16 @@ window.addEventListener('mousemove', e => {
   if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
   if (drag.moved) { cam.x = drag.cx - dx; cam.y = drag.cy - dy; clampCam(); }
 });
+canvas.addEventListener('mousemove', e => { cursor = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener('mouseleave', () => { cursor = null; });
+canvas.addEventListener('contextmenu', e => { e.preventDefault(); setPlacing(null); });
 window.addEventListener('mouseup', e => {
   if (drag && !drag.moved) handleClick(toWorld(e), e.shiftKey);
   drag = null;
 });
 
 function handleClick(p, shift) {
+  if (placing) { tryPlace(p); return; }
   const hit = farmers.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
   if (hit) {
     if (!shift) farmers.forEach(f => f.selected = false);
@@ -77,24 +93,93 @@ function handleClick(p, shift) {
     return;
   }
   const sel = farmers.filter(f => f.selected);
+  const site = buildings.find(b => !b.done && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+  if (site) { sel.forEach(f => sendToBuild(f, site)); return; }
   const node = nodes.find(n => Math.hypot(n.x - p.x, n.y - p.y) < 22);
   if (node) {
     sel.forEach(f => {
-      f.node = node; f.state = 'toNode';
+      f.node = node; f.site = null; f.state = 'toNode';
       if (f.carry && f.carry !== node.type) { f.carry = null; f.carryN = 0; } // drops the old load
     });
     return;
   }
   sel.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
-    f.state = 'move'; f.node = null;
+    f.state = 'move'; f.node = null; f.site = null;
     f.tx = Math.max(10, Math.min(MAP_W - 10, p.x + (i % 3 - 1) * 24));
     f.ty = Math.max(10, Math.min(MAP_H - 10, p.y + Math.floor(i / 3) * 24));
   });
 }
 
+// ---- Placing and building ----
+function afford(cost) { return Object.keys(cost).every(k => stock[k] >= cost[k]); }
+
+function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+
+function canPlace(r) {
+  if (r.x < 0 || r.y < 0 || r.x + r.w > MAP_W || r.y + r.h > MAP_H) return false;
+  if (overlaps(r, store)) return false;
+  if (buildings.some(b => overlaps(r, b))) return false;
+  const pad = 16; // keep clear of trees, rocks and ponds
+  return !nodes.some(n => n.x > r.x - pad && n.x < r.x + r.w + pad && n.y > r.y - pad && n.y < r.y + r.h + pad);
+}
+
+// The rectangle a building would fill if placed under the world point p (snapped to the tile grid)
+function ghostRect(type, p) {
+  const b = BUILD[type], w = b.w * TILE, h = b.h * TILE;
+  return { x: Math.round((p.x - w / 2) / TILE) * TILE, y: Math.round((p.y - h / 2) / TILE) * TILE, w, h };
+}
+
+function setPlacing(type) {
+  placing = type;
+  setMsg(type ? 'Click the map to place. Right-click or Esc to cancel.' : '');
+  updateHud();
+}
+
+let msgTimer = null;
+function setMsg(text) {
+  document.getElementById('msg').textContent = text;
+  clearTimeout(msgTimer);
+  if (text && !placing) msgTimer = setTimeout(() => { document.getElementById('msg').textContent = ''; }, 3000);
+}
+
+function tryPlace(p) {
+  const def = BUILD[placing], r = ghostRect(placing, p);
+  if (!afford(def.cost)) { setPlacing(null); setMsg('Not enough resources.'); return; }
+  if (!canPlace(r)) { setMsg("Can't build there."); return; }
+  Object.keys(def.cost).forEach(k => stock[k] -= def.cost[k]);
+  const site = { type: placing, x: r.x, y: r.y, w: r.w, h: r.h, progress: 0, done: false };
+  buildings.push(site);
+  // Selected farmers build it; with nobody selected, the nearest farmer does
+  let crew = farmers.filter(f => f.selected);
+  if (!crew.length) {
+    const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    const busy = f => (f.state === 'toBuild' || f.state === 'build') ? 1e6 : 0; // prefer farmers not already building
+    const dist = f => Math.hypot(f.x - cx, f.y - cy) + busy(f);
+    crew = [farmers.slice().sort((a, b) => dist(a) - dist(b))[0]];
+  }
+  crew.forEach(f => sendToBuild(f, site));
+  if (!afford(def.cost)) setPlacing(null); // stay in placing mode only while you can pay for more
+  updateHud();
+}
+
+function sendToBuild(f, site) {
+  f.site = site; f.node = null; f.state = 'toBuild';
+  f.carry = null; f.carryN = 0; // drops any load
+}
+
+// After finishing, a farmer carries on with the nearest unfinished building close by
+function nextBuild(f) {
+  let best = null, bestD = 400;
+  buildings.forEach(b => {
+    const d = Math.hypot(b.x + b.w / 2 - f.x, b.y + b.h / 2 - f.y);
+    if (!b.done && d < bestD) { best = b; bestD = d; }
+  });
+  f.site = best; f.state = best ? 'toBuild' : 'idle';
+}
+
 // Keyboard scrolling
 const keys = {};
-window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keydown', e => { keys[e.key] = true; if (e.key === 'Escape') setPlacing(null); });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
 
 // Walk toward (tx, ty); returns true when arrived
@@ -119,6 +204,15 @@ function update(f, dt) {
       f.timer = 0; f.carry = f.node.type; f.carryN++; f.node.amount--;
       if (f.carryN >= CARRY_MAX) f.state = 'toStore';
     }
+  } else if (f.state === 'toBuild') {
+    if (f.site.done) { nextBuild(f); return; }
+    const s = f.site;
+    if (walk(f, s.x + s.w / 2, s.y + s.h / 2, dt, Math.max(s.w, s.h) / 2 + 20)) f.state = 'build';
+  } else if (f.state === 'build') {
+    const s = f.site;
+    if (s.done) { nextBuild(f); return; }
+    s.progress += dt;
+    if (s.progress >= BUILD[s.type].work) { s.done = true; nextBuild(f); }
   } else if (f.state === 'toStore') {
     if (walk(f, storeSpot.x, storeSpot.y, dt, 4)) {
       stock[f.carry] += f.carryN; f.carry = null; f.carryN = 0;
@@ -128,9 +222,23 @@ function update(f, dt) {
   }
 }
 
+const buttons = {};
+Object.keys(BUILD).forEach(type => {
+  const def = BUILD[type];
+  const b = document.createElement('button');
+  b.textContent = def.label + ' (' + Object.keys(def.cost).map(k => def.cost[k] + ' ' + RES[k].label).join(', ') + ')';
+  b.addEventListener('click', () => { b.blur(); setPlacing(placing === type ? null : type); });
+  document.getElementById('build').appendChild(b);
+  buttons[type] = b;
+});
+
 function updateHud() {
   document.getElementById('res').textContent =
     Object.keys(RES).map(k => RES[k].label + ': ' + stock[k]).join('   ');
+  Object.keys(buttons).forEach(type => {
+    buttons[type].disabled = !afford(BUILD[type].cost);
+    buttons[type].classList.toggle('active', placing === type);
+  });
 }
 
 let last = performance.now();
@@ -179,8 +287,52 @@ function draw() {
 
   // Everything with a position draws back to front
   const things = nodes.map(n => ({ y: n.y, draw: () => drawNode(n) }))
+    .concat(buildings.map(b => ({ y: b.y + b.h, draw: () => drawBuilding(b) })))
     .concat(farmers.map(f => ({ y: f.y, draw: () => drawFarmer(f) })));
   things.sort((a, b) => a.y - b.y).forEach(t => t.draw());
+
+  if (placing && cursor) { // ghost of the building being placed, red where it can't go
+    const r = ghostRect(placing, { x: cursor.x + cam.x, y: cursor.y + cam.y });
+    ctx.globalAlpha = 0.55;
+    drawShape(placing, r);
+    if (!canPlace(r)) { ctx.fillStyle = '#d02020'; ctx.fillRect(sx(r.x), sy(r.y), r.w, r.h); }
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawBuilding(b) {
+  const def = BUILD[b.type];
+  ctx.globalAlpha = b.done ? 1 : 0.35 + 0.5 * b.progress / def.work;
+  drawShape(b.type, b);
+  ctx.globalAlpha = 1;
+  if (!b.done) { // progress bar
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(sx(b.x), sy(b.y) - 8, b.w, 5);
+    ctx.fillStyle = '#e0c060'; ctx.fillRect(sx(b.x), sy(b.y) - 8, b.w * b.progress / def.work, 5);
+  }
+}
+
+// Placeholder art for each kind of building, drawn inside rectangle r
+function drawShape(type, r) {
+  const x = sx(r.x), y = sy(r.y), w = r.w, h = r.h;
+  if (type === 'house') {
+    ctx.fillStyle = '#d9ccaa'; ctx.fillRect(x, y + h * 0.35, w, h * 0.65);       // walls
+    ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 3, y, w + 6, h * 0.4);           // roof
+    ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + w / 2 - 6, y + h * 0.6, 12, h * 0.4); // door
+  } else if (type === 'wall') {
+    ctx.fillStyle = '#b9b3a3'; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#d6d0c0'; ctx.fillRect(x, y, w, 8);
+    ctx.fillStyle = '#8f8a7c'; ctx.fillRect(x, y + h / 2, w, 2); ctx.fillRect(x + w / 2, y + 8, 2, h / 2 - 8);
+  } else if (type === 'gate') {
+    ctx.fillStyle = '#b9b3a3'; ctx.fillRect(x, y, 14, h); ctx.fillRect(x + w - 14, y, 14, h); // posts
+    ctx.fillRect(x, y, w, 10);                                                       // lintel
+    ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + 14, y + 10, w - 28, h - 10);        // door
+  } else {
+    ctx.fillStyle = '#d6cba8'; ctx.fillRect(x, y, w, h);                              // paved floor
+    ctx.strokeStyle = '#8f8a7c'; ctx.lineWidth = 3; ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
+    ctx.fillStyle = '#f2ecd8';
+    for (let cx = x + 10; cx < x + w - 10; cx += 24) ctx.fillRect(cx, y + 6, 8, 20);  // columns
+    ctx.fillStyle = '#2a6fb0'; ctx.fillRect(x + w / 2 - 8, y + h / 2, 16, 20);      // banner
+  }
 }
 
 function drawFarmer(f) {
@@ -188,7 +340,7 @@ function drawFarmer(f) {
   if (f.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 10, 14, 6, 0, 0, 7); ctx.stroke(); }
   ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 6, y - 4, 12, 14); // terracotta tunic
   ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8); // head
-  if (f.state === 'gather') { // little swinging mark while working
+  if (f.state === 'gather' || f.state === 'build') { // little swinging mark while working
     ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x + 8, y - 6 + (Math.floor(performance.now() / 150) % 2) * 4, 4, 4);
   }
   if (f.carryN > 0) { // load carried: colored boxes over the head, one per item

@@ -3,3 +3,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #1c1c1c; fon
 canvas { display: block; image-rendering: pixelated; }
 #hud span { display: inline-block; }
 #res { font-weight: bold; margin-right: 24px; min-width: 260px; }
+#build { margin-top: 6px; }
+#build button { margin-right: 8px; padding: 3px 8px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 13px; }
+#build button:disabled { opacity: 0.45; cursor: default; }
+#build button.active { background: #f3e6c4; outline: 2px solid #f3e6c4; }
+#msg { min-height: 1.2em; margin-top: 4px; color: #ffd98a; }
