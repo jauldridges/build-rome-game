@@ -291,15 +291,8 @@
   spec_node_id: MS-074   # also MS-020 (nominative plural), MS-044 (adjective agreement, number)
   review_status: approved
 
-# ---- Step 6: the Sabine attack and the ending (DRAFT, not yet proofread) ----
+# ---- Step 6: the Sabine attack and the ending (proofread and approved by J. Sullivan) ----
 # Culture notes: "latin" is the heading shown on the ending card; "english" is the paragraph shown beneath it.
-# The legend is told as legend ("according to...") and the culture facts need a historian's eye as well as a Latinist's.
-# Questions for proofreading:
-#  1. Hostēs ex silvā veniunt! is the design file's line. The other lines are drafted by the assistant.
-#  2. Ēheu! Iterum aedificā. (Alas! Build again.) is Rōmulus's annoyed line when a building is lost.
-#  3. Mīlitēs adsunt (the soldiers are here) uses the compound verb adsum. Is that fine, or use sunt?
-#  4. Sabīnī et Rōmānī amīcī sunt: plural sunt. OK for Latin I?
-#  5. Culture notes: please check every claim, especially the pōmērium note and the Tatius note.
 
 - id: name_scout
   latin: "Explōrātor"
@@ -307,7 +300,7 @@
   type: ui_label
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: name_tatius
   latin: "Titus Tatius"
@@ -315,7 +308,7 @@
   type: ui_label
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_miles
   latin: "mīles"
@@ -323,7 +316,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: cmd_defende
   latin: "Dēfende"
@@ -331,7 +324,7 @@
   type: order
   nle_category: morphosyntax
   spec_node_id: MS-077
-  review_status: draft
+  review_status: approved
 
 - id: order_defende_murum
   latin: "Dēfende mūrum."
@@ -339,7 +332,7 @@
   type: order
   nle_category: morphosyntax
   spec_node_id: MS-077   # also MS-023
-  review_status: draft
+  review_status: approved
 
 - id: msg_scout_warning
   latin: "Hostēs ex silvā veniunt!"
@@ -347,7 +340,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-083   # ex + ablative; also MS-065 (hostēs), MS-074 (veniunt)
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_hurry
   latin: "Cito! Aedificā mūrum!"
@@ -355,7 +348,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-050   # also MS-023
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_soldiers
   latin: "Mīlitēs adsunt. Dēfende mūrum!"
@@ -363,7 +356,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-077   # also MS-065 (mīlitēs), MS-040 (adsunt)
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_retry
   latin: "Ēheu! Iterum aedificā."
@@ -371,7 +364,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-050
-  review_status: draft
+  review_status: approved
 
 - id: msg_tatius_peace
   latin: "Salvē, Rōmule. Sum Titus Tatius. Pācem petō."
@@ -379,7 +372,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-049   # vocative Rōmule; also MS-040, MS-072
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_peace
   latin: "Pāx! Sabīnī et Rōmānī amīcī sunt."
@@ -387,7 +380,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-040   # also MS-020 (nominative plural)
-  review_status: draft
+  review_status: approved
 
 - id: culture_romulus_remus
   latin: "Rōmulus et Remus"
@@ -395,7 +388,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
-  review_status: draft
+  review_status: approved
 
 - id: culture_pomerium
   latin: "Pōmērium"
@@ -403,7 +396,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: culture_sabine_women
   latin: "Sabīnae fēminae"
@@ -411,7 +404,7 @@
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: culture_tatius
   latin: "Titus Tatius et Rōmulus"
@@ -419,5 +412,5 @@
   type: culture_note
   nle_category: culture
   spec_node_id: RW-009
-  review_status: draft
+  review_status: approved
 

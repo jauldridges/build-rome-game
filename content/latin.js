@@ -313,7 +313,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "name_tatius",
@@ -322,7 +322,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "vocab_miles",
@@ -331,7 +331,7 @@ const LATIN = [
   "type": "vocab",
   "nle_category": "vocabulary",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "cmd_defende",
@@ -340,7 +340,7 @@ const LATIN = [
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "order_defende_murum",
@@ -349,7 +349,7 @@ const LATIN = [
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_scout_warning",
@@ -358,7 +358,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-083",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_hurry",
@@ -367,7 +367,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_soldiers",
@@ -376,7 +376,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_retry",
@@ -385,7 +385,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_tatius_peace",
@@ -394,7 +394,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-049",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_peace",
@@ -403,7 +403,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-040",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_romulus_remus",
@@ -412,7 +412,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_pomerium",
@@ -421,7 +421,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_sabine_women",
@@ -430,7 +430,7 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "culture_tatius",
@@ -439,6 +439,6 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-009",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];
