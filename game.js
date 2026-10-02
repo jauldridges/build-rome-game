@@ -32,7 +32,6 @@ function toWorld(e) { return { x: e.clientX + cam.x, y: e.clientY + cam.y }; }
 let drag = null;
 canvas.addEventListener('mousedown', e => { drag = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y, moved: false }; });
 window.addEventListener('mousemove', e => {
-  mouse.x = e.clientX; mouse.y = e.clientY;
   if (!drag) return;
   const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
   if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
@@ -42,7 +41,6 @@ window.addEventListener('mouseup', e => {
   if (drag && !drag.moved) handleClick(toWorld(e), e.shiftKey);
   drag = null;
 });
-const mouse = { x: -1, y: -1 };
 
 function handleClick(p, shift) {
   const hit = farmers.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
@@ -71,13 +69,6 @@ function frame(now) {
   if (keys.ArrowRight) cam.x += scroll;
   if (keys.ArrowUp) cam.y -= scroll;
   if (keys.ArrowDown) cam.y += scroll;
-  if (!drag) { // edge scrolling
-    const edge = 20;
-    if (mouse.x >= 0 && mouse.x < edge) cam.x -= scroll;
-    if (mouse.x > canvas.width - edge) cam.x += scroll;
-    if (mouse.y >= 0 && mouse.y < edge + 30 && mouse.y > 30) cam.y -= scroll;
-    if (mouse.y > canvas.height - edge) cam.y += scroll;
-  }
   clampCam();
 
   for (const f of farmers) {
