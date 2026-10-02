@@ -416,7 +416,8 @@ window.addEventListener('keydown', e => { if (boxOpen && (e.key === 'Enter' || e
 
 // ---- The opening orders: one at a time, each waits for the player to do it ----
 const BEATS = [
-  { say: 'msg_romulus_start', face: 'neutral', expects: ['order_collige_lignum'],  done: () => stock.wood >= 8 },
+  { say: 'msg_romulus_intro', face: 'pleased', expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
+  { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
   { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
   { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'],  done: () => buildings.some(b => b.type === 'house' && b.done) },
   { say: 'msg_romulus_done',  face: 'pleased', expects: null, done: null },

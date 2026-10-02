@@ -199,18 +199,18 @@ const LATIN = [
   "review_status": "draft"
  },
  {
-  "id": "msg_romulus_start",
-  "latin": "Salvē! Collige lignum.",
-  "english": "Hello. Gather wood. The tall green things with leaves.",
+  "id": "msg_romulus_intro",
+  "latin": "Salvē, amīce. Sum Rōmulus, rēx prīmus. Oppidum aedificēmus. Adiuvā mē.",
+  "english": "Hello, friend. I am Romulus, the first king. Let us build a town. Help me.",
   "type": "message",
   "nle_category": "morphosyntax",
-  "spec_node_id": "MS-077",
+  "spec_node_id": "MS-040",
   "review_status": "draft"
  },
  {
   "id": "msg_romulus_stone",
   "latin": "Bene! Collige lapidem.",
-  "english": "Good. Now stone. The grey lumps that stay where you put them.",
+  "english": "Good! Gather stone.",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
@@ -219,7 +219,7 @@ const LATIN = [
  {
   "id": "msg_romulus_house",
   "latin": "Bene! Aedificā casam.",
-  "english": "Good. Now build a house. Yes, even the king needs one.",
+  "english": "Good! Build a house.",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
@@ -228,7 +228,7 @@ const LATIN = [
  {
   "id": "msg_romulus_done",
   "latin": "Optimē! Casa bona est.",
-  "english": "Excellent. A decent house. Remus will say it is too small, if he ever turns up.",
+  "english": "Excellent! The house is good.",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-042",
@@ -237,7 +237,7 @@ const LATIN = [
  {
   "id": "msg_romulus_relege",
   "latin": "Relege.",
-  "english": "Read it again. Slowly.",
+  "english": "Read it again.",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
