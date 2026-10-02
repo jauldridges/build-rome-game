@@ -414,3 +414,67 @@
   spec_node_id: RW-009
   review_status: approved
 
+# ---- Fuller ending card (DRAFT, not yet proofread) ----
+# More historical context: the setting, who the Sabines were, why they fought Rome, and what came next.
+# Written as legend where the sources are legend ("according to..."). Please check every claim.
+# Questions for proofreading:
+#  1. Sabine history: the 290 BCE absorption, Sabine as an Italic language related to Latin, and the Sabine ties of Numa, Quirinus and the Claudii.
+#  2. The three old tribes and the Senate of one hundred: told as tradition, not fact. Is the hedging right?
+#  3. The card is now eleven pages. Which pages would you cut for a 15-20 minute mission?
+
+- id: culture_hills
+  latin: "Septem collēs"
+  english: "Rome grew up on the Tiber river, about fifteen miles (25 km) from the sea, among low hills that the Romans later counted as seven: the Palatine, Capitoline, Quirinal, Viminal, Esquiline, Caelian and Aventine. The hills were easy to defend, and a crossing of the river and an old route that carried salt from the coast ran close by. Archaeologists have found traces of huts on the Palatine from about the 8th century BCE, not far from the date the Romans gave for the founding."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-001   # also RW-005
+  review_status: draft
+
+- id: culture_asylum
+  latin: "Asylum"
+  english: "A new town needs people. According to the Roman historian Livy, Romulus set aside a place of refuge, an asylum, and welcomed anyone from the neighboring lands who wanted a fresh start, whether free or enslaved. The crowd that came was mostly men. The Romans themselves told this story because they were proud that Rome had always grown by taking in newcomers."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-007
+  review_status: draft
+
+- id: culture_sabines
+  latin: "Sabīnī"
+  english: "The Sabines were a people of central Italy who lived in the hills northeast of Rome, only a day or two away on foot. They were farmers and herders who spoke their own Italic language, related to Latin, and they worshiped many of the same gods. The Romans remembered that some of their own customs came from the Sabines: the god Quirinus, for example, and Numa Pompilius, their second king. Some great Roman families, like the Claudii, claimed Sabine ancestors. Over the following centuries Rome fought the Sabines many times, and by about 290 BCE they had become part of the Roman state."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-006
+  review_status: draft
+
+- id: culture_why_war
+  latin: "Cūr bellum?"
+  english: "Why would the Sabines go to war with a new town? In the legend, Rome had men but few women, so Romulus sent messengers to the neighboring peoples asking for the right to marry their daughters. The neighbors refused. Some looked down on the newcomers, and others feared that this fast-growing town would soon be too strong to stop. Behind the story lies a real situation: small neighboring communities in early Italy competed for land, pasture and power, and they often fought and then joined together."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: culture_senate
+  latin: "Senātus"
+  english: "The Romans believed that Romulus chose one hundred elders to advise him, and called them patrēs, “fathers.” The word senātus comes from senex, “old man,” so the Senate was a council of elders. The families that descended from these fathers were later called patricians. Tradition also said that Romulus divided the people into three tribes, and that the names of two of them were linked to Romulus himself and to Titus Tatius. These stories show how the Romans saw themselves: a people made up of more than one community."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-016   # also RW-022 (patricians)
+  review_status: draft
+
+- id: culture_kings
+  latin: "Septem rēgēs"
+  english: "Romulus was the first of seven kings. His successor, Numa Pompilius, was said to be a Sabine and was remembered as a peaceful priest-king. The last king, Tarquinius Superbus, was driven out in 509 BCE, and the Romans founded a republic. They never lost their hatred of the word rēx, “king.”"
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-009   # also RW-011
+  review_status: draft
+
+- id: culture_story_history
+  latin: "Fābula et historia"
+  english: "Historians do not treat these stories as exact history. Livy and other writers told them more than seven hundred years after the date they give for the founding, using older tales. The evidence suggests that Rome grew gradually from villages on the Tiber hills, as Latins, Sabines and later Etruscans lived side by side and sometimes mixed. The legends are still important: they show what the Romans wanted to believe about themselves, a city that began small, welcomed outsiders and learned to turn enemies into neighbors."
+  type: culture_note
+  nle_category: culture
+  spec_node_id: RW-007
+  review_status: draft
+

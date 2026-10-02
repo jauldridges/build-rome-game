@@ -66,3 +66,5 @@ canvas { display: block; image-rendering: pixelated; }
   padding: 8px 16px; background: #f1e4c0; color: #2a1c08; border: 3px solid #3d2a0e; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); }
 #popup .latin { font-size: 24px; font-weight: bold; }
 #popup .en { font-size: 15px; font-style: italic; color: #5b4a2e; margin-top: 2px; }
+#cardpage { float: right; font-size: 16px; color: #8a5a1e; font-weight: bold; }
+#cardenglish { max-height: 55vh; overflow-y: auto; }

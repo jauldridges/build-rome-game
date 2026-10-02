@@ -148,7 +148,11 @@ function wonWave() {
 }
 
 // ---- The ending card: one page for each culture note ----
-const CARD_PAGES = ['culture_romulus_remus', 'culture_pomerium', 'culture_sabine_women', 'culture_tatius'];
+const CARD_PAGES = [
+  'culture_hills', 'culture_romulus_remus', 'culture_pomerium', 'culture_asylum',
+  'culture_sabines', 'culture_why_war', 'culture_sabine_women', 'culture_tatius',
+  'culture_senate', 'culture_kings', 'culture_story_history',
+];
 let cardPages = [], cardAt = 0;
 
 function showCard() {
@@ -163,6 +167,8 @@ function showCard() {
 function renderCardPage() {
   const p = cardPages[cardAt];
   document.getElementById('cardlatin').textContent = p.text;
+  document.getElementById('cardpage').textContent = (cardAt + 1) + ' / ' + cardPages.length;
+  document.getElementById('cardok').textContent = cardAt + 1 < cardPages.length ? 'Next' : 'Continue';
   document.getElementById('cardenglish').textContent = p.english;
   document.getElementById('cardok').focus();
 }
