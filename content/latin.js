@@ -187,7 +187,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "cmd_relege",
@@ -196,7 +196,7 @@ const LATIN = [
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_intro",
@@ -205,7 +205,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-040",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_stone",
@@ -214,7 +214,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_house",
@@ -223,7 +223,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_done",
@@ -232,7 +232,7 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-042",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_relege",
@@ -241,6 +241,6 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];

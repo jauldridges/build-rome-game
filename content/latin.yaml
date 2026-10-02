@@ -1,5 +1,5 @@
 # Condenda Roma: all Latin text for the game lives here, never in code.
-# Entries marked approved were proofread by J. Sullivan. Entries marked draft have NOT been proofread.
+# Entries marked approved were proofread by J. Sullivan. Entries marked draft have NOT been proofread (none at present).
 # Student-facing builds show only review_status: approved. Add ?drafts=1 to the address to see drafts.
 #
 # spec_node_id holds the main node from latin1-spec.yaml that the item practices.
@@ -170,14 +170,8 @@
   spec_node_id: MS-084   # also practices MS-050, MS-026
   review_status: approved
 
-# ---- Rōmulus's opening messages (DRAFT, not yet proofread) ----
+# ---- Rōmulus's opening messages (proofread and approved by J. Sullivan) ----
 # English lines are plain translations of the Latin.
-# Questions for proofreading:
-#  1. The introduction is J. Sullivan's text. Macrons added by the assistant: Salvē, Rōmulus, rēx. Please confirm.
-#  2. Oppidum aedificēmus (let us build a town) is a hortatory subjunctive. It is beyond Latin I by design, as exposure.
-#  3. Bene! after a finished task, and Optimē! at the end. Good level for Latin I?
-#  4. "Casa bona est." is adjective + est. Fine as a short glossed phrase?
-#  5. Relege. is the same word as the command Relege in the design file (read again).
 
 - id: name_romulus
   latin: "Rōmulus"
@@ -185,7 +179,7 @@
   type: ui_label
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: cmd_relege
   latin: "Relege"
@@ -193,7 +187,7 @@
   type: order
   nle_category: morphosyntax
   spec_node_id: MS-077
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_intro
   latin: "Salvē, amīce. Sum Rōmulus, rēx prīmus. Oppidum aedificēmus. Adiuvā mē."
@@ -201,7 +195,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-040   # also practices MS-041 (predicate nominative), MS-049 (vocative amīce), MS-050 (Adiuvā)
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_stone
   latin: "Bene! Collige lapidem."
@@ -209,7 +203,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-077
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_house
   latin: "Bene! Aedificā casam."
@@ -217,7 +211,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-050
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_done
   latin: "Optimē! Casa bona est."
@@ -225,7 +219,7 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-042   # also MS-041: adjective bona agrees with casa
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_relege
   latin: "Relege."
@@ -233,4 +227,4 @@
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-077
-  review_status: draft
+  review_status: approved
