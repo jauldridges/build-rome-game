@@ -1,3 +1,5 @@
 html, body { margin: 0; height: 100%; overflow: hidden; background: #1c1c1c; font-family: sans-serif; }
 #hud { position: fixed; top: 0; left: 0; right: 0; padding: 6px 10px; background: #6b4a1e; color: #f3e6c4; font-size: 14px; z-index: 1; }
 canvas { display: block; image-rendering: pixelated; }
+#hud span { display: inline-block; }
+#res { font-weight: bold; margin-right: 24px; min-width: 260px; }
