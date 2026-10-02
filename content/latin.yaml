@@ -1,16 +1,13 @@
 # Condenda Roma: all Latin text for the game lives here, never in code.
-# Every entry is a DRAFT. Nothing is approved until it has been proofread line by line.
-# spec_node_id is 'unmapped' until latin1-spec.yaml is available.
+# Proofread and approved by J. Sullivan. Student-facing builds show only review_status: approved.
 #
-# Questions to settle while proofreading:
-#  1. Commands use the singular imperative (Collige, Aedificā, Ambulā), as in the design file,
-#     so the player speaks as one foreman to the group. A group of farmers would strictly be
-#     Colligite, Aedificāte, Ambulāte. Keep singular, or switch?
-#  2. lapis: the command takes the accusative lapidem, a form students may not have met.
-#     Keep it, or gloss it on first appearance?
-#  3. Nominative vs accusative: labels show lignum / lapis / aqua / casa / mūrus / porta,
-#     while orders use lignum / lapidem / aquam / casam / mūrum / portam.
-#  4. forum: nominative and accusative are identical, so its order reads the same either way.
+# spec_node_id holds the main node from latin1-spec.yaml that the item practices.
+# Where an item also practices other nodes, they are listed in a comment on that entry.
+# Vocabulary words are 'unmapped': the spec treats headwords as their own items (strand VO),
+# so they have no node. Per the design file, unmapped items are listed for review.
+#
+# After editing this file, run:  python3 tools/build_content.py
+# (it rewrites content/latin.js, which the game reads).
 
 - id: vocab_lignum
   latin: "lignum"
@@ -18,7 +15,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_lapis
   latin: "lapis"
@@ -26,7 +23,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_aqua
   latin: "aqua"
@@ -34,7 +31,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_casa
   latin: "casa"
@@ -42,7 +39,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_murus
   latin: "mūrus"
@@ -50,7 +47,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_porta
   latin: "porta"
@@ -58,7 +55,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_forum
   latin: "forum"
@@ -66,7 +63,7 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: vocab_agricola
   latin: "agricola"
@@ -74,100 +71,100 @@
   type: vocab
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: cmd_collige
   latin: "Collige"
   english: "Gather!"
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-077
+  review_status: approved
 
 - id: cmd_aedifica
   latin: "Aedificā"
   english: "Build!"
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050
+  review_status: approved
 
 - id: cmd_ambula
   latin: "Ambulā"
   english: "Walk! / Move!"
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050
+  review_status: approved
 
 - id: order_collige_lignum
   latin: "Collige lignum."
   english: "Gather wood."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-077   # also practices MS-026
+  review_status: approved
 
 - id: order_collige_lapidem
   latin: "Collige lapidem."
   english: "Gather stone."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-077   # also practices MS-064
+  review_status: approved
 
 - id: order_collige_aquam
   latin: "Collige aquam."
   english: "Gather water."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-077   # also practices MS-019
+  review_status: approved
 
 - id: order_aedifica_casam
   latin: "Aedificā casam."
   english: "Build a house."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050   # also practices MS-019
+  review_status: approved
 
 - id: order_aedifica_murum
   latin: "Aedificā mūrum."
   english: "Build a wall."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050   # also practices MS-023
+  review_status: approved
 
 - id: order_aedifica_portam
   latin: "Aedificā portam."
   english: "Build a gate."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050   # also practices MS-019
+  review_status: approved
 
 - id: order_aedifica_forum
   latin: "Aedificā forum."
   english: "Build a forum."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-050   # also practices MS-026
+  review_status: approved
 
 - id: order_ambula_ad_aquam
   latin: "Ambulā ad aquam."
   english: "Walk to the water."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-084   # also practices MS-050, MS-019
+  review_status: approved
 
 - id: order_ambula_ad_forum
   latin: "Ambulā ad forum."
   english: "Walk to the forum."
   type: order
   nle_category: morphosyntax
-  spec_node_id: unmapped
-  review_status: draft
+  spec_node_id: MS-084   # also practices MS-050, MS-026
+  review_status: approved
