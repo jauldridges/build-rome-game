@@ -95,6 +95,30 @@ window.addEventListener('mouseup', e => {
   drag = null;
 });
 
+// What a click at world point p would act on: an unfinished building, or a tree, rock or pond
+function targetAt(p) {
+  const site = buildings.find(b => !b.done && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+  if (site) return { site };
+  const node = nodes.find(n => Math.hypot(n.x - p.x, n.y - p.y) < 22);
+  return node ? { node } : null;
+}
+
+// The Latin order floats above the cursor when farmers are selected and the mouse is over something they can work on
+function updateTip() {
+  const tip = document.getElementById('tip');
+  let id = null;
+  if (cursor && !placing && !(drag && drag.moved) && farmers.some(f => f.selected)) {
+    const t = targetAt({ x: cursor.x + cam.x, y: cursor.y + cam.y });
+    if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
+  }
+  const l = id && line(id);
+  if (!l) { tip.style.display = 'none'; return; }
+  tip.textContent = l.text;
+  tip.style.left = cursor.x + 'px';
+  tip.style.top = (cursor.y - 22) + 'px';
+  tip.style.display = 'block';
+}
+
 function handleClick(p, shift) {
   if (placing) { tryPlace(p); return; }
   const hit = farmers.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
@@ -104,11 +128,10 @@ function handleClick(p, shift) {
     return;
   }
   const sel = farmers.filter(f => f.selected);
-  const site = buildings.find(b => !b.done && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
-  if (site) { sel.forEach(f => sendToBuild(f, site)); return; }
-  const node = nodes.find(n => Math.hypot(n.x - p.x, n.y - p.y) < 22);
-  if (node) {
-    if (sel.length) { sel.forEach(f => sendGather(f, node)); showOrder(RES[node.type].order); }
+  const target = targetAt(p);
+  if (target && target.site) { sel.forEach(f => sendToBuild(f, target.site)); if (sel.length) showOrder(BUILD[target.site.type].order); return; }
+  if (target && target.node) {
+    if (sel.length) { sel.forEach(f => sendGather(f, target.node)); showOrder(RES[target.node.type].order); }
     return;
   }
   if (sel.length) showOrder('cmd_ambula');
@@ -328,8 +351,15 @@ function showOrder(id) {
 }
 
 function updateHud() {
-  document.getElementById('res').textContent =
-    Object.keys(RES).map(k => say(RES[k].word) + ': ' + stock[k]).join('   ');
+  const res = document.getElementById('res');
+  res.textContent = '';
+  Object.keys(RES).forEach(k => {
+    const row = document.createElement('div'), sw = document.createElement('span');
+    sw.className = 'swatch'; sw.style.background = RES[k].color;
+    row.appendChild(sw);
+    row.appendChild(document.createTextNode(say(RES[k].word) + ': ' + stock[k]));
+    res.appendChild(row);
+  });
   document.querySelectorAll('#orders button[data-build]').forEach(b => {
     const type = b.dataset.build;
     b.disabled = !afford(BUILD[type].cost);
@@ -349,6 +379,7 @@ function frame(now) {
   farmers.forEach(f => update(f, dt));
   for (let i = nodes.length - 1; i >= 0; i--) if (nodes[i].amount <= 0) nodes.splice(i, 1);
   draw();
+  updateTip();
   requestAnimationFrame(frame);
 }
 
