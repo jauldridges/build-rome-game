@@ -1,4 +1,5 @@
-// Step 3: farmers gather resources and put up buildings. Placeholder art only.
+// Step 4: orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
+// Placeholder art only.
 const TILE = 32, COLS = 60, ROWS = 40;
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
@@ -20,11 +21,21 @@ for (let r = 0; r < ROWS; r++) {
 }
 const GROUND_COLORS = ['#7d8a3c', '#6f7c33'];
 
-// Resources. Labels are English for now; Latin arrives in step 4 from content/latin.yaml.
+// ---- Latin content ----
+// Student builds show only approved lines. Add ?drafts=1 to the address to see drafts, marked [draft].
+const SHOW_DRAFTS = new URLSearchParams(location.search).has('drafts');
+function line(id) {
+  const e = LATIN.find(x => x.id === id);
+  if (!e || (e.review_status !== 'approved' && !SHOW_DRAFTS)) return null;
+  return { text: e.latin + (e.review_status === 'approved' ? '' : ' [draft]'), english: e.english };
+}
+function say(id) { const l = line(id); return l ? l.text : '?'; }
+
+// Resources. Each points at its word and its gather order in the Latin content file.
 const RES = {
-  wood:  { label: 'Wood',  color: '#2f5a2a', gatherTime: 1.0 },
-  stone: { label: 'Stone', color: '#9a958a', gatherTime: 1.4 },
-  water: { label: 'Water', color: '#2a6fb0', gatherTime: 0.7 },
+  wood:  { word: 'vocab_lignum', order: 'order_collige_lignum',  color: '#2f5a2a', gatherTime: 1.0 },
+  stone: { word: 'vocab_lapis',  order: 'order_collige_lapidem', color: '#9a958a', gatherTime: 1.4 },
+  water: { word: 'vocab_aqua',   order: 'order_collige_aquam',   color: '#2a6fb0', gatherTime: 0.7 },
 };
 const CARRY_MAX = 5;
 const stock = { wood: 0, stone: 0, water: 0 };
@@ -35,10 +46,10 @@ const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
 // Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
 const BUILD = {
-  house: { label: 'House', w: 2, h: 2, cost: { wood: 8 },            work: 6 },
-  wall:  { label: 'Wall',  w: 1, h: 1, cost: { stone: 2 },           work: 2 },
-  gate:  { label: 'Gate',  w: 2, h: 1, cost: { wood: 4, stone: 2 },  work: 3 },
-  forum: { label: 'Forum', w: 4, h: 3, cost: { stone: 12, wood: 8 }, work: 12 },
+  house: { order: 'order_aedifica_casam',  w: 2, h: 2, cost: { wood: 8 },            work: 6 },
+  wall:  { order: 'order_aedifica_murum',  w: 1, h: 1, cost: { stone: 2 },           work: 2 },
+  gate:  { order: 'order_aedifica_portam', w: 2, h: 1, cost: { wood: 4, stone: 2 },  work: 3 },
+  forum: { order: 'order_aedifica_forum',  w: 4, h: 3, cost: { stone: 12, wood: 8 }, work: 12 },
 };
 const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
 let placing = null;     // key of the building being placed, or null
@@ -97,17 +108,20 @@ function handleClick(p, shift) {
   if (site) { sel.forEach(f => sendToBuild(f, site)); return; }
   const node = nodes.find(n => Math.hypot(n.x - p.x, n.y - p.y) < 22);
   if (node) {
-    sel.forEach(f => {
-      f.node = node; f.site = null; f.state = 'toNode';
-      if (f.carry && f.carry !== node.type) { f.carry = null; f.carryN = 0; } // drops the old load
-    });
+    if (sel.length) { sel.forEach(f => sendGather(f, node)); showOrder(RES[node.type].order); }
     return;
   }
+  if (sel.length) showOrder('cmd_ambula');
   sel.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
     f.state = 'move'; f.node = null; f.site = null;
     f.tx = Math.max(10, Math.min(MAP_W - 10, p.x + (i % 3 - 1) * 24));
     f.ty = Math.max(10, Math.min(MAP_H - 10, p.y + Math.floor(i / 3) * 24));
   });
+}
+
+function sendGather(f, node) {
+  f.node = node; f.site = null; f.state = 'toNode';
+  if (f.carry && f.carry !== node.type) { f.carry = null; f.carryN = 0; } // drops the old load
 }
 
 // ---- Placing and building ----
@@ -158,6 +172,7 @@ function tryPlace(p) {
     crew = [farmers.slice().sort((a, b) => dist(a) - dist(b))[0]];
   }
   crew.forEach(f => sendToBuild(f, site));
+  showOrder(def.order);
   if (!afford(def.cost)) setPlacing(null); // stay in placing mode only while you can pay for more
   updateHud();
 }
@@ -222,22 +237,103 @@ function update(f, dt) {
   }
 }
 
-const buttons = {};
-Object.keys(BUILD).forEach(type => {
-  const def = BUILD[type];
+// ---- Commands and the order line ----
+const selectedFarmers = () => farmers.filter(f => f.selected);
+function nearest(list, from) {
+  return list.slice().sort((a, b) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y))[0];
+}
+function groupCenter(sel) {
+  return { x: sel.reduce((t, f) => t + f.x, 0) / sel.length, y: sel.reduce((t, f) => t + f.y, 0) / sel.length };
+}
+
+function gatherOrder(kind) {
+  const sel = selectedFarmers();
+  if (!sel.length) { setMsg('Select some farmers first.'); return; }
+  const node = nearest(nodes.filter(n => n.type === kind), groupCenter(sel));
+  if (!node) { setMsg('None of that is left.'); return; }
+  sel.forEach(f => sendGather(f, node));
+  showOrder(RES[kind].order);
+}
+
+// Walk to the nearest pond, or to a finished forum
+function walkOrder(id, kind) {
+  const sel = selectedFarmers();
+  if (!sel.length) { setMsg('Select some farmers first.'); return; }
+  const c = groupCenter(sel);
+  let target;
+  if (kind === 'forum') {
+    const b = nearest(buildings.filter(x => x.type === 'forum' && x.done).map(x => ({ x: x.x + x.w / 2, y: x.y + x.h + 20 })), c);
+    target = b;
+  } else {
+    const n = nearest(nodes.filter(x => x.type === kind).map(x => ({ x: x.x, y: x.y + 34 })), c);
+    target = n;
+  }
+  if (!target) { setMsg(kind === 'forum' ? 'There is no forum yet.' : 'None of that is left.'); return; }
+  sel.forEach((f, i) => { f.state = 'move'; f.node = null; f.site = null; f.tx = target.x + (i - (sel.length - 1) / 2) * 22; f.ty = target.y; });
+  showOrder(id);
+}
+
+// Each command lists its full orders. Orders are read aloud (shown) exactly as written in the content file.
+const COMMANDS = [
+  { id: 'cmd_collige', orders: Object.keys(RES).map(k => ({ id: RES[k].order, run: () => gatherOrder(k) })) },
+  { id: 'cmd_aedifica', orders: Object.keys(BUILD).map(k => ({ id: BUILD[k].order, build: k, run: () => setPlacing(k) })) },
+  { id: 'cmd_ambula', orders: [
+    { id: 'order_ambula_ad_aquam', run: () => walkOrder('order_ambula_ad_aquam', 'water') },
+    { id: 'order_ambula_ad_forum', run: () => walkOrder('order_ambula_ad_forum', 'forum') },
+  ] },
+];
+let openCommand = null;
+
+function makeButton(id, onClick) {
+  const l = line(id);
+  if (!l) return null;
   const b = document.createElement('button');
-  b.textContent = def.label + ' (' + Object.keys(def.cost).map(k => def.cost[k] + ' ' + RES[k].label).join(', ') + ')';
-  b.addEventListener('click', () => { b.blur(); setPlacing(placing === type ? null : type); });
-  document.getElementById('build').appendChild(b);
-  buttons[type] = b;
-});
+  b.textContent = l.text;
+  b.title = l.english; // English hint on hover
+  b.addEventListener('click', () => { b.blur(); onClick(); });
+  return b;
+}
+
+function costText(cost) {
+  return Object.keys(cost).map(k => cost[k] + ' ' + say(RES[k].word)).join(', ');
+}
+
+function renderCommands() {
+  const verbs = document.getElementById('cmds'), orders = document.getElementById('orders');
+  verbs.textContent = ''; orders.textContent = '';
+  COMMANDS.forEach(cmd => {
+    const b = makeButton(cmd.id, () => { openCommand = openCommand === cmd.id ? null : cmd.id; setPlacing(null); renderCommands(); });
+    if (!b) return;
+    if (openCommand === cmd.id) b.classList.add('active');
+    verbs.appendChild(b);
+  });
+  const open = COMMANDS.find(c => c.id === openCommand);
+  if (!open) return;
+  open.orders.forEach(o => {
+    const b = makeButton(o.id, () => { o.run(); updateHud(); });
+    if (!b) return;
+    if (o.build) {
+      b.textContent += '  (' + costText(BUILD[o.build].cost) + ')';
+      b.dataset.build = o.build;
+    }
+    orders.appendChild(b);
+  });
+  updateHud();
+}
+
+function showOrder(id) {
+  const l = line(id), el = document.getElementById('order');
+  el.textContent = l ? l.text : '';
+  el.title = l ? l.english : '';
+}
 
 function updateHud() {
   document.getElementById('res').textContent =
-    Object.keys(RES).map(k => RES[k].label + ': ' + stock[k]).join('   ');
-  Object.keys(buttons).forEach(type => {
-    buttons[type].disabled = !afford(BUILD[type].cost);
-    buttons[type].classList.toggle('active', placing === type);
+    Object.keys(RES).map(k => say(RES[k].word) + ': ' + stock[k]).join('   ');
+  document.querySelectorAll('#orders button[data-build]').forEach(b => {
+    const type = b.dataset.build;
+    b.disabled = !afford(BUILD[type].cost);
+    b.classList.toggle('active', placing === type);
   });
 }
 
@@ -351,5 +447,6 @@ function drawFarmer(f) {
 }
 
 resize();
+renderCommands();
 updateHud();
 requestAnimationFrame(frame);
