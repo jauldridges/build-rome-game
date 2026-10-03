@@ -1,6 +1,6 @@
 # ============================================================
 # Latin I — Spec Node List
-# Libertas Academy Charter School · FY27 · J. Sullivan
+# FY27 · J. Sullivan
 # Draft v1 · August 2026
 #
 # CANONICAL SOURCE OF TRUTH.
@@ -15,13 +15,13 @@
 
 meta:
   course: Latin I
-  school: Libertas Academy Charter School
+  school: 
   year: FY27
   teacher: J. Sullivan
-  sections: [Block 3, Block 4, Block 5, Block 7]
+  sections: 
   external_anchor: National Latin Exam, Introduction to Latin / Latin I
   nle_window: 2027-03-08/2027-03-12
-  version: 2.0
+  version: 2.1
   updated: 2026-08-20
 
 strands:
