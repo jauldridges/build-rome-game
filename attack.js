@@ -207,8 +207,8 @@ function nextCardPage() {
 }
 document.getElementById('cardok').addEventListener('click', nextCardPage);
 
-// Step 7 (the five-question closing check) will start here.
-function endMission() { war.phase = 'over'; }
+// After the last card the closing check begins (quiz.js).
+function endMission() { war.phase = 'over'; startQuiz(); }
 
 // ---- Drawing ----
 function drawForest() {

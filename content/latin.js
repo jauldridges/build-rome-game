@@ -494,5 +494,90 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
   "review_status": "approved"
+ },
+ {
+  "id": "quiz_ad_forum",
+  "latin": "Agricola novus ad forum venit.",
+  "english": "A new farmer comes to the forum.",
+  "type": "quiz_item",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-084",
+  "review_status": "draft",
+  "question": "Where does the new farmer go?",
+  "choices": [
+   "To the gate",
+   "To the forum",
+   "To the river",
+   "To the forest"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "quiz_hostes_silva",
+  "latin": "Hostēs ex silvā veniunt. Mīlitēs mūrum dēfendunt.",
+  "english": "Enemies are coming out of the forest. The soldiers are defending the wall.",
+  "type": "quiz_item",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-083",
+  "review_status": "draft",
+  "question": "What are the soldiers doing?",
+  "choices": [
+   "Building a house",
+   "Defending the wall",
+   "Gathering stone",
+   "Walking to the river"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "quiz_agricola_romulum",
+  "latin": "Agricola Rōmulum adiuvat.",
+  "english": "The farmer helps Romulus.",
+  "type": "quiz_item",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-015",
+  "review_status": "draft",
+  "question": "Who is being helped?",
+  "choices": [
+   "The farmer",
+   "Romulus",
+   "A soldier",
+   "The Sabine king"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "quiz_portae_plural",
+  "latin": "Mūrus bonus est. Portae bonae sunt.",
+  "english": "The wall is good. The gates are good.",
+  "type": "quiz_item",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-020",
+  "review_status": "draft",
+  "question": "How many gates does the passage describe?",
+  "choices": [
+   "One",
+   "More than one",
+   "None",
+   "It does not say"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "quiz_imperatives_order",
+  "latin": "Collige lapidem! Aedificā mūrum!",
+  "english": "Gather a stone! Build a wall!",
+  "type": "quiz_item",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft",
+  "question": "In what order are you told to do these things?",
+  "choices": [
+   "Build a wall, then gather stone",
+   "Gather stone, then build a wall",
+   "Defend the wall, then gather stone",
+   "Gather stone, then defend the wall"
+  ],
+  "answer": 1
  }
 ];

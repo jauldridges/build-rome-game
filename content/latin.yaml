@@ -474,3 +474,71 @@
   spec_node_id: MS-084   # also MS-050, MS-064, MS-042
   review_status: approved
 
+# ---- Step 7: the closing check (DRAFT, not yet proofread) ----
+# Five reading questions shown after the ending cards, with no hints. Each item is a short Latin passage.
+# Quiz items carry three fields beyond the usual ones:
+#   question: the English question
+#   choices:  the answer choices, in English (the game shuffles them)
+#   answer:   the index (starting at 0) of the correct choice
+# "english" is the translation of the passage. Students see it only on the results screen, after the check.
+# Every passage is built from words and patterns the mission has already used.
+# Questions for proofreading:
+#  1. Are these five passages at the right level for the end of a 15-20 minute mission?
+#  2. Each question tests one thing: ad + accusative, plural verbs, the accusative object, plural nouns, and the order of two imperatives.
+#  3. Check that every wrong choice is clearly wrong and that no passage has a second reading.
+
+- id: quiz_ad_forum
+  latin: "Agricola novus ad forum venit."
+  english: "A new farmer comes to the forum."
+  type: quiz_item
+  nle_category: morphosyntax
+  spec_node_id: MS-084   # ad + accusative; also MS-074 (venit), MS-042
+  review_status: draft
+  question: "Where does the new farmer go?"
+  choices: ["To the gate", "To the forum", "To the river", "To the forest"]
+  answer: 1
+
+- id: quiz_hostes_silva
+  latin: "Hostēs ex silvā veniunt. Mīlitēs mūrum dēfendunt."
+  english: "Enemies are coming out of the forest. The soldiers are defending the wall."
+  type: quiz_item
+  nle_category: morphosyntax
+  spec_node_id: MS-083   # ex + ablative; also MS-065, MS-072 (dēfendunt), MS-015
+  review_status: draft
+  question: "What are the soldiers doing?"
+  choices: ["Building a house", "Defending the wall", "Gathering stone", "Walking to the river"]
+  answer: 1
+
+- id: quiz_agricola_romulum
+  latin: "Agricola Rōmulum adiuvat."
+  english: "The farmer helps Romulus."
+  type: quiz_item
+  nle_category: morphosyntax
+  spec_node_id: MS-015   # accusative as direct object; also MS-023
+  review_status: draft
+  question: "Who is being helped?"
+  choices: ["The farmer", "Romulus", "A soldier", "The Sabine king"]
+  answer: 1
+
+- id: quiz_portae_plural
+  latin: "Mūrus bonus est. Portae bonae sunt."
+  english: "The wall is good. The gates are good."
+  type: quiz_item
+  nle_category: morphosyntax
+  spec_node_id: MS-020   # nominative plural; also MS-044 (adjective agreement, number), MS-040
+  review_status: draft
+  question: "How many gates does the passage describe?"
+  choices: ["One", "More than one", "None", "It does not say"]
+  answer: 1
+
+- id: quiz_imperatives_order
+  latin: "Collige lapidem! Aedificā mūrum!"
+  english: "Gather a stone! Build a wall!"
+  type: quiz_item
+  nle_category: morphosyntax
+  spec_node_id: MS-077   # also MS-050
+  review_status: draft
+  question: "In what order are you told to do these things?"
+  choices: ["Build a wall, then gather stone", "Gather stone, then build a wall", "Defend the wall, then gather stone", "Gather stone, then defend the wall"]
+  answer: 1
+
