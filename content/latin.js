@@ -19,15 +19,6 @@ const LATIN = [
   "review_status": "approved"
  },
  {
-  "id": "vocab_aqua",
-  "latin": "aqua",
-  "english": "water",
-  "type": "vocab",
-  "nle_category": "vocabulary",
-  "spec_node_id": "unmapped",
-  "review_status": "approved"
- },
- {
   "id": "vocab_casa",
   "latin": "casa",
   "english": "house",
@@ -112,15 +103,6 @@ const LATIN = [
   "id": "order_collige_lapidem",
   "latin": "Collige lapidem.",
   "english": "Gather stone.",
-  "type": "order",
-  "nle_category": "morphosyntax",
-  "spec_node_id": "MS-077",
-  "review_status": "approved"
- },
- {
-  "id": "order_collige_aquam",
-  "latin": "Collige aquam.",
-  "english": "Gather water.",
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
@@ -220,15 +202,6 @@ const LATIN = [
   "id": "msg_romulus_relege",
   "latin": "Relege.",
   "english": "Read it again.",
-  "type": "message",
-  "nle_category": "morphosyntax",
-  "spec_node_id": "MS-077",
-  "review_status": "approved"
- },
- {
-  "id": "msg_romulus_send",
-  "latin": "Bene! Mitte quattuor agricolās ad aquam.",
-  "english": "Good! Send four farmers to the water.",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",

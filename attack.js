@@ -14,7 +14,7 @@ function beginWarning() {
   renderCommands();
   // scout, then Romulus twice; the clock starts when the last box is closed
   showMessage('msg_scout_warning', 'alarmed', () =>
-    showCards(['culture_sabine_women'], () =>
+    showCards(['culture_why_war', 'culture_sabine_women'], () =>
       showMessage('msg_romulus_hurry', 'alarmed', () =>
         showMessage('msg_romulus_soldiers', 'neutral', startClock), 'romulus')), 'scout');
 }

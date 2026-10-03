@@ -26,13 +26,6 @@
   spec_node_id: unmapped
   review_status: approved
 
-- id: vocab_aqua
-  latin: "aqua"
-  english: "water"
-  type: vocab
-  nle_category: vocabulary
-  spec_node_id: unmapped
-  review_status: approved
 
 - id: vocab_casa
   latin: "casa"
@@ -114,13 +107,6 @@
   spec_node_id: MS-077   # also practices MS-064
   review_status: approved
 
-- id: order_collige_aquam
-  latin: "Collige aquam."
-  english: "Gather water."
-  type: order
-  nle_category: morphosyntax
-  spec_node_id: MS-077   # also practices MS-019
-  review_status: approved
 
 - id: order_aedifica_casam
   latin: "Aedificā casam."
@@ -218,13 +204,6 @@
 # ---- Rōmulus's later orders (proofread and approved by J. Sullivan) ----
 # The spec has no node for numbers, so quattuor is not tagged.
 
-- id: msg_romulus_send
-  latin: "Bene! Mitte quattuor agricolās ad aquam."
-  english: "Good! Send four farmers to the water."
-  type: message
-  nle_category: morphosyntax
-  spec_node_id: MS-077   # also MS-021 (accusative plural), MS-084 (ad + accusative)
-  review_status: approved
 
 - id: msg_romulus_wall
   latin: "Bene! Aedificā mūrum."

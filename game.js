@@ -4,9 +4,9 @@
 const TILE = 32, COLS = 60, ROWS = 40;
 const FOREST_H = 128; // the forest along the north edge, where the Sabines come from
 
-// The Tiber runs north to south across the map, and the Palatine Hill rises to the east of it.
-const RIVER = { half: 38, points: [[1180, 128], [1215, 320], [1190, 520], [1215, 720], [1195, 920], [1230, 1100], [1200, 1280]] };
-const HILL = { x: 1560, y: 560, rx: 240, ry: 150 };
+// The Tiber runs north to south down the left side of the map, and the Palatine Hill rises just east of it.
+const RIVER = { half: 38, points: [[300, 128], [335, 320], [310, 520], [335, 720], [315, 920], [350, 1100], [320, 1280]] };
+const HILL = { x: 780, y: 540, rx: 240, ry: 150 };
 function riverDist(x, y) { // distance from a point to the middle of the river
   let best = Infinity;
   for (let i = 0; i + 1 < RIVER.points.length; i++) {
@@ -57,13 +57,12 @@ function say(id) { const l = line(id); return l ? l.text : '?'; }
 const RES = {
   wood:  { word: 'vocab_lignum', order: 'order_collige_lignum',  color: '#2f5a2a', gatherTime: 1.0 },
   stone: { word: 'vocab_lapis',  order: 'order_collige_lapidem', color: '#9a958a', gatherTime: 1.4 },
-  water: { word: 'vocab_aqua',   order: 'order_collige_aquam',   color: '#2a6fb0', gatherTime: 0.7 },
 };
 const CARRY_MAX = 5;
-const stock = { wood: 0, stone: 0, water: 0 };
+const stock = { wood: 0, stone: 0 };
 
 // Where gathered goods are dropped off (placeholder storehouse)
-const store = { x: 1480, y: 780, w: 56, h: 48 };
+const store = { x: 700, y: 780, w: 56, h: 48 };
 const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
 // Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
@@ -77,12 +76,11 @@ const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
 let placing = null;     // key of the building being placed, or null
 let cursor = null;      // screen position of the mouse over the map
 
-// Resource nodes: trees to the south-east of the storehouse, rocks to the south-west, pools on the river bank
+// Resource nodes: trees to the south-east of the storehouse, rocks to the south-west
 const nodes = [];
 function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
-addNodes('wood',  [[1640, 830], [1690, 860], [1740, 820], [1670, 910], [1750, 890], [1710, 780]], 60);
-addNodes('stone', [[1380, 900], [1420, 940], [1350, 950], [1440, 880]], 80);
-addNodes('water', [[1285, 720], [1320, 760], [1290, 800], [1340, 700], [1270, 760]], 150);
+addNodes('wood',  [[880, 840], [930, 870], [980, 830], [910, 920], [990, 900], [950, 790]], 60);
+addNodes('stone', [[520, 900], [560, 940], [490, 950], [580, 880]], 80);
 
 // Farmers: three to start. A finished house brings one more, a finished forum three more.
 const farmers = [];
@@ -508,7 +506,6 @@ const isBuilt = (type, n) => buildings.filter(b => b.type === type && b.done).le
 // How many farmers are standing at a pond
 // How many farmers have arrived at the river or on the hill
 const farmersAt = place => farmers.filter(f => f.state === 'idle' && (place === 'river' ? riverDist(f.x, f.y) < RIVER.half + 70 : inHill(f.x, f.y))).length;
-const farmersAtWater = () => farmers.filter(f => (f.state === 'idle' || f.state === 'gather') && nodes.some(n => n.type === 'water' && Math.hypot(n.x - f.x, n.y - f.y) < 80)).length;
 
 // say: the message. expects: the work order that is right now. allow: other work orders that are never a mistake here.
 const BEATS = [
@@ -519,12 +516,10 @@ const BEATS = [
   { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
   { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
   { say: 'msg_romulus_done', face: 'pleased', expects: null, post: ['culture_asylum'], done: () => true },
-  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], done: () => stock.water >= 5 },
   { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, post: ['culture_pomerium'], done: () => isBuilt('wall', 4) },
   { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
   { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, post: ['culture_senate'], done: () => isBuilt('forum') },
-  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_collige_aquam'], done: () => farmersAtWater() >= 4 },
-  { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines', 'culture_why_war'], done: () => true },
+  { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines'], done: () => true },
   { run: () => beginWarning(), expects: null, done: null }, // the warning, the attack and the ending (attack.js)
 ];
 const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
@@ -613,9 +608,6 @@ function drawNode(n) {
   } else if (n.type === 'stone') {
     ctx.fillStyle = RES.stone.color; ctx.fillRect(x - 14, y - 8, 28, 20);
     ctx.fillStyle = '#c9c4b6'; ctx.fillRect(x - 8, y - 12, 14, 8);
-  } else {
-    ctx.fillStyle = RES.water.color; ctx.beginPath(); ctx.ellipse(x, y, 24, 16, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#7fb4e0'; ctx.fillRect(x - 8, y - 4, 10, 2);
   }
 }
 
