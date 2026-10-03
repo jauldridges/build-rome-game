@@ -169,7 +169,7 @@
   spec_node_id: MS-040   # also practices MS-041 (predicate nominative), MS-049 (vocative amīce), MS-050 (Adiuvā)
   review_status: approved
   en: "Hello there. I'm Romulus, king of a town that doesn't exist yet. Let's fix that. Help me."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_stone
   latin: "Bene! Collige lapidem."
@@ -179,7 +179,7 @@
   spec_node_id: MS-077
   review_status: approved
   en: "Good. Now stone. The grey lumps that stay where you put them."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_house
   latin: "Bene! Aedificā casam."
@@ -189,7 +189,7 @@
   spec_node_id: MS-050
   review_status: approved
   en: "Good. Build a house. Yes, even the king needs one."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_done
   latin: "Optimē! Casa bona est."
@@ -199,7 +199,7 @@
   spec_node_id: MS-042   # also MS-041: adjective bona agrees with casa
   review_status: approved
   en: "Excellent. A decent house. Remus will say it's too small, if he ever turns up."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_relege
   latin: "Relege."
@@ -209,7 +209,7 @@
   spec_node_id: MS-077
   review_status: approved
   en: "Read it again. Slowly. I'll wait."
-  en_status: draft
+  en_status: approved
 
 # ---- Rōmulus's later orders (proofread and approved by J. Sullivan) ----
 # The spec has no node for numbers, so quattuor is not tagged.
@@ -223,7 +223,7 @@
   spec_node_id: MS-050   # also MS-023
   review_status: approved
   en: "Good. A wall. It keeps trouble out. In theory."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_gate
   latin: "Bene! Aedificā portam."
@@ -233,7 +233,7 @@
   spec_node_id: MS-050   # also MS-019
   review_status: approved
   en: "Good. A gate. Even a wall needs a way in. I'm told that's how doors work."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_forum
   latin: "Bene! Aedificā forum."
@@ -243,7 +243,7 @@
   spec_node_id: MS-050   # also MS-026
   review_status: approved
   en: "Good. A forum. A place to meet, argue and sell things. Basically, Rome."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_final
   latin: "Optimē! Rōma crescit."
@@ -253,7 +253,7 @@
   spec_node_id: MS-072   # also MS-018
   review_status: approved
   en: "Excellent. Rome is growing. Try not to look so surprised."
-  en_status: draft
+  en_status: approved
 
 # ---- Arrival notices ----
 # Both lines proofread and approved by J. Sullivan.
@@ -266,7 +266,7 @@
   spec_node_id: MS-074   # also MS-042 (novus agrees with agricola), MS-022
   review_status: approved
   en: "A new farmer shows up, looking for work."
-  en_status: draft
+  en_status: approved
 
 - id: msg_farmers_arrive
   latin: "Trēs agricolae novī adveniunt."
@@ -276,7 +276,7 @@
   spec_node_id: MS-074   # also MS-020 (nominative plural), MS-044 (adjective agreement, number)
   review_status: approved
   en: "Three more farmers arrive. Apparently word got around."
-  en_status: draft
+  en_status: approved
 
 # ---- Step 6: the Sabine attack and the ending (proofread and approved by J. Sullivan) ----
 # Culture notes: "latin" is the heading shown on a history card; "english" is the paragraph shown beneath it.
@@ -330,7 +330,7 @@
   spec_node_id: MS-083   # ex + ablative; also MS-065 (hostēs), MS-074 (veniunt)
   review_status: approved
   en: "Enemies! Coming out of the forest! Lots of them! Angry ones!"
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_hurry
   latin: "Cito! Aedificā mūrum!"
@@ -340,7 +340,7 @@
   spec_node_id: MS-050   # also MS-023
   review_status: approved
   en: "Quick! Build a wall! A big one!"
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_soldiers
   latin: "Mīlitēs adsunt. Dēfende mūrum!"
@@ -350,7 +350,7 @@
   spec_node_id: MS-077   # also MS-065 (mīlitēs), MS-040 (adsunt)
   review_status: approved
   en: "The soldiers are here. Point them at the wall. They'll work out the rest."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_retry
   latin: "Ēheu! Iterum aedificā."
@@ -360,7 +360,7 @@
   spec_node_id: MS-050
   review_status: approved
   en: "Ugh. Build it again. I liked that one."
-  en_status: draft
+  en_status: approved
 
 - id: msg_tatius_peace
   latin: "Salvē, Rōmule. Sum Titus Tatius. Pācem petō."
@@ -370,7 +370,7 @@
   spec_node_id: MS-049   # vocative Rōmule; also MS-040, MS-072
   review_status: approved
   en: "Greetings, Romulus. I am Titus Tatius. I would like us to stop fighting now."
-  en_status: draft
+  en_status: approved
 
 - id: msg_romulus_peace
   latin: "Pāx! Sabīnī et Rōmānī amīcī sunt."
@@ -380,7 +380,7 @@
   spec_node_id: MS-040   # also MS-020 (nominative plural)
   review_status: approved
   en: "Peace! Sabines and Romans are friends. Let's not make it weird."
-  en_status: draft
+  en_status: approved
 
 - id: culture_romulus_remus
   latin: "Rōmulus et Remus"
@@ -390,7 +390,7 @@
   spec_node_id: RW-007
   review_status: approved
   en_title: "Romulus and Remus"
-  en_status: draft
+  en_status: approved
 
 - id: culture_pomerium
   latin: "Pōmērium"
@@ -400,7 +400,7 @@
   spec_node_id: unmapped
   review_status: approved
   en_title: "The Pomerium"
-  en_status: draft
+  en_status: approved
 
 - id: culture_sabine_women
   latin: "Sabīnae fēminae"
@@ -410,7 +410,7 @@
   spec_node_id: unmapped
   review_status: approved
   en_title: "The Sabine Women"
-  en_status: draft
+  en_status: approved
 
 - id: culture_sabine_women_end
   latin: "Sabīnae fēminae"
@@ -420,7 +420,7 @@
   spec_node_id: unmapped
   review_status: approved
   en_title: "The Sabine Women"
-  en_status: draft
+  en_status: approved
 
 - id: culture_tatius
   latin: "Titus Tatius et Rōmulus"
@@ -430,7 +430,7 @@
   spec_node_id: RW-009
   review_status: approved
   en_title: "Titus Tatius and Romulus"
-  en_status: draft
+  en_status: approved
 
 # ---- Fuller history cards (proofread and approved by J. Sullivan) ----
 # More historical context: the setting, who the Sabines were, why they fought Rome, and what came next.
@@ -443,7 +443,7 @@
   spec_node_id: RW-001   # also RW-005
   review_status: approved
   en_title: "The Seven Hills"
-  en_status: draft
+  en_status: approved
 
 - id: culture_asylum
   latin: "Asylum"
@@ -453,7 +453,7 @@
   spec_node_id: RW-007
   review_status: approved
   en_title: "A Place of Refuge"
-  en_status: draft
+  en_status: approved
 
 - id: culture_sabines
   latin: "Sabīnī"
@@ -463,7 +463,7 @@
   spec_node_id: RW-006
   review_status: approved
   en_title: "The Sabines"
-  en_status: draft
+  en_status: approved
 
 - id: culture_why_war
   latin: "Cūr bellum?"
@@ -473,7 +473,7 @@
   spec_node_id: unmapped
   review_status: approved
   en_title: "Why War?"
-  en_status: draft
+  en_status: approved
 
 - id: culture_senate
   latin: "Senātus"
@@ -483,7 +483,7 @@
   spec_node_id: RW-016   # also RW-022 (patricians)
   review_status: approved
   en_title: "The Senate"
-  en_status: draft
+  en_status: approved
 
 - id: culture_kings
   latin: "Septem rēgēs"
@@ -493,7 +493,7 @@
   spec_node_id: RW-009   # also RW-011
   review_status: approved
   en_title: "Seven Kings"
-  en_status: draft
+  en_status: approved
 
 - id: culture_story_history
   latin: "Fābula et historia"
@@ -503,7 +503,7 @@
   spec_node_id: RW-007
   review_status: approved
   en_title: "Legend and History"
-  en_status: draft
+  en_status: approved
 
 # ---- Walking orders: to the Tiber and the Palatine (proofread and approved by J. Sullivan) ----
 # Forms confirmed: flūmen (macron), and ad Montem Palatīnum (mōns is masculine, so the adjective is Palatīnum).
@@ -532,7 +532,7 @@
   spec_node_id: MS-084   # also MS-050, MS-064, MS-042
   review_status: approved
   en: "Good. Now up the Palatine Hill. Yes, all of it. It's a hill."
-  en_status: draft
+  en_status: approved
 
 # ---- Step 7: the closing check (proofread and approved by J. Sullivan) ----
 # Five reading questions shown after the ending cards, with no hints. Each item is a short Latin passage.
@@ -597,11 +597,11 @@
   choices: ["Build a wall, then gather stone", "Gather stone, then build a wall", "Defend the wall, then gather stone", "Gather stone, then defend the wall"]
   answer: 1
 
-# ---- Two ways to play: Latin mode and English mode (DRAFT where marked) ----
+# ---- Two ways to play: Latin mode and English mode (proofread and approved by J. Sullivan) ----
 # English mode shows each entry's plain "english" text. An entry may add:
 #   en:        a funnier English-mode wording (Romulus's dry voice)
 #   en_title:  the English heading for a history card
-#   en_status: draft or approved. English mode uses en and en_title only once approved (or with ?drafts=1).
+#   en_status: approved or approved. English mode uses en and en_title only once approved (or with ?drafts=1).
 # Quiz items with track: en are the English-mode closing check; they have no Latin passage.
 # "english" on those items explains the correct answer and is shown on the results screen.
 # The title is taken as written in the design file.
@@ -621,7 +621,7 @@
   track: en
   nle_category: culture
   spec_node_id: RW-007
-  review_status: draft
+  review_status: approved
   question: "Which hill did Romulus choose for his new city?"
   choices: ["The Palatine", "The Aventine", "The Capitoline", "The Esquiline"]
   answer: 0
@@ -633,7 +633,7 @@
   track: en
   nle_category: culture
   spec_node_id: RW-001
-  review_status: draft
+  review_status: approved
   question: "Which river flows past Rome?"
   choices: ["The Nile", "The Po", "The Danube", "The Tiber"]
   answer: 3
@@ -645,7 +645,7 @@
   track: en
   nle_category: culture
   spec_node_id: RW-006
-  review_status: draft
+  review_status: approved
   question: "Who were the Sabines?"
   choices: ["A people of central Italy, northeast of Rome", "Greek traders from Sicily", "Rome's first priests", "Invaders from North Africa"]
   answer: 0
@@ -657,7 +657,7 @@
   track: en
   nle_category: culture
   spec_node_id: RW-007
-  review_status: draft
+  review_status: approved
   question: "According to the legend, why did the Sabines go to war with Rome?"
   choices: ["The Romans carried off young Sabine women", "Rome refused to pay a tax", "Remus insulted Titus Tatius", "The Sabines wanted the river crossing"]
   answer: 0
@@ -669,7 +669,7 @@
   track: en
   nle_category: culture
   spec_node_id: RW-009
-  review_status: draft
+  review_status: approved
   question: "How did the war end?"
   choices: ["Romulus defeated the Sabines in a great battle", "The Sabine women stopped the fighting and the two peoples joined", "Rome paid the Sabines to leave", "The Sabines burned Rome to the ground"]
   answer: 1
