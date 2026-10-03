@@ -2,45 +2,102 @@
 // Placeholder art only. Every Latin line comes from content/latin.js; this file holds none.
 
 const raiders = [];                       // the Sabines
-const HP = { wall: 10, gate: 14, house: 14, forum: 30 }; // how much a building can take
-const war = { phase: 'none', clock: 0, clockMax: 90, wave: 0, lost: false };
+const fx = [];                            // little puffs when someone falls or a building is lost
+const war = { phase: 'none', clock: 0, clockMax: 10, wave: 0, snapshot: null, trainTold: false };
 let cardOpen = false;
+
+// Everything you might tune while play-testing the defense lives here.
+const DEFENSE = {
+  // wave: how many Sabines, where they come from, the scout's line, and the seconds of build time before they arrive
+  waves: [
+    { n: 4, from: 'silva',  say: 'msg_scout_warning', clock: 10 },
+    { n: 6, from: 'flumen', say: 'msg_scout_wave2',   clock: 25 },
+    { n: 8, from: 'agri',   say: 'msg_scout_wave3',   clock: 25 },
+  ],
+  retryClock: 20,                                          // build time after the whole town falls and the defense restarts
+  soldier: { hp: 20, dmg: 3, speed: 105, start: 4, cost: 3 }, // cost: stones for one more soldier
+  sabine: { hp: 12, speed: 52, dmgSoldier: 2, dmgBuilding: 0.7 },
+  hp: { wall: 10, gate: 14, house: 14, forum: 30 },          // how much a building can take
+};
+const HP = DEFENSE.hp;
 
 // ---- The warning ----
 function beginWarning() {
-  war.wave = 1; war.phase = 'warn';
-  spawnSoldiers(4);
-  COMMANDS.push({ id: 'cmd_defende', orders: [{ id: 'order_defende_murum', run: defendOrder }] });
+  war.wave = 0; war.phase = 'warn';
+  spawnSoldiers(DEFENSE.soldier.start);
+  COMMANDS.push(
+    { id: 'cmd_defende', orders: [{ id: 'order_defende_murum', run: defendOrder }] },
+    { id: 'cmd_fer', orders: [{ id: 'order_fer_lapides_ad_forum', run: ferOrder }] },
+    { id: 'cmd_fac', orders: [{ id: 'order_fac_milites', run: facOrder }] },
+  );
   renderCommands();
-  // scout, then Romulus twice; the clock starts when the last box is closed
-  showMessage('msg_scout_warning', 'alarmed', () =>
+  saveCheckpoint(); // if the whole town ever falls, the defense starts again from here
+  // scout, then the story card, then Romulus twice; the clock starts when the last box is closed
+  showMessage(DEFENSE.waves[0].say, 'alarmed', () =>
     showCards(['culture_why_war', 'culture_sabine_women'], () =>
       showMessage('msg_romulus_hurry', 'alarmed', () =>
-        showMessage('msg_romulus_soldiers', 'neutral', startClock), 'romulus')), 'scout');
+        showMessage('msg_romulus_soldiers', 'neutral', () => startPrep(DEFENSE.waves[0].clock)), 'romulus')), 'scout');
 }
 
-function spawnSoldiers(n) {
-  const forum = buildings.find(b => b.type === 'forum' && b.done);
-  const x = forum ? forum.x + forum.w / 2 : storeSpot.x, y = forum ? forum.y + forum.h + 24 : storeSpot.y + 10;
-  for (let i = 0; i < n; i++) {
-    soldiers.push({ x: x + (i - (n - 1) / 2) * 26, y, speed: 105, selected: false, state: 'idle', tx: 0, ty: 0, guard: null });
-  }
+// The scout announces the next wave; the build time runs until it arrives
+function announceWave() {
+  const w = DEFENSE.waves[war.wave];
+  showMessage(w.say, 'alarmed', () => {
+    if (war.wave === 1 && !war.trainTold) { war.trainTold = true; showMessage('msg_romulus_train', 'neutral', () => startPrep(w.clock)); }
+    else startPrep(w.clock);
+  }, 'scout');
 }
 
-function startClock() {
+function startPrep(seconds) {
   war.phase = 'prep';
-  war.clockMax = war.clock = war.wave === 1 ? 10 : 20; // a short, sharp warning; a retry gives a little longer to rebuild
+  war.clockMax = war.clock = seconds;
   updateClock();
 }
 
 function updateClock() {
   const el = document.getElementById('clock');
-  el.style.display = war.phase === 'prep' ? 'block' : 'none';
-  document.getElementById('clockfill').style.width = Math.max(0, war.clock / war.clockMax * 100) + '%';
+  const on = war.phase === 'prep' || war.phase === 'attack';
+  el.style.display = on ? 'block' : 'none';
+  document.getElementById('clockfill').style.width = war.phase === 'prep' ? Math.max(0, war.clock / war.clockMax * 100) + '%' : '0%';
+  const pips = document.getElementById('waves');
+  pips.style.display = on ? 'flex' : 'none';
+  pips.textContent = '';
+  DEFENSE.waves.forEach((_, i) => { const d = document.createElement('i'); if (i < war.wave) d.className = 'done'; else if (i === war.wave) d.className = 'on'; pips.appendChild(d); });
+}
+
+// ---- The checkpoint: the town as it stood at the warning ----
+function saveCheckpoint() {
+  const drop = (k, v) => (k === 'node' || k === 'site' || k === 'target' || k === 'hitting') ? null : v; // references are rebuilt, not copied
+  war.snapshot = JSON.stringify({ buildings, farmers, soldiers, nodes, stock }, drop);
+}
+
+function restoreCheckpoint() {
+  const s = JSON.parse(war.snapshot);
+  const swap = (arr, items) => { arr.length = 0; items.forEach(i => arr.push(i)); };
+  swap(buildings, s.buildings);
+  swap(nodes, s.nodes);
+  swap(farmers, s.farmers.map(f => Object.assign(f, { state: 'idle', node: null, site: null, carry: null, carryN: 0, selected: false })));
+  swap(soldiers, s.soldiers.map(u => Object.assign(u, { state: 'idle', selected: false, guard: null })));
+  Object.assign(stock, s.stock);
+  raiders.length = 0;
+  updateHud();
 }
 
 // ---- The soldiers ----
 function selectedSoldiers() { return soldiers.filter(s => s.selected); }
+
+function spawnSoldiers(n) {
+  const forum = buildings.find(b => b.type === 'forum' && b.done);
+  const x = forum ? forum.x + forum.w / 2 : storeSpot.x, y = forum ? forum.y + forum.h + 24 : storeSpot.y + 10;
+  for (let i = 0; i < n; i++) {
+    const S = DEFENSE.soldier;
+    soldiers.push({ x: x + (i - (n - 1) / 2) * 26 + (Math.random() * 8 - 4), y: y + Math.random() * 8, speed: S.speed, hp: S.hp, maxHp: S.hp, selected: false, state: 'idle', tx: 0, ty: 0, guard: null });
+    puff(x + (i - (n - 1) / 2) * 26, y);
+  }
+  updateHud();
+}
+
+function puff(x, y, color) { fx.push({ x, y, t: 0, color: color || '#f3e6c4' }); }
 
 // The place behind the wall where defenders stand: just south of the finished wall pieces, or north of the town if there are none
 function guardPoint() {
@@ -60,13 +117,44 @@ function defendOrder() {
   showOrder('order_defende_murum');
 }
 
+const finishedForum = () => buildings.find(b => b.type === 'forum' && b.done);
+
+// Carry stones to the forum: farmers gather stone and deliver it there. Every few stones make a soldier.
+function ferOrder() {
+  const sel = selectedFarmers();
+  if (!sel.length) { setMsg('Select some farmers first.'); return; }
+  if (!finishedForum()) { setMsg('Build a forum first.'); return; }
+  const node = nearest(nodes.filter(n => n.type === 'stone'), groupCenter(sel));
+  if (!node) { setMsg('None of that is left.'); return; }
+  sel.forEach(f => sendGather(f, node, true));
+  showOrder('order_fer_lapides_ad_forum');
+}
+
+// Called when a farmer arrives at the forum with stone
+function depositToForum(n) {
+  const forum = finishedForum();
+  if (!forum) { stock.stone += n; return; }
+  forum.stoneIn = (forum.stoneIn || 0) + n;
+  while (forum.stoneIn >= DEFENSE.soldier.cost) { forum.stoneIn -= DEFENSE.soldier.cost; spawnSoldiers(1); }
+}
+
+// Make soldiers from the stone in the storehouse
+function facOrder() {
+  if (!finishedForum()) { setMsg('Build a forum first.'); return; }
+  const n = Math.floor(stock.stone / DEFENSE.soldier.cost);
+  if (!n) { setMsg('A soldier costs ' + DEFENSE.soldier.cost + ' stones.'); return; }
+  stock.stone -= n * DEFENSE.soldier.cost;
+  spawnSoldiers(n);
+  showOrder('order_fac_milites');
+}
+
 function updateSoldier(s, dt) {
   if (s.state === 'move') { if (walk(s, s.tx, s.ty, dt, 2)) s.state = 'idle'; return; }
   let foe = null, best = s.guard ? 190 : 110;
   raiders.forEach(r => { const d = Math.hypot(r.x - s.x, r.y - s.y); if (d < best) { foe = r; best = d; } });
   if (foe) {
     s.fighting = walk(s, foe.x, foe.y, dt, 22);
-    if (s.fighting) foe.hp -= 2.5 * dt;
+    if (s.fighting) foe.hp -= DEFENSE.soldier.dmg * dt;
   } else {
     s.fighting = false;
     if (s.guard && Math.hypot(s.guard.x - s.x, s.guard.y - s.y) > 24) walk(s, s.guard.x, s.guard.y, dt, 6);
@@ -80,18 +168,21 @@ function townCenter() {
   return { x: pts.reduce((t, p) => t + p.x, 0) / pts.length, y: pts.reduce((t, p) => t + p.y, 0) / pts.length };
 }
 
-function spawnPoints(n) {
-  const c = townCenter();
-  return Array.from({ length: n }, (_, i) => ({
-    x: Math.max(30, Math.min(MAP_W - 30, c.x + (i - (n - 1) / 2) * 44)),
-    y: 28 + (i % 2) * 24,
-  }));
+// Where a wave comes from: out of the forest (north), over the river (west) or across the fields (east)
+function spawnPoints(from, n) {
+  const c = townCenter(), clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  return Array.from({ length: n }, (_, i) => {
+    const k = i - (n - 1) / 2;
+    if (from === 'flumen') return { x: 120 + (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'e' };
+    if (from === 'agri') return { x: MAP_W - 50 - (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'w' };
+    return { x: clamp(c.x + k * 44, 30, MAP_W - 30), y: 28 + (i % 2) * 24, dir: 's' };
+  });
 }
 
 function launchWave() {
-  war.phase = 'attack'; war.lost = false; updateClock();
-  const n = Math.max(3, 7 - war.wave); // each retry brings fewer
-  spawnPoints(n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: 6, speed: 50, target: null, hitting: null }));
+  const w = DEFENSE.waves[war.wave], S = DEFENSE.sabine;
+  war.phase = 'attack'; updateClock();
+  spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null }));
 }
 
 const isWall = b => b.type === 'wall' || b.type === 'gate';
@@ -100,6 +191,13 @@ function blockerAt(x, y) {
 }
 
 function updateRaider(r, dt) {
+  const S = DEFENSE.sabine;
+  // a Sabine fights any Roman soldier who comes close
+  let foe = null, best = 46;
+  soldiers.forEach(u => { const d = Math.hypot(u.x - r.x, u.y - r.y); if (d < best) { foe = u; best = d; } });
+  r.fighting = !!foe;
+  if (foe) { foe.hp -= S.dmgSoldier * dt; return; }
+
   if (!r.target || !buildings.includes(r.target)) {
     const homes = buildings.filter(b => b.done && !isWall(b));
     r.target = homes.sort((a, b) => Math.hypot(a.x - r.x, a.y - r.y) - Math.hypot(b.x - r.x, b.y - r.y))[0] || store;
@@ -117,34 +215,51 @@ function updateRaider(r, dt) {
   if (r.hitting) {
     const b = r.hitting;
     if (b.hp === undefined) b.hp = HP[b.type];
-    b.hp -= 0.6 * dt;
-    if (b.hp <= 0) { buildings.splice(buildings.indexOf(b), 1); war.lost = true; r.hitting = null; }
+    b.hp -= S.dmgBuilding * dt;
+    if (b.hp <= 0) { // a building falls: the fight goes on, and the loss is the player's to rebuild
+      buildings.splice(buildings.indexOf(b), 1);
+      puff(b.x + b.w / 2, b.y + b.h / 2, '#c4623a'); puff(b.x + b.w / 4, b.y + b.h / 2, '#c4623a'); puff(b.x + b.w * 0.75, b.y + b.h / 2, '#c4623a');
+      r.hitting = null;
+    }
   }
 }
+
+const townStands = () => buildings.some(b => b.done && (b.type === 'house' || b.type === 'forum'));
 
 // ---- Each frame (the game calls this while no message is open) ----
 function updateAttack(dt) {
   soldiers.forEach(s => updateSoldier(s, dt));
+  for (let i = fx.length - 1; i >= 0; i--) { fx[i].t += dt; if (fx[i].t > 0.6) fx.splice(i, 1); }
+  for (let i = soldiers.length - 1; i >= 0; i--) {
+    if (soldiers[i].hp <= 0) { puff(soldiers[i].x, soldiers[i].y, '#2a6fb0'); soldiers.splice(i, 1); updateHud(); }
+  }
   if (war.phase === 'prep') {
     war.clock -= dt; updateClock();
     if (war.clock <= 0) launchWave();
   } else if (war.phase === 'attack') {
     raiders.forEach(r => updateRaider(r, dt));
-    for (let i = raiders.length - 1; i >= 0; i--) if (raiders[i].hp <= 0) raiders.splice(i, 1);
-    if (war.lost) lostWave();
+    for (let i = raiders.length - 1; i >= 0; i--) if (raiders[i].hp <= 0) { puff(raiders[i].x, raiders[i].y, '#6b2a5a'); raiders.splice(i, 1); }
+    if (!townStands()) fallenTown();
     else if (!raiders.length) wonWave();
   }
 }
 
-// A failed defense costs a building, not the mission: the Sabines go home, the player rebuilds, they try again.
-function lostWave() {
+// The whole town is gone: Romulus sighs, and the defense starts again from the checkpoint
+function fallenTown() {
   raiders.length = 0;
   war.phase = 'fail';
-  showMessage('msg_romulus_retry', 'neutral', () => { war.wave++; startClock(); });
+  showMessage('msg_romulus_retry', 'neutral', () => {
+    restoreCheckpoint();
+    war.wave = 0;
+    startPrep(DEFENSE.retryClock);
+  });
 }
 
+// A wave is beaten. Another follows until the third; then the Sabines ask for peace.
 function wonWave() {
-  war.phase = 'won';
+  war.wave++;
+  if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
+  war.phase = 'won'; updateClock();
   showMessage('msg_tatius_peace', 'neutral', () => showMessage('msg_romulus_peace', 'pleased', () =>
     showCards(['culture_sabine_women_end', 'culture_tatius', 'culture_kings', 'culture_story_history'], endMission)), 'tatius');
 }
@@ -237,6 +352,10 @@ function drawSoldier(s) {
   ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 1, y - 17, 3, 5);    // crest
   ctx.fillStyle = '#8a5a1e'; ctx.fillRect(x - 12, y - 2, 6, 12);   // shield
   if (s.fighting) { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x + 8, y - 8 + (Math.floor(performance.now() / 120) % 2) * 5, 3, 10); }
+  if (s.hp < s.maxHp) { // health bar once hurt
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 8, y - 23, 16, 3);
+    ctx.fillStyle = '#4caf50'; ctx.fillRect(x - 8, y - 23, 16 * Math.max(0, s.hp) / s.maxHp, 3);
+  }
 }
 
 function drawRaider(r) {
@@ -246,19 +365,33 @@ function drawRaider(r) {
   ctx.fillStyle = '#2a1c08'; ctx.fillRect(x - 5, y - 13, 10, 3);   // dark hair
   ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + 8, y - 14, 2, 24);   // spear
   ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 8, y - 20, 16, 3);   // health bar
-  ctx.fillStyle = '#c0392b'; ctx.fillRect(x - 8, y - 20, 16 * Math.max(0, r.hp) / 6, 3);
+  ctx.fillStyle = '#c0392b'; ctx.fillRect(x - 8, y - 20, 16 * Math.max(0, r.hp) / r.maxHp, 3);
+  if (r.fighting) { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x - 12, y - 8 + (Math.floor(performance.now() / 120) % 2) * 5, 3, 10); }
 }
 
-// Red markers where the Sabines will come out of the forest, and damage on buildings under attack
+// Red markers where the next wave will arrive (in Latin mode only for the first wave: after that, the scout's words are the clue),
+// puffs where someone fell, and damage on buildings under attack
 function drawAttackOverlay() {
-  if (war.phase === 'prep') {
+  if (war.phase === 'prep' && (LANG === 'en' || war.wave === 0)) {
+    const w = DEFENSE.waves[war.wave];
     const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 250);
     ctx.fillStyle = 'rgba(179,38,30,' + (0.4 + 0.5 * pulse) + ')';
-    spawnPoints(Math.max(3, 7 - war.wave)).forEach(p => {
-      const x = sx(p.x), y = sy(FOREST_H + 8);
-      ctx.beginPath(); ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y); ctx.lineTo(x, y + 16); ctx.fill();
+    spawnPoints(w.from, w.n).forEach(p => {
+      let x = sx(p.x), y = sy(p.y);
+      if (p.dir === 's') y = sy(FOREST_H + 8);
+      ctx.beginPath();
+      if (p.dir === 's') { ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y); ctx.lineTo(x, y + 16); }
+      else if (p.dir === 'e') { x += 30; ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10); ctx.lineTo(x + 16, y); }
+      else { x -= 30; ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10); ctx.lineTo(x - 16, y); }
+      ctx.fill();
     });
   }
+  fx.forEach(f => {
+    ctx.globalAlpha = Math.max(0, 1 - f.t / 0.6); ctx.fillStyle = f.color;
+    const r = 4 + f.t * 40;
+    ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), r, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  });
   buildings.forEach(b => {
     if (b.hp === undefined || b.hp >= HP[b.type]) return;
     ctx.fillStyle = '#2a2a2a'; ctx.fillRect(sx(b.x), sy(b.y) - 6, b.w, 4);

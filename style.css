@@ -163,3 +163,9 @@ canvas { display: block; image-rendering: pixelated; }
 #titlechoices button:hover b, #titlechoices button:focus b, #titlechoices button:hover span, #titlechoices button:focus span { color: #140c04; }
 @media (prefers-reduced-motion: reduce) { #titlelatin, #titleenglish, #titlechoices { animation: none !important; } }
 body.en #res { text-transform: capitalize; }
+
+/* Wave markers under the clock bar */
+#waves { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); gap: 10px; z-index: 3; }
+#waves i { width: 16px; height: 16px; border: 2px solid #3d2a0e; border-radius: 50%; background: rgba(0,0,0,0.45); box-shadow: 0 0 0 2px rgba(241,228,192,0.5); }
+#waves i.on { background: #d9362b; box-shadow: 0 0 10px #d9362b, 0 0 0 2px #f1e4c0; }
+#waves i.done { background: #4caf50; }

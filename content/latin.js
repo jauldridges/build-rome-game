@@ -738,5 +738,74 @@ const LATIN = [
    "The Sabines burned Rome to the ground"
   ],
   "answer": 1
+ },
+ {
+  "id": "cmd_fer",
+  "latin": "Fer",
+  "english": "Carry!",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "approved"
+ },
+ {
+  "id": "cmd_fac",
+  "latin": "Fac",
+  "english": "Make!",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "approved"
+ },
+ {
+  "id": "order_fer_lapides_ad_forum",
+  "latin": "Fer lapidēs ad forum.",
+  "english": "Carry stones to the forum.",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "approved"
+ },
+ {
+  "id": "order_fac_milites",
+  "latin": "Fac mīlitēs.",
+  "english": "Make soldiers.",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "approved"
+ },
+ {
+  "id": "msg_scout_wave2",
+  "latin": "Sex hostēs ab flūmine veniunt!",
+  "english": "Six enemies are coming from the river!",
+  "en": "Six enemies! From the river! Why is it always the river?",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-083",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_scout_wave3",
+  "latin": "Octō hostēs ex agrīs veniunt!",
+  "english": "Eight enemies are coming out of the fields!",
+  "en": "Eight enemies! Out of the fields! The fields! Who attacks from fields?",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-083",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_train",
+  "latin": "Fac mīlitēs. Fer lapidēs ad forum.",
+  "english": "Make soldiers. Carry stones to the forum.",
+  "en": "Soldiers cost stone: three stones, one soldier. Carry stones to the forum. Don't ask me how it works.",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
  }
 ];

@@ -249,8 +249,8 @@ function handleClick(p, shift) {
   });
 }
 
-function sendGather(f, node) {
-  f.node = node; f.site = null; f.state = 'toNode';
+function sendGather(f, node, toForum) {
+  f.node = node; f.site = null; f.state = 'toNode'; f.toForum = !!toForum; // toForum: deliver stone to the forum instead of the storehouse
   if (f.carry && f.carry !== node.type) { f.carry = null; f.carryN = 0; } // drops the old load
 }
 
@@ -363,8 +363,11 @@ function update(f, dt) {
     s.progress += dt;
     if (s.progress >= BUILD[s.type].work) { s.done = true; onBuilt(s); nextBuild(f); }
   } else if (f.state === 'toStore') {
-    if (walk(f, storeSpot.x, storeSpot.y, dt, 4)) {
-      stock[f.carry] += f.carryN; f.carry = null; f.carryN = 0;
+    const forum = f.toForum ? buildings.find(b => b.type === 'forum' && b.done) : null; // stone for the soldiers goes to the forum
+    const spot = forum ? { x: forum.x + forum.w / 2, y: forum.y + forum.h + 14 } : storeSpot;
+    if (walk(f, spot.x, spot.y, dt, 4)) {
+      if (forum && f.carry === 'stone') depositToForum(f.carryN); else stock[f.carry] += f.carryN;
+      f.carry = null; f.carryN = 0;
       updateHud();
       f.state = (f.node && f.node.amount > 0) ? 'toNode' : 'idle'; // go back for more
     }
@@ -459,6 +462,12 @@ function updateHud() {
     row.appendChild(document.createTextNode(say(RES[k].word) + ': ' + stock[k]));
     res.appendChild(row);
   });
+  if (soldiers.length) { // how many Roman soldiers are left
+    const row = document.createElement('div'), sw = document.createElement('span');
+    sw.className = 'swatch'; sw.style.background = '#2a6fb0';
+    row.appendChild(sw); row.appendChild(document.createTextNode('× ' + soldiers.length));
+    res.appendChild(row);
+  }
   document.querySelectorAll('#orders button[data-build]').forEach(b => {
     const type = b.dataset.build;
     b.disabled = !afford(BUILD[type].cost);
