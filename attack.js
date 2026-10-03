@@ -29,7 +29,7 @@ function spawnSoldiers(n) {
 
 function startClock() {
   war.phase = 'prep';
-  war.clockMax = war.clock = war.wave === 1 ? 90 : 60; // the game rushes the reader only once; retries are calmer
+  war.clockMax = war.clock = war.wave === 1 ? 10 : 20; // a short, sharp warning; a retry gives a little longer to rebuild
   updateClock();
 }
 

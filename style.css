@@ -1,20 +1,24 @@
 html, body { margin: 0; height: 100%; overflow: hidden; background: #1c1c1c; font-family: sans-serif; }
 canvas { display: block; image-rendering: pixelated; }
 
-/* The box in the top left: resources, commands and messages */
-#panel { position: fixed; top: 12px; left: 12px; width: 300px; box-sizing: border-box; padding: 12px; z-index: 1;
+/* The menu box, bottom left (the battle happens in the north): resources, commands and messages */
+#panel { position: fixed; bottom: 12px; left: 12px; width: 330px; box-sizing: border-box; padding: 10px 12px 12px; z-index: 1;
   background: #f1e4c0; color: #2a1c08; border: 4px solid #8a5a1e; outline: 3px solid #3d2a0e; box-shadow: 4px 4px 0 rgba(0,0,0,0.4); }
-#res { font-size: 22px; font-weight: bold; margin-bottom: 10px; }
-#res .swatch { display: inline-block; width: 14px; height: 14px; margin-right: 8px; border: 2px solid #3d2a0e; vertical-align: -1px; }
-#cmds { min-height: 32px; margin-bottom: 8px; }
+#tools { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+#tools button { width: 24px; height: 24px; padding: 0; line-height: 1; font-size: 15px; }
+#res { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 18px; font-weight: bold; margin-right: 56px; margin-bottom: 8px; }
+#res .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 6px; border: 2px solid #3d2a0e; vertical-align: -1px; }
+#cmds { min-height: 28px; margin-bottom: 6px; }
 #orders { min-height: 0; }
-#panel button { padding: 5px 9px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 16px; }
-#cmds button { margin-right: 6px; margin-bottom: 4px; font-weight: bold; }
-#orders button { display: block; width: 100%; margin-bottom: 4px; text-align: left; }
+#panel button { padding: 3px 8px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 15px; }
+#cmds button { margin-right: 5px; margin-bottom: 4px; font-weight: bold; }
+#orders button { display: block; width: 100%; margin-bottom: 3px; text-align: left; font-size: 14px; }
 #panel button:disabled { opacity: 0.45; cursor: default; }
 #panel button.active { background: #fff6dc; outline: 2px solid #8a5a1e; }
-#msg { min-height: 1.2em; margin-top: 6px; color: #9a3b12; font-weight: bold; }
-#help { margin-top: 8px; font-size: 12px; color: #6b5636; }
+#msg { min-height: 1.1em; margin-top: 4px; color: #9a3b12; font-weight: bold; }
+#help { display: none; margin-top: 6px; font-size: 12px; color: #6b5636; }
+#panel.folded #body { display: none; }
+#panel.folded #res { margin-bottom: 0; }
 
 /* Last order given, bottom right */
 #order { position: fixed; right: 12px; bottom: 12px; padding: 6px 12px; background: #6b4a1e; color: #f3e6c4; font-size: 20px; border: 2px solid #3d2a0e; min-width: 120px; text-align: center; }
@@ -50,10 +54,9 @@ canvas { display: block; image-rendering: pixelated; }
 #mok { margin-top: 6px; padding: 7px 18px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 17px; font-weight: bold; }
 #tip .en { font-size: 14px; font-weight: normal; font-style: italic; color: #5b4a2e; }
 
-/* Countdown while the Sabines approach: a red bar that empties */
-#clock { display: none; height: 14px; margin-top: 8px; background: #d9c38a; border: 2px solid #3d2a0e; }
-#clockfill { height: 100%; width: 100%; background: #b3261e; }
-
+/* Countdown while the Sabines approach: a red bar across the top of the screen that empties */
+#clock { display: none; position: fixed; top: 0; left: 0; right: 0; height: 12px; background: rgba(0,0,0,0.5); z-index: 3; border-bottom: 2px solid #3d2a0e; }
+#clockfill { height: 100%; width: 100%; background: #d9362b; box-shadow: 0 0 10px #d9362b; }
 
 /* Explanation box beside a new building */
 #popup { position: fixed; display: none; transform: translate(-50%, -100%); pointer-events: none; z-index: 2; text-align: center;
@@ -103,3 +106,4 @@ canvas { display: block; image-rendering: pixelated; }
 @keyframes ruleIn { from { transform: scaleX(0); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes textIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { #card, #card .bar, #embers span, #cardbox.turn * { animation: none !important; } }
+#msg:empty { display: none; }

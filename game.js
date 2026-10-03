@@ -57,11 +57,11 @@ const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
 let placing = null;     // key of the building being placed, or null
 let cursor = null;      // screen position of the mouse over the map
 
-// Resource nodes: trees to the north-east, rocks to the south-west, a pond to the east
+// Resource nodes: trees to the north-east, rocks to the west, a pond to the east
 const nodes = [];
 function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
 addNodes('wood',  [[620, 220], [660, 250], [700, 210], [640, 290], [720, 270], [680, 330]], 60);
-addNodes('stone', [[160, 520], [200, 560], [130, 580], [220, 500]], 80);
+addNodes('stone', [[150, 330], [190, 370], [120, 390], [215, 320]], 80);
 addNodes('water', [[820, 440], [860, 470], [840, 510], [880, 440], [800, 480]], 150);
 
 // Farmers: three to start. A finished house brings one more, a finished forum three more.
@@ -705,3 +705,15 @@ function startGame() {
   startBeat(0);
   requestAnimationFrame(frame);
 }
+
+// The menu box can be folded away, and the help text shown or hidden
+document.getElementById('fold').addEventListener('click', e => {
+  const folded = document.getElementById('panel').classList.toggle('folded');
+  e.target.textContent = folded ? '+' : '–';
+  e.target.blur();
+});
+document.getElementById('helpbtn').addEventListener('click', e => {
+  const h = document.getElementById('help');
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+  e.target.blur();
+});
