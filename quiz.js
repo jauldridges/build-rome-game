@@ -5,7 +5,8 @@ let quizItems = [], quizAt = 0, quizResults = [], quizOpen = false, quizOrder = 
 
 function startQuiz() {
   // approved items only (drafts too when ?drafts=1), in the order of the content file
-  quizItems = LATIN.filter(e => e.type === 'quiz_item' && (e.review_status === 'approved' || SHOW_DRAFTS));
+  // approved items only (drafts too when ?drafts=1); Latin mode and English mode have their own questions
+  quizItems = LATIN.filter(e => e.type === 'quiz_item' && (e.track === 'en') === (LANG === 'en') && (e.review_status === 'approved' || SHOW_DRAFTS));
   quizAt = 0; quizResults = [];
   if (!quizItems.length) return;
   quizOpen = true;
@@ -26,8 +27,9 @@ function renderQuestion() {
   const dots = document.getElementById('quizdots');
   dots.textContent = '';
   quizItems.forEach((_, i) => { const d = document.createElement('i'); if (i < quizAt) d.className = 'done'; else if (i === quizAt) d.className = 'on'; dots.appendChild(d); });
-  document.getElementById('quizlatin').textContent = item.latin + (item.review_status === 'approved' ? '' : ' [draft]');
-  document.getElementById('quizquestion').textContent = item.question;
+  const mark = item.review_status === 'approved' ? '' : ' [draft]';
+  document.getElementById('quizlatin').textContent = item.latin ? item.latin + mark : ''; // English-mode questions have no Latin passage
+  document.getElementById('quizquestion').textContent = item.question + (item.latin ? '' : mark);
   const list = document.getElementById('quizchoices');
   list.textContent = '';
   quizOrder = shuffled(item.choices.length);
@@ -61,12 +63,12 @@ function showResults() {
     const row = document.createElement('div'); row.className = 'row ' + (r.right ? 'right' : 'wrong');
     const mark = document.createElement('span'); mark.className = 'mark'; mark.textContent = r.right ? '✓' : '✗';
     const text = document.createElement('div');
-    const latin = document.createElement('div'); latin.className = 'rl'; latin.textContent = r.item.latin;
+    const latin = document.createElement('div'); latin.className = 'rl'; latin.textContent = r.item.latin || r.item.question;
     const en = document.createElement('div'); en.className = 're'; en.textContent = r.item.english;
     text.appendChild(latin); text.appendChild(en);
     if (!r.right) {
       const ans = document.createElement('div'); ans.className = 'ra';
-      ans.textContent = r.item.question + ' ' + r.item.choices[r.item.answer];
+      ans.textContent = (r.item.latin ? r.item.question + ' ' : 'Answer: ') + r.item.choices[r.item.answer];
       text.appendChild(ans);
     }
     row.appendChild(mark); row.appendChild(text); list.appendChild(row);

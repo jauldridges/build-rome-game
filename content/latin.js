@@ -169,7 +169,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-040",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Hello there. I'm Romulus, king of a town that doesn't exist yet. Let's fix that. Help me.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_stone",
@@ -178,7 +180,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. Now stone. The grey lumps that stay where you put them.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_house",
@@ -187,7 +191,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. Build a house. Yes, even the king needs one.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_done",
@@ -196,7 +202,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-042",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Excellent. A decent house. Remus will say it's too small, if he ever turns up.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_relege",
@@ -205,7 +213,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Read it again. Slowly. I'll wait.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_wall",
@@ -214,7 +224,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. A wall. It keeps trouble out. In theory.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_gate",
@@ -223,7 +235,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. A gate. Even a wall needs a way in. I'm told that's how doors work.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_forum",
@@ -232,7 +246,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. A forum. A place to meet, argue and sell things. Basically, Rome.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_final",
@@ -241,7 +257,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-072",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Excellent. Rome is growing. Try not to look so surprised.",
+  "en_status": "draft"
  },
  {
   "id": "msg_farmer_arrives",
@@ -250,7 +268,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-074",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "A new farmer shows up, looking for work.",
+  "en_status": "draft"
  },
  {
   "id": "msg_farmers_arrive",
@@ -259,7 +279,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-074",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Three more farmers arrive. Apparently word got around.",
+  "en_status": "draft"
  },
  {
   "id": "name_scout",
@@ -313,7 +335,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-083",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Enemies! Coming out of the forest! Lots of them! Angry ones!",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_hurry",
@@ -322,7 +346,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Quick! Build a wall! A big one!",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_soldiers",
@@ -331,7 +357,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "The soldiers are here. Point them at the wall. They'll work out the rest.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_retry",
@@ -340,7 +368,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-050",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Ugh. Build it again. I liked that one.",
+  "en_status": "draft"
  },
  {
   "id": "msg_tatius_peace",
@@ -349,7 +379,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-049",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Greetings, Romulus. I am Titus Tatius. I would like us to stop fighting now.",
+  "en_status": "draft"
  },
  {
   "id": "msg_romulus_peace",
@@ -358,7 +390,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-040",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Peace! Sabines and Romans are friends. Let's not make it weird.",
+  "en_status": "draft"
  },
  {
   "id": "culture_romulus_remus",
@@ -367,7 +401,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "Romulus and Remus",
+  "en_status": "draft"
  },
  {
   "id": "culture_pomerium",
@@ -376,7 +412,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Pomerium",
+  "en_status": "draft"
  },
  {
   "id": "culture_sabine_women",
@@ -385,7 +423,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Sabine Women",
+  "en_status": "draft"
  },
  {
   "id": "culture_sabine_women_end",
@@ -394,7 +434,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Sabine Women",
+  "en_status": "draft"
  },
  {
   "id": "culture_tatius",
@@ -403,7 +445,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-009",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "Titus Tatius and Romulus",
+  "en_status": "draft"
  },
  {
   "id": "culture_hills",
@@ -412,7 +456,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-001",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Seven Hills",
+  "en_status": "draft"
  },
  {
   "id": "culture_asylum",
@@ -421,7 +467,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "A Place of Refuge",
+  "en_status": "draft"
  },
  {
   "id": "culture_sabines",
@@ -430,7 +478,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-006",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Sabines",
+  "en_status": "draft"
  },
  {
   "id": "culture_why_war",
@@ -439,7 +489,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "Why War?",
+  "en_status": "draft"
  },
  {
   "id": "culture_senate",
@@ -448,7 +500,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-016",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "The Senate",
+  "en_status": "draft"
  },
  {
   "id": "culture_kings",
@@ -457,7 +511,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-009",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "Seven Kings",
+  "en_status": "draft"
  },
  {
   "id": "culture_story_history",
@@ -466,7 +522,9 @@ const LATIN = [
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en_title": "Legend and History",
+  "en_status": "draft"
  },
  {
   "id": "order_ambula_ad_flumen",
@@ -493,7 +551,9 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
-  "review_status": "approved"
+  "review_status": "approved",
+  "en": "Good. Now up the Palatine Hill. Yes, all of it. It's a hill.",
+  "en_status": "draft"
  },
  {
   "id": "quiz_ad_forum",
@@ -577,6 +637,105 @@ const LATIN = [
    "Gather stone, then build a wall",
    "Defend the wall, then gather stone",
    "Gather stone, then defend the wall"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "ui_title",
+  "latin": "Condenda Rōma",
+  "english": "The Founding of Rome",
+  "type": "ui_label",
+  "nle_category": "culture",
+  "spec_node_id": "unmapped",
+  "review_status": "approved"
+ },
+ {
+  "id": "quizen_palatine",
+  "latin": "",
+  "english": "Romulus chose the Palatine Hill. In the legend, Remus preferred the Aventine.",
+  "type": "quiz_item",
+  "track": "en",
+  "nle_category": "culture",
+  "spec_node_id": "RW-007",
+  "review_status": "draft",
+  "question": "Which hill did Romulus choose for his new city?",
+  "choices": [
+   "The Palatine",
+   "The Aventine",
+   "The Capitoline",
+   "The Esquiline"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "quizen_tiber",
+  "latin": "",
+  "english": "Rome grew up beside the Tiber, which gave traders a river crossing and a route to the coast.",
+  "type": "quiz_item",
+  "track": "en",
+  "nle_category": "culture",
+  "spec_node_id": "RW-001",
+  "review_status": "draft",
+  "question": "Which river flows past Rome?",
+  "choices": [
+   "The Nile",
+   "The Po",
+   "The Danube",
+   "The Tiber"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "quizen_sabines",
+  "latin": "",
+  "english": "The Sabines lived in the hills northeast of Rome and spoke a language related to Latin.",
+  "type": "quiz_item",
+  "track": "en",
+  "nle_category": "culture",
+  "spec_node_id": "RW-006",
+  "review_status": "draft",
+  "question": "Who were the Sabines?",
+  "choices": [
+   "A people of central Italy, northeast of Rome",
+   "Greek traders from Sicily",
+   "Rome's first priests",
+   "Invaders from North Africa"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "quizen_why_war",
+  "latin": "",
+  "english": "In the legend, the neighbors refused to let their daughters marry Romans, so the Romans carried off the young Sabine women at a festival. The Sabines went to war to get them back.",
+  "type": "quiz_item",
+  "track": "en",
+  "nle_category": "culture",
+  "spec_node_id": "RW-007",
+  "review_status": "draft",
+  "question": "According to the legend, why did the Sabines go to war with Rome?",
+  "choices": [
+   "The Romans carried off young Sabine women",
+   "Rome refused to pay a tax",
+   "Remus insulted Titus Tatius",
+   "The Sabines wanted the river crossing"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "quizen_peace",
+  "latin": "",
+  "english": "The Sabine women ran between the armies and begged both sides to stop. The two peoples joined, and Romulus and Titus Tatius shared the rule of the city.",
+  "type": "quiz_item",
+  "track": "en",
+  "nle_category": "culture",
+  "spec_node_id": "RW-009",
+  "review_status": "draft",
+  "question": "How did the war end?",
+  "choices": [
+   "Romulus defeated the Sabines in a great battle",
+   "The Sabine women stopped the fighting and the two peoples joined",
+   "Rome paid the Sabines to leave",
+   "The Sabines burned Rome to the ground"
   ],
   "answer": 1
  }

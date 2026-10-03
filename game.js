@@ -51,10 +51,27 @@ const GROUND_COLORS = ['#7d8a3c', '#6f7c33'];
 // ---- Latin content ----
 // Student builds show only approved lines. Add ?drafts=1 to the address to see drafts, marked [draft].
 const SHOW_DRAFTS = new URLSearchParams(location.search).has('drafts');
+// Two ways to play, chosen on the title screen (or with ?lang=en or ?lang=la in the address):
+//   'la'  Latin mode: orders and messages are Latin, with an English hint on first sight.
+//   'en'  English mode: the same game in English, for history and social studies classes.
+// An entry's optional 'en' text (and 'en_title' for history cards) is the English-mode wording. It is shown once its
+// 'en_status' is approved (or with ?drafts=1); until then English mode falls back to the plain translation in 'english'.
+let LANG = 'la';
 function line(id) {
   const e = LATIN.find(x => x.id === id);
   if (!e || (e.review_status !== 'approved' && !SHOW_DRAFTS)) return null;
-  return { text: e.latin + (e.review_status === 'approved' ? '' : ' [draft]'), english: e.english };
+  const draft = e.review_status !== 'approved';
+  if (LANG === 'en') {
+    const enOk = e.en_status === 'approved' || SHOW_DRAFTS;
+    const enDraft = e.en_status !== 'approved';
+    if (e.type === 'culture_note') { // history card: an English title over the English paragraph
+      const title = e.en_title && enOk ? e.en_title + (enDraft ? ' [draft]' : '') : '';
+      return { text: title, english: e.en && enOk ? e.en : e.english };
+    }
+    const useEn = e.en && enOk;
+    return { text: (useEn ? e.en : e.english) + (draft || (useEn && enDraft) ? ' [draft]' : ''), english: '' };
+  }
+  return { text: e.latin + (draft ? ' [draft]' : ''), english: e.english };
 }
 function say(id) { const l = line(id); return l ? l.text : '?'; }
 
@@ -113,7 +130,7 @@ function showPopup(b, l) {
   const latin = document.createElement('div'), en = document.createElement('div');
   latin.className = 'latin'; latin.textContent = l.text;
   en.className = 'en'; en.textContent = l.english;
-  el.appendChild(latin); el.appendChild(en);
+  el.appendChild(latin); if (l.english) el.appendChild(en);
   popup = { x: b.x + b.w / 2, y: b.y - 6, t: 0 };
   el.style.display = 'block'; el.style.opacity = 1;
 }
@@ -199,7 +216,7 @@ function updateTip() {
   const l = id && line(id);
   if (!l) { tip.style.display = 'none'; return; }
   tip.textContent = l.text;
-  if ((id === 'vocab_agricola' || id === 'vocab_miles') && !hintsSeen.has(id)) { // English under the Latin, first time only
+  if ((id === 'vocab_agricola' || id === 'vocab_miles') && !hintsSeen.has(id) && l.english) { // English under the Latin, first time only
     const en = document.createElement('div'); en.className = 'en'; en.textContent = l.english; tip.appendChild(en);
   }
   tip.style.left = cursor.x + 'px';
@@ -464,7 +481,7 @@ function showMessage(id, face, after, speaker) {
   document.getElementById('mtext').textContent = l.text;
   const hint = document.getElementById('mhint');
   hint.textContent = first ? l.english : ''; // shown only while the mouse is over the Latin, and only the first time
-  document.getElementById('mtext').classList.toggle('hasHint', first);
+  document.getElementById('mtext').classList.toggle('hasHint', first && !!l.english);
 
   // Portrait: a flat silhouette with the speaker's name stands in until the art file is found
   const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
@@ -729,3 +746,26 @@ function drawTerrain() {
     ctx.ellipse(sx(HILL.x), sy(HILL.y - i * 14), HILL.rx * k, HILL.ry * k, 0, 0, Math.PI * 2); ctx.fill();
   });
 }
+
+// ---- Title screen: choose how to play ----
+function entryText(id) { const e = LATIN.find(x => x.id === id); return e && (e.review_status === 'approved' || SHOW_DRAFTS) ? e : null; }
+
+function beginPlay(lang) {
+  LANG = lang;
+  document.body.classList.toggle('en', lang === 'en');
+  document.documentElement.lang = lang === 'en' ? 'en' : 'la';
+  document.getElementById('title').style.display = 'none';
+  startGame();
+}
+
+function showTitle() {
+  const asked = new URLSearchParams(location.search).get('lang'); // a teacher can link straight to one mode
+  if (asked === 'en' || asked === 'la') { beginPlay(asked); return; }
+  const t = entryText('ui_title');
+  document.getElementById('titlelatin').textContent = t ? t.latin : '';
+  document.getElementById('titleenglish').textContent = t ? t.english : '';
+  document.getElementById('title').style.display = 'flex';
+  document.getElementById('playla').focus();
+}
+document.getElementById('playla').addEventListener('click', () => beginPlay('la'));
+document.getElementById('playen').addEventListener('click', () => beginPlay('en'));

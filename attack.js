@@ -266,4 +266,4 @@ function drawAttackOverlay() {
   });
 }
 
-startGame();
+showTitle();
