@@ -1,4 +1,4 @@
-// GENERATED from content/latin.yaml by tools/build_content.py. Do not edit by hand.
+// GENERATED from latin.yaml by tools/build_content.py. Do not edit by hand.
 const LATIN = [
  {
   "id": "vocab_lignum",

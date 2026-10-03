@@ -1,13 +1,14 @@
-// Step 6: the Sabine attack (see attack.js) and the ending card.
-// Romulus gives the opening orders in message boxes with portraits. Orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
-// Placeholder art only.
-const TILE = 32, COLS = 40, ROWS = 25; // the whole world fits on one screen: no scrolling
-const FOREST_H = 96; // the forest along the north edge, where the Sabines come from
+// The game engine. It runs any mission described by missions/<name>/mission.js (see docs/MAKING-A-MISSION.md).
+// Every line of text comes from the mission's content/latin.js, built from its latin.yaml. Placeholder art only.
+const M = MISSION;
+const TILE = M.world.tile, COLS = M.world.cols, ROWS = M.world.rows; // the whole world fits on one screen: no scrolling
+const FOREST_H = M.world.forestH; // the forest along the north edge, where the enemy comes from
 
-// The Tiber runs north to south down the left side of the map, and the Palatine Hill rises just east of it.
-const RIVER = { half: 30, points: [[150, 96], [175, 220], [155, 360], [178, 500], [160, 640], [185, 740], [165, 800]] };
-const HILL = { x: 520, y: 380, rx: 190, ry: 120 };
+// Terrain: a river and a hill (a mission may leave either out)
+const RIVER = M.terrain.river || null;
+const HILL = M.terrain.hill || null;
 function riverDist(x, y) { // distance from a point to the middle of the river
+  if (!RIVER) return Infinity;
   let best = Infinity;
   for (let i = 0; i + 1 < RIVER.points.length; i++) {
     const [ax, ay] = RIVER.points[i], [bx, by] = RIVER.points[i + 1];
@@ -16,13 +17,13 @@ function riverDist(x, y) { // distance from a point to the middle of the river
   }
   return best;
 }
-const inHill = (x, y) => ((x - HILL.x) / HILL.rx) ** 2 + ((y - HILL.y) / HILL.ry) ** 2 <= 1;
+const inHill = (x, y) => !!HILL && ((x - HILL.x) / HILL.rx) ** 2 + ((y - HILL.y) / HILL.ry) ** 2 <= 1;
 // 'river' (the water and its banks), 'hill', or null for plain ground
 function placeAt(p) {
-  if (riverDist(p.x, p.y) <= RIVER.half + 40) return 'river';
+  if (RIVER && riverDist(p.x, p.y) <= RIVER.half + RIVER.bank) return 'river';
   return inHill(p.x, p.y) ? 'hill' : null;
 }
-const PLACES = { river: { order: 'order_ambula_ad_flumen' }, hill: { order: 'order_ambula_ad_montem' } };
+const PLACES = M.places || {};
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -76,35 +77,26 @@ function line(id) {
 function say(id) { const l = line(id); return l ? l.text : '?'; }
 
 // Resources. Each points at its word and its gather order in the Latin content file.
-const RES = {
-  wood:  { word: 'vocab_lignum', order: 'order_collige_lignum',  color: '#2f5a2a', gatherTime: 1.0 },
-  stone: { word: 'vocab_lapis',  order: 'order_collige_lapidem', color: '#9a958a', gatherTime: 1.4 },
-};
-const CARRY_MAX = 5;
-const stock = { wood: 0, stone: 0 };
+const RES = M.resources;
+const CARRY_MAX = M.carryMax;
+const stock = {};
+Object.keys(RES).forEach(k => { stock[k] = 0; });
 
 // Where gathered goods are dropped off (placeholder storehouse)
-const store = { x: 470, y: 530, w: 56, h: 48 };
+const store = Object.assign({}, M.store);
 const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
 // Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
-const BUILD = {
-  house: { order: 'order_aedifica_casam',  w: 2, h: 2, cost: { wood: 8 },            work: 6 },
-  wall:  { order: 'order_aedifica_murum',  w: 1, h: 1, cost: { stone: 2 },           work: 2 },
-  gate:  { order: 'order_aedifica_portam', w: 2, h: 1, cost: { wood: 4, stone: 2 },  work: 3 },
-  forum: { order: 'order_aedifica_forum',  w: 4, h: 3, cost: { stone: 12, wood: 8 }, work: 12 },
-};
+const BUILD = M.buildings;
 const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
 let placing = null;     // key of the building being placed, or null
 let cursor = null;      // screen position of the mouse over the map
 
-// Resource nodes: trees to the south-east of the storehouse, rocks to the south-west
+// Resource nodes (trees, rocks, ...)
 const nodes = [];
-function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
-addNodes('wood',  [[620, 580], [665, 605], [710, 570], [650, 645], [720, 625], [690, 535]], 60);
-addNodes('stone', [[345, 600], [385, 640], [360, 670], [430, 590]], 80);
+M.nodes.forEach(group => group.at.forEach(([x, y]) => nodes.push({ type: group.type, x, y, amount: group.amount })));
 
-// Farmers: three to start. A finished house brings one more, a finished forum three more.
+// Farmers: a few to start. A finished house or forum may bring more (M.farmers.arrivals).
 const farmers = [];
 function addFarmer(x, y) {
   farmers.push({
@@ -117,11 +109,11 @@ function addFarmer(x, y) {
     carry: null, carryN: 0, timer: 0,
   });
 }
-for (let i = 0; i < 3; i++) addFarmer(1090 + i * 48, 700 + (i % 2) * 34); // they start in the bottom right corner
+M.farmers.start.forEach(([x, y]) => addFarmer(x, y));
 
-const soldiers = []; // made in attack.js when the warning comes
+const soldiers = []; // made in defense.js when the warning comes
 
-const NEW_FARMERS = { house: { n: 1, say: 'msg_farmer_arrives' }, forum: { n: 3, say: 'msg_farmers_arrive' } };
+const NEW_FARMERS = M.farmers.arrivals;
 // A box beside the new building that explains the arrival, then fades away
 let popup = null;
 function showPopup(b, l) {
@@ -203,20 +195,20 @@ function updateTip() {
   let id = null;
   if (cursor && !boxOpen && !placing && !(box && box.moved)) {
     const p = toWorldXY(cursor.x, cursor.y);
-    if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_agricola'; // so students know what they are
-    else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_miles';
+    if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.farmer; // so students know what they are
+    else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.soldier;
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
       if (t) id = t.site ? BUILD[t.site.type].order : t.node ? RES[t.node.type].order
         : (BEATS[beat] && BEATS[beat].walk === t.place ? PLACES[t.place].order : null); // the river and the hill only while Romulus is sending you there
     }
   }
-  if ((lastTip === 'vocab_agricola' || lastTip === 'vocab_miles') && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
+  if ((lastTip === M.words.farmer || lastTip === M.words.soldier) && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
   lastTip = id;
   const l = id && line(id);
   if (!l) { tip.style.display = 'none'; return; }
   tip.textContent = l.text;
-  if ((id === 'vocab_agricola' || id === 'vocab_miles') && !hintsSeen.has(id) && l.english) { // English under the Latin, first time only
+  if ((id === M.words.farmer || id === M.words.soldier) && !hintsSeen.has(id) && l.english) { // English under the Latin, first time only
     const en = document.createElement('div'); en.className = 'en'; en.textContent = l.english; tip.appendChild(en);
   }
   tip.style.left = cursor.x + 'px';
@@ -241,7 +233,7 @@ function handleClick(p, shift) {
     return;
   }
   const walkers = sel.concat(soldiers.filter(f => f.selected));
-  if (walkers.length) showOrder(target && target.place ? PLACES[target.place].order : 'cmd_ambula');
+  if (walkers.length) showOrder(target && target.place ? PLACES[target.place].order : M.commands.walk);
   walkers.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
     f.state = 'move'; f.node = null; f.site = null; f.guard = null;
     f.tx = Math.max(10, Math.min(MAP_W - 10, p.x + (i % 3 - 1) * 24));
@@ -261,7 +253,7 @@ function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y
 
 function canPlace(r) {
   if (r.x < 0 || r.y < FOREST_H || r.x + r.w > MAP_W || r.y + r.h > MAP_H) return false;
-  if ([[r.x, r.y], [r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h], [r.x + r.w / 2, r.y + r.h / 2]].some(([x, y]) => riverDist(x, y) < RIVER.half + 6)) return false;
+  if (RIVER && [[r.x, r.y], [r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h], [r.x + r.w / 2, r.y + r.h / 2]].some(([x, y]) => riverDist(x, y) < RIVER.half + 6)) return false;
   if (overlaps(r, store)) return false;
   if (buildings.some(b => overlaps(r, b))) return false;
   const pad = 16; // keep clear of trees, rocks and ponds
@@ -394,10 +386,10 @@ function gatherOrder(kind) {
 
 // Each command lists its full orders. Orders are read aloud (shown) exactly as written in the content file.
 const COMMANDS = [
-  { id: 'cmd_collige', orders: Object.keys(RES).map(k => ({ id: RES[k].order, run: () => gatherOrder(k) })) },
-  { id: 'cmd_aedifica', orders: Object.keys(BUILD).map(k => ({ id: BUILD[k].order, build: k, run: () => setPlacing(k) })) },
+  { id: M.commands.gather, orders: Object.keys(RES).map(k => ({ id: RES[k].order, run: () => gatherOrder(k) })) },
+  { id: M.commands.build, orders: Object.keys(BUILD).map(k => ({ id: BUILD[k].order, build: k, run: () => setPlacing(k) })) },
 ];
-COMMANDS.push({ id: 'cmd_relege', direct: () => replayOrder() });
+COMMANDS.push({ id: M.commands.replay, direct: () => replayOrder() });
 let openCommand = null;
 
 // Words and orders whose English hover has been used up; cleared again after a mistake
@@ -480,12 +472,12 @@ let boxOpen = false, boxAfter = null;
 const messagesSeen = new Set(); // messages whose English hint has already been shown
 
 function showMessage(id, face, after, speaker) {
-  speaker = speaker || 'romulus';
+  speaker = speaker || 'romulus'; // the speaker that talks unless another is named
   const l = line(id);
   if (!l) { if (after) after(); return; } // an unapproved line is simply skipped
   const first = !messagesSeen.has(id);
   messagesSeen.add(id);
-  const name = line('name_' + speaker);
+  const name = line(M.speakers[speaker].name);
   document.getElementById('speaker').textContent = name ? name.text : '';
   document.getElementById('mtext').textContent = l.text;
   const hint = document.getElementById('mhint');
@@ -496,10 +488,10 @@ function showMessage(id, face, after, speaker) {
   const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
   ph.textContent = '';
   const label = document.createElement('span'); label.textContent = name ? name.text : ''; ph.appendChild(label);
-  ph.style.background = { romulus: '#5b3a1a', scout: '#2d4a5a', tatius: '#4a2d5a' }[speaker] || '#5b3a1a';
+  ph.style.background = M.speakers[speaker].color;
   img.style.display = 'block'; ph.style.display = 'none';
   img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
-  img.src = 'assets/portraits/portrait_' + speaker + '_' + face + '.png';
+  img.src = 'missions/' + M.id + '/assets/portraits/portrait_' + speaker + '_' + face + '.png';
 
   boxOpen = true; boxAfter = after || null;
   document.getElementById('msgbox').style.display = 'flex';
@@ -523,25 +515,24 @@ window.addEventListener('keydown', e => { // Enter or Space dismisses whichever 
 // ---- The opening orders: one at a time, each waits for the player to do it ----
 const GATHER_ORDERS = Object.keys(RES).map(k => RES[k].order);
 const isBuilt = (type, n) => buildings.filter(b => b.type === type && b.done).length >= (n || 1);
-// How many farmers are standing at a pond
 // How many farmers have arrived at the river or on the hill
-const farmersAt = place => farmers.filter(f => f.state === 'idle' && (place === 'river' ? riverDist(f.x, f.y) < RIVER.half + 70 : inHill(f.x, f.y))).length;
+const farmersAt = place => farmers.filter(f => f.state === 'idle' && (place === 'river' ? riverDist(f.x, f.y) < RIVER.half + RIVER.bank + 30 : inHill(f.x, f.y))).length;
 
-// say: the message. expects: the work order that is right now. allow: other work orders that are never a mistake here.
-const BEATS = [
-  { say: 'msg_romulus_intro', face: 'pleased', pre: ['culture_romulus_remus'], expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
-  { say: 'order_ambula_ad_flumen', face: 'neutral', expects: [], walk: 'river', post: ['culture_hills'], done: () => farmersAt('river') >= 3 },
-  { say: 'msg_romulus_hill', face: 'pleased', expects: [], walk: 'hill', done: () => farmersAt('hill') >= 3 },
-  { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
-  { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
-  { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
-  { say: 'msg_romulus_done', face: 'pleased', expects: null, post: ['culture_asylum'], done: () => true },
-  { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, post: ['culture_pomerium'], done: () => isBuilt('wall', 4) },
-  { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
-  { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, post: ['culture_senate'], done: () => isBuilt('forum') },
-  { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines'], done: () => true },
-  { run: () => beginWarning(), expects: null, done: null }, // the warning, the attack and the ending (attack.js)
-];
+// The steps of the mission, from missions/<name>/mission.js. 'allow: gather' means gathering is never a mistake there.
+const BEATS = M.beats.map(b => Object.assign({}, b, { allow: b.allow === 'gather' ? GATHER_ORDERS : b.allow }));
+// What a step with 'run' starts
+const RUNNERS = { defense: () => beginWarning() };
+
+// Messages and history cards one after another, then 'after'
+function runSequence(steps, after) {
+  const next = i => {
+    if (i >= steps.length) { if (after) after(); return; }
+    const s = steps[i];
+    if (s.cards) showCards(s.cards, () => next(i + 1));
+    else showMessage(s.msg, s.face || 'neutral', () => next(i + 1), s.speaker);
+  };
+  next(0);
+}
 const WORK_ORDERS = Object.keys(RES).map(k => RES[k].order).concat(Object.keys(BUILD).map(k => BUILD[k].order));
 let beat = -1;
 const recent = []; // the last three orders Romulus gave
@@ -550,7 +541,7 @@ function startBeat(i) {
   beat = i;
   const b = BEATS[i];
   if (b.pre && !b.preShown) { b.preShown = true; showCards(b.pre, () => startBeat(i)); return; } // history cards before the message
-  if (b.run) { b.run(); return; }
+  if (b.run) { RUNNERS[b.run](); return; }
   if (b.expects) { recent.push(b.say); if (recent.length > 3) recent.shift(); renderRecent(); }
   showMessage(b.say, b.face);
 }
@@ -568,13 +559,13 @@ function checkOrder(id) {
   const b = BEATS[beat];
   if (!b || !b.expects || boxOpen || !WORK_ORDERS.includes(id) || b.expects.includes(id) || (b.allow && b.allow.includes(id))) return;
   // The English hints come back after a mistake: for the message, and for the buttons the player should have used
-  messagesSeen.delete(b.say); messagesSeen.delete('msg_romulus_relege');
+  messagesSeen.delete(b.say); messagesSeen.delete(M.mistake.msg);
   b.expects.forEach(o => {
     hintsSeen.delete(o);
     const cmd = COMMANDS.find(c => c.orders && c.orders.some(x => x.id === o));
     if (cmd) hintsSeen.delete(cmd.id);
   });
-  showMessage('msg_romulus_relege', 'neutral', () => showMessage(b.say, b.face));
+  showMessage(M.mistake.msg, M.mistake.face, () => showMessage(b.say, b.face));
 }
 
 // Relege: hear the current order again
@@ -598,7 +589,7 @@ function renderRecent() {
 
 let last = performance.now();
 function frame(now) {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const dt = Math.min(0.05, (now - last) / 1000) * (window.TIMESCALE || 1); last = now; // TIMESCALE is only set by the debug panel
   updatePopup(dt);
   if (!boxOpen && !cardOpen) { // the clock stops while a message or the ending card is open
     farmers.forEach(f => update(f, dt));
@@ -739,21 +730,24 @@ document.getElementById('helpbtn').addEventListener('click', e => {
 // The Tiber and the Palatine Hill (placeholder art)
 function drawTerrain() {
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  const trace = () => { ctx.beginPath(); RIVER.points.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y))); };
-  trace(); ctx.strokeStyle = '#a69a62'; ctx.lineWidth = RIVER.half * 2 + 14; ctx.stroke(); // muddy banks
-  trace(); ctx.strokeStyle = '#2a6fb0'; ctx.lineWidth = RIVER.half * 2; ctx.stroke();
-  trace(); ctx.strokeStyle = '#3b86c8'; ctx.lineWidth = RIVER.half * 1.1; ctx.stroke();
-  ctx.fillStyle = '#9cc7ea';
-  for (let y = 120; y < MAP_H; y += 70) { // little ripples drifting down the river
-    const wob = Math.sin(y / 70) * 16;
-    const near = RIVER.points.find((p, i) => RIVER.points[i + 1] && y >= p[1] && y < RIVER.points[i + 1][1]);
-    if (near) ctx.fillRect(sx(near[0] + wob), sy(y), 14, 3);
+  if (RIVER) {
+    const trace = () => { ctx.beginPath(); RIVER.points.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y))); };
+    trace(); ctx.strokeStyle = '#a69a62'; ctx.lineWidth = RIVER.half * 2 + 14; ctx.stroke(); // muddy banks
+    trace(); ctx.strokeStyle = '#2a6fb0'; ctx.lineWidth = RIVER.half * 2; ctx.stroke();
+    trace(); ctx.strokeStyle = '#3b86c8'; ctx.lineWidth = RIVER.half * 1.1; ctx.stroke();
+    ctx.fillStyle = '#9cc7ea';
+    for (let y = 120; y < MAP_H; y += 70) { // little ripples drifting down the river
+      const wob = Math.sin(y / 70) * 16;
+      const near = RIVER.points.find((p, i) => RIVER.points[i + 1] && y >= p[1] && y < RIVER.points[i + 1][1]);
+      if (near) ctx.fillRect(sx(near[0] + wob), sy(y), 14, 3);
+    }
   }
-  // the hill: stacked, lighter ovals look like rising ground
-  [[1, '#7f8c3a'], [0.86, '#8d9a45'], [0.7, '#99a653'], [0.52, '#a4b05f']].forEach(([k, color], i) => {
-    ctx.fillStyle = color; ctx.beginPath();
-    ctx.ellipse(sx(HILL.x), sy(HILL.y - i * 14), HILL.rx * k, HILL.ry * k, 0, 0, Math.PI * 2); ctx.fill();
-  });
+  if (HILL) { // the hill: stacked, lighter ovals look like rising ground
+    [[1, '#7f8c3a'], [0.86, '#8d9a45'], [0.7, '#99a653'], [0.52, '#a4b05f']].forEach(([k, color], i) => {
+      ctx.fillStyle = color; ctx.beginPath();
+      ctx.ellipse(sx(HILL.x), sy(HILL.y - i * 14), HILL.rx * k, HILL.ry * k, 0, 0, Math.PI * 2); ctx.fill();
+    });
+  }
 }
 
 // ---- Title screen: choose how to play ----
@@ -770,7 +764,7 @@ function beginPlay(lang) {
 function showTitle() {
   const asked = new URLSearchParams(location.search).get('lang'); // a teacher can link straight to one mode
   if (asked === 'en' || asked === 'la') { beginPlay(asked); return; }
-  const t = entryText('ui_title');
+  const t = entryText(M.titleEntry);
   document.getElementById('titlelatin').textContent = t ? t.latin : '';
   document.getElementById('titleenglish').textContent = t ? t.english : '';
   document.getElementById('title').style.display = 'flex';

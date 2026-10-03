@@ -1,51 +1,37 @@
-// Step 6: the warning, the Sabine attack and the ending card. Loaded after game.js, which it relies on.
-// Placeholder art only. Every Latin line comes from content/latin.js; this file holds none.
+// The defense: the warning, the waves of attackers, training soldiers, the checkpoint, and the history cards.
+// Loaded after core.js, which it relies on. Placeholder art only. It holds no text: lines come from the mission's content.
 
-const raiders = [];                       // the Sabines
+const raiders = [];                       // the attackers
 const fx = [];                            // little puffs when someone falls or a building is lost
 const war = { phase: 'none', clock: 0, clockMax: 10, wave: 0, snapshot: null, trainTold: false };
 let cardOpen = false;
 
-// Everything you might tune while play-testing the defense lives here.
-const DEFENSE = {
-  // wave: how many Sabines, where they come from, the scout's line, and the seconds of build time before they arrive
-  waves: [
-    { n: 4, from: 'silva',  say: 'msg_scout_warning', clock: 10 },
-    { n: 6, from: 'flumen', say: 'msg_scout_wave2',   clock: 25 },
-    { n: 8, from: 'agri',   say: 'msg_scout_wave3',   clock: 25 },
-  ],
-  retryClock: 20,                                          // build time after the whole town falls and the defense restarts
-  soldier: { hp: 20, dmg: 3, speed: 105, start: 4, cost: 3 }, // cost: stones for one more soldier
-  sabine: { hp: 12, speed: 52, dmgSoldier: 2, dmgBuilding: 0.7 },
-  hp: { wall: 10, gate: 14, house: 14, forum: 30 },          // how much a building can take
-};
+// Everything you might tune while play-testing the defense lives in the mission file (missions/<name>/mission.js).
+const DEFENSE = M.defense;
 const HP = DEFENSE.hp;
 
 // ---- The warning ----
 function beginWarning() {
   war.wave = 0; war.phase = 'warn';
   spawnSoldiers(DEFENSE.soldier.start);
+  const c = DEFENSE.commands;
   COMMANDS.push(
-    { id: 'cmd_defende', orders: [{ id: 'order_defende_murum', run: defendOrder }] },
-    { id: 'cmd_fer', orders: [{ id: 'order_fer_lapides_ad_forum', run: ferOrder }] },
-    { id: 'cmd_fac', orders: [{ id: 'order_fac_milites', run: facOrder }] },
+    { id: c.defend.cmd, orders: [{ id: c.defend.order, run: defendOrder }] },
+    { id: c.carry.cmd, orders: [{ id: c.carry.order, run: ferOrder }] },
+    { id: c.make.cmd, orders: [{ id: c.make.order, run: facOrder }] },
   );
   renderCommands();
   saveCheckpoint(); // if the whole town ever falls, the defense starts again from here
-  // scout, then the story card, then Romulus twice; the clock starts when the last box is closed
-  showMessage(DEFENSE.waves[0].say, 'alarmed', () =>
-    showCards(['culture_why_war', 'culture_sabine_women'], () =>
-      showMessage('msg_romulus_hurry', 'alarmed', () =>
-        showMessage('msg_romulus_soldiers', 'neutral', () => startPrep(DEFENSE.waves[0].clock)), 'romulus')), 'scout');
+  runSequence(DEFENSE.warning, () => startPrep(DEFENSE.waves[0].clock)); // the build clock starts when the last box is closed
 }
 
 // The scout announces the next wave; the build time runs until it arrives
 function announceWave() {
-  const w = DEFENSE.waves[war.wave];
+  const w = DEFENSE.waves[war.wave], hint = DEFENSE.trainHint;
   showMessage(w.say, 'alarmed', () => {
-    if (war.wave === 1 && !war.trainTold) { war.trainTold = true; showMessage('msg_romulus_train', 'neutral', () => startPrep(w.clock)); }
+    if (hint && war.wave === hint.afterWave && !war.trainTold) { war.trainTold = true; showMessage(hint.msg, hint.face, () => startPrep(w.clock)); }
     else startPrep(w.clock);
-  }, 'scout');
+  }, w.speaker || 'scout');
 }
 
 function startPrep(seconds) {
@@ -114,7 +100,7 @@ function defendOrder() {
   if (!sel.length) { setMsg('Select some soldiers first.'); return; }
   const g = guardPoint();
   sel.forEach((s, i) => { s.guard = { x: g.x + (i - (sel.length - 1) / 2) * 34, y: g.y }; s.state = 'idle'; });
-  showOrder('order_defende_murum');
+  showOrder(DEFENSE.commands.defend.order);
 }
 
 const finishedForum = () => buildings.find(b => b.type === 'forum' && b.done);
@@ -127,7 +113,7 @@ function ferOrder() {
   const node = nearest(nodes.filter(n => n.type === 'stone'), groupCenter(sel));
   if (!node) { setMsg('None of that is left.'); return; }
   sel.forEach(f => sendGather(f, node, true));
-  showOrder('order_fer_lapides_ad_forum');
+  showOrder(DEFENSE.commands.carry.order);
 }
 
 // Called when a farmer arrives at the forum with stone
@@ -145,7 +131,7 @@ function facOrder() {
   if (!n) { setMsg('A soldier costs ' + DEFENSE.soldier.cost + ' stones.'); return; }
   stock.stone -= n * DEFENSE.soldier.cost;
   spawnSoldiers(n);
-  showOrder('order_fac_milites');
+  showOrder(DEFENSE.commands.make.order);
 }
 
 function updateSoldier(s, dt) {
@@ -161,26 +147,28 @@ function updateSoldier(s, dt) {
   }
 }
 
-// ---- The Sabines ----
+// ---- The attackers ----
 function townCenter() {
   const pts = buildings.filter(b => b.done && b.type !== 'wall' && b.type !== 'gate').map(b => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 }));
   pts.push({ x: store.x + store.w / 2, y: store.y + store.h / 2 });
   return { x: pts.reduce((t, p) => t + p.x, 0) / pts.length, y: pts.reduce((t, p) => t + p.y, 0) / pts.length };
 }
 
-// Where a wave comes from: out of the forest (north), over the river (west) or across the fields (east)
+// Where a wave comes from: out of the forest in the north, or over the edge of the map to the west, east or south.
+// dir is the way the arrow points: the way they will walk.
 function spawnPoints(from, n) {
   const c = townCenter(), clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   return Array.from({ length: n }, (_, i) => {
     const k = i - (n - 1) / 2;
-    if (from === 'flumen') return { x: 120 + (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'e' };
-    if (from === 'agri') return { x: MAP_W - 50 - (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'w' };
+    if (from === 'west') return { x: 120 + (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'e' };
+    if (from === 'east') return { x: MAP_W - 50 - (i % 2) * 24, y: clamp(c.y + k * 40, FOREST_H + 30, MAP_H - 30), dir: 'w' };
+    if (from === 'south') return { x: clamp(c.x + k * 44, 30, MAP_W - 30), y: MAP_H - 30 - (i % 2) * 24, dir: 'n' };
     return { x: clamp(c.x + k * 44, 30, MAP_W - 30), y: 28 + (i % 2) * 24, dir: 's' };
   });
 }
 
 function launchWave() {
-  const w = DEFENSE.waves[war.wave], S = DEFENSE.sabine;
+  const w = DEFENSE.waves[war.wave], S = DEFENSE.enemy;
   war.phase = 'attack'; updateClock();
   spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null }));
 }
@@ -191,8 +179,8 @@ function blockerAt(x, y) {
 }
 
 function updateRaider(r, dt) {
-  const S = DEFENSE.sabine;
-  // a Sabine fights any Roman soldier who comes close
+  const S = DEFENSE.enemy;
+  // an attacker fights any soldier who comes close
   let foe = null, best = 46;
   soldiers.forEach(u => { const d = Math.hypot(u.x - r.x, u.y - r.y); if (d < best) { foe = u; best = d; } });
   r.fighting = !!foe;
@@ -248,26 +236,25 @@ function updateAttack(dt) {
 function fallenTown() {
   raiders.length = 0;
   war.phase = 'fail';
-  showMessage('msg_romulus_retry', 'neutral', () => {
+  showMessage(DEFENSE.fallen.msg, DEFENSE.fallen.face, () => {
     restoreCheckpoint();
     war.wave = 0;
     startPrep(DEFENSE.retryClock);
   });
 }
 
-// A wave is beaten. Another follows until the third; then the Sabines ask for peace.
+// A wave is beaten. Another follows until the last; then the victory sequence plays.
 function wonWave() {
   war.wave++;
   if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
   war.phase = 'won'; updateClock();
-  showMessage('msg_tatius_peace', 'neutral', () => showMessage('msg_romulus_peace', 'pleased', () =>
-    showCards(['culture_sabine_women_end', 'culture_tatius', 'culture_kings', 'culture_story_history'], endMission)), 'tatius');
+  runSequence(DEFENSE.victory, endMission);
 }
 
 // ---- History cards: shown at set moments in the mission and after the battle ----
 // Each card is a Latin heading with an English paragraph. A card pauses the game until it is dismissed.
 let cardPages = [], cardAt = 0, cardAfter = null;
-const WAR_CARDS = ['culture_why_war', 'culture_sabine_women']; // the cards about the conflict get a red tone
+const WAR_CARDS = DEFENSE.warCards; // the cards about the conflict get a red tone
 
 // A few embers drift up the screen behind the card
 function makeEmbers() {
@@ -372,15 +359,17 @@ function drawRaider(r) {
 // Red markers where the next wave will arrive (in Latin mode only for the first wave: after that, the scout's words are the clue),
 // puffs where someone fell, and damage on buildings under attack
 function drawAttackOverlay() {
-  if (war.phase === 'prep' && (LANG === 'en' || war.wave === 0)) {
+  if (war.phase === 'prep' && (LANG === 'en' || war.wave === 0) && DEFENSE.waves[war.wave]) {
     const w = DEFENSE.waves[war.wave];
     const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 250);
     ctx.fillStyle = 'rgba(179,38,30,' + (0.4 + 0.5 * pulse) + ')';
     spawnPoints(w.from, w.n).forEach(p => {
       let x = sx(p.x), y = sy(p.y);
       if (p.dir === 's') y = sy(FOREST_H + 8);
+      if (p.dir === 'n') y = sy(MAP_H - FOREST_H / 3 - 40);
       ctx.beginPath();
       if (p.dir === 's') { ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y); ctx.lineTo(x, y + 16); }
+      else if (p.dir === 'n') { ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y); ctx.lineTo(x, y - 16); }
       else if (p.dir === 'e') { x += 30; ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10); ctx.lineTo(x + 16, y); }
       else { x -= 30; ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10); ctx.lineTo(x - 16, y); }
       ctx.fill();
@@ -398,5 +387,3 @@ function drawAttackOverlay() {
     ctx.fillStyle = '#c0392b'; ctx.fillRect(sx(b.x), sy(b.y) - 6, b.w * Math.max(0, b.hp) / HP[b.type], 4);
   });
 }
-
-showTitle();
