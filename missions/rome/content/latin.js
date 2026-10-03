@@ -879,7 +879,7 @@ const LATIN = [
   "id": "msg_romulus_remus_gone",
   "latin": "Remus est dēlendus.",
   "english": "Remus must be destroyed.",
-  "en": "Remus is, as always, somewhere else.",
+  "en": "Remus must be destroyed.",
   "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
