@@ -502,7 +502,7 @@ const LATIN = [
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "order_ambula_ad_montem",
@@ -511,7 +511,7 @@ const LATIN = [
   "type": "order",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_hill",
@@ -520,6 +520,6 @@ const LATIN = [
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
-  "review_status": "draft"
+  "review_status": "approved"
  }
 ];
