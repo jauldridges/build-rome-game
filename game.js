@@ -3,6 +3,26 @@
 // Placeholder art only.
 const TILE = 32, COLS = 60, ROWS = 40;
 const FOREST_H = 128; // the forest along the north edge, where the Sabines come from
+
+// The Tiber runs north to south across the map, and the Palatine Hill rises to the east of it.
+const RIVER = { half: 38, points: [[1180, 128], [1215, 320], [1190, 520], [1215, 720], [1195, 920], [1230, 1100], [1200, 1280]] };
+const HILL = { x: 1560, y: 560, rx: 240, ry: 150 };
+function riverDist(x, y) { // distance from a point to the middle of the river
+  let best = Infinity;
+  for (let i = 0; i + 1 < RIVER.points.length; i++) {
+    const [ax, ay] = RIVER.points[i], [bx, by] = RIVER.points[i + 1];
+    const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)));
+    best = Math.min(best, Math.hypot(x - (ax + t * (bx - ax)), y - (ay + t * (by - ay))));
+  }
+  return best;
+}
+const inHill = (x, y) => ((x - HILL.x) / HILL.rx) ** 2 + ((y - HILL.y) / HILL.ry) ** 2 <= 1;
+// 'river' (the water and its banks), 'hill', or null for plain ground
+function placeAt(p) {
+  if (riverDist(p.x, p.y) <= RIVER.half + 40) return 'river';
+  return inHill(p.x, p.y) ? 'hill' : null;
+}
+const PLACES = { river: { order: 'order_ambula_ad_flumen' }, hill: { order: 'order_ambula_ad_montem' } };
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -43,7 +63,7 @@ const CARRY_MAX = 5;
 const stock = { wood: 0, stone: 0, water: 0 };
 
 // Where gathered goods are dropped off (placeholder storehouse)
-const store = { x: 330, y: 330, w: 56, h: 48 };
+const store = { x: 1480, y: 780, w: 56, h: 48 };
 const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
 // Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
@@ -57,12 +77,12 @@ const buildings = [];   // { type, x, y, w, h, progress, done } in pixels
 let placing = null;     // key of the building being placed, or null
 let cursor = null;      // screen position of the mouse over the map
 
-// Resource nodes: trees to the north-east, rocks to the west, a pond to the east
+// Resource nodes: trees to the south-east of the storehouse, rocks to the south-west, pools on the river bank
 const nodes = [];
 function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
-addNodes('wood',  [[620, 220], [660, 250], [700, 210], [640, 290], [720, 270], [680, 330]], 60);
-addNodes('stone', [[150, 330], [190, 370], [120, 390], [215, 320]], 80);
-addNodes('water', [[820, 440], [860, 470], [840, 510], [880, 440], [800, 480]], 150);
+addNodes('wood',  [[1640, 830], [1690, 860], [1740, 820], [1670, 910], [1750, 890], [1710, 780]], 60);
+addNodes('stone', [[1380, 900], [1420, 940], [1350, 950], [1440, 880]], 80);
+addNodes('water', [[1285, 720], [1320, 760], [1290, 800], [1340, 700], [1270, 760]], 150);
 
 // Farmers: three to start. A finished house brings one more, a finished forum three more.
 const farmers = [];
@@ -77,7 +97,7 @@ function addFarmer(x, y) {
     carry: null, carryN: 0, timer: 0,
   });
 }
-for (let i = 0; i < 3; i++) addFarmer(400 + i * 50, 440 + (i % 2) * 40);
+for (let i = 0; i < 3; i++) addFarmer(1660 + i * 50, 1130 + (i % 2) * 40); // they start in the bottom right corner
 
 const soldiers = []; // made in attack.js when the warning comes
 
@@ -154,12 +174,14 @@ function selectInBox(b, shift) {
   });
 }
 
-// What a click at world point p would act on: an unfinished building, or a tree, rock or pond
+// What a click at world point p would act on: an unfinished building, a tree, rock or pond, or the river or hill
 function targetAt(p) {
   const site = buildings.find(b => !b.done && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
   if (site) return { site };
   const node = nodes.find(n => Math.hypot(n.x - p.x, n.y - p.y) < 22);
-  return node ? { node } : null;
+  if (node) return { node };
+  const place = placeAt(p);
+  return place ? { place } : null;
 }
 
 let lastTip = null;
@@ -173,7 +195,8 @@ function updateTip() {
     else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_miles';
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
-      if (t) id = t.site ? BUILD[t.site.type].order : RES[t.node.type].order;
+      if (t) id = t.site ? BUILD[t.site.type].order : t.node ? RES[t.node.type].order
+        : (BEATS[beat] && BEATS[beat].walk === t.place ? PLACES[t.place].order : null); // the river and the hill only while Romulus is sending you there
     }
   }
   if ((lastTip === 'vocab_agricola' || lastTip === 'vocab_miles') && id !== lastTip) hintsSeen.add(lastTip); // the English has been seen once the mouse moves away
@@ -206,7 +229,7 @@ function handleClick(p, shift) {
     return;
   }
   const walkers = sel.concat(soldiers.filter(f => f.selected));
-  if (walkers.length) showOrder('cmd_ambula');
+  if (walkers.length) showOrder(target && target.place ? PLACES[target.place].order : 'cmd_ambula');
   walkers.forEach((f, i) => { // plain ground: walk there, spreading the group out a little
     f.state = 'move'; f.node = null; f.site = null; f.guard = null;
     f.tx = Math.max(10, Math.min(MAP_W - 10, p.x + (i % 3 - 1) * 24));
@@ -226,6 +249,7 @@ function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y
 
 function canPlace(r) {
   if (r.x < 0 || r.y < FOREST_H || r.x + r.w > MAP_W || r.y + r.h > MAP_H) return false;
+  if ([[r.x, r.y], [r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h], [r.x + r.w / 2, r.y + r.h / 2]].some(([x, y]) => riverDist(x, y) < RIVER.half + 6)) return false;
   if (overlaps(r, store)) return false;
   if (buildings.some(b => overlaps(r, b))) return false;
   const pad = 16; // keep clear of trees, rocks and ponds
@@ -356,32 +380,10 @@ function gatherOrder(kind) {
   showOrder(RES[kind].order);
 }
 
-// Walk to the nearest pond, or to a finished forum
-function walkOrder(id, kind) {
-  const sel = selectedFarmers();
-  if (!sel.length) { setMsg('Select some farmers first.'); return; }
-  const c = groupCenter(sel);
-  let target;
-  if (kind === 'forum') {
-    const b = nearest(buildings.filter(x => x.type === 'forum' && x.done).map(x => ({ x: x.x + x.w / 2, y: x.y + x.h + 20 })), c);
-    target = b;
-  } else {
-    const n = nearest(nodes.filter(x => x.type === kind).map(x => ({ x: x.x, y: x.y + 34 })), c);
-    target = n;
-  }
-  if (!target) { setMsg(kind === 'forum' ? 'There is no forum yet.' : 'None of that is left.'); return; }
-  sel.forEach((f, i) => { f.state = 'move'; f.node = null; f.site = null; f.tx = target.x + (i - (sel.length - 1) / 2) * 22; f.ty = target.y; });
-  showOrder(id);
-}
-
 // Each command lists its full orders. Orders are read aloud (shown) exactly as written in the content file.
 const COMMANDS = [
   { id: 'cmd_collige', orders: Object.keys(RES).map(k => ({ id: RES[k].order, run: () => gatherOrder(k) })) },
   { id: 'cmd_aedifica', orders: Object.keys(BUILD).map(k => ({ id: BUILD[k].order, build: k, run: () => setPlacing(k) })) },
-  { id: 'cmd_ambula', orders: [
-    { id: 'order_ambula_ad_aquam', run: () => walkOrder('order_ambula_ad_aquam', 'water') },
-    { id: 'order_ambula_ad_forum', run: () => walkOrder('order_ambula_ad_forum', 'forum') },
-  ] },
 ];
 COMMANDS.push({ id: 'cmd_relege', direct: () => replayOrder() });
 let openCommand = null;
@@ -504,20 +506,24 @@ window.addEventListener('keydown', e => { // Enter or Space dismisses whichever 
 const GATHER_ORDERS = Object.keys(RES).map(k => RES[k].order);
 const isBuilt = (type, n) => buildings.filter(b => b.type === type && b.done).length >= (n || 1);
 // How many farmers are standing at a pond
-const farmersAtWater = () => farmers.filter(f => f.state === 'idle' && nodes.some(n => n.type === 'water' && Math.hypot(n.x - f.x, n.y - f.y) < 80)).length;
+// How many farmers have arrived at the river or on the hill
+const farmersAt = place => farmers.filter(f => f.state === 'idle' && (place === 'river' ? riverDist(f.x, f.y) < RIVER.half + 70 : inHill(f.x, f.y))).length;
+const farmersAtWater = () => farmers.filter(f => (f.state === 'idle' || f.state === 'gather') && nodes.some(n => n.type === 'water' && Math.hypot(n.x - f.x, n.y - f.y) < 80)).length;
 
 // say: the message. expects: the work order that is right now. allow: other work orders that are never a mistake here.
 const BEATS = [
   { say: 'msg_romulus_intro', face: 'pleased', pre: ['culture_romulus_remus'], expects: null, done: () => true }, // introduction: the next order follows once it is dismissed
+  { say: 'order_ambula_ad_flumen', face: 'neutral', expects: [], walk: 'river', post: ['culture_hills'], done: () => farmersAt('river') >= 3 },
+  { say: 'msg_romulus_hill', face: 'pleased', expects: [], walk: 'hill', done: () => farmersAt('hill') >= 3 },
   { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
   { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
   { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: GATHER_ORDERS, done: () => isBuilt('house') },
   { say: 'msg_romulus_done', face: 'pleased', expects: null, post: ['culture_asylum'], done: () => true },
-  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], post: ['culture_hills'], done: () => stock.water >= 5 },
+  { say: 'order_collige_aquam', face: 'neutral', expects: ['order_collige_aquam'], done: () => stock.water >= 5 },
   { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: GATHER_ORDERS, post: ['culture_pomerium'], done: () => isBuilt('wall', 4) },
   { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: GATHER_ORDERS, done: () => isBuilt('gate') },
   { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: GATHER_ORDERS, post: ['culture_senate'], done: () => isBuilt('forum') },
-  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_ambula_ad_aquam'], done: () => farmersAtWater() >= 4 },
+  { say: 'msg_romulus_send', face: 'pleased', expects: ['order_collige_aquam'], done: () => farmersAtWater() >= 4 },
   { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines', 'culture_why_war'], done: () => true },
   { run: () => beginWarning(), expects: null, done: null }, // the warning, the attack and the ending (attack.js)
 ];
@@ -621,6 +627,7 @@ function draw() {
       ctx.fillStyle = GROUND_COLORS[ground[r][c]];
       ctx.fillRect(c * TILE - Math.round(cam.x), r * TILE - Math.round(cam.y), TILE, TILE);
     }
+  drawTerrain();
   drawForest();
   // Storehouse
   ctx.fillStyle = '#b8a47e'; ctx.fillRect(sx(store.x), sy(store.y), store.w, store.h);
@@ -700,6 +707,7 @@ function drawFarmer(f) {
 // Called at the end of attack.js, once everything has loaded
 function startGame() {
   resize();
+  cam.x = MAP_W; cam.y = MAP_H; clampCam(); // start in the bottom right corner, where the farmers are
   renderCommands();
   updateHud();
   startBeat(0);
@@ -717,3 +725,23 @@ document.getElementById('helpbtn').addEventListener('click', e => {
   h.style.display = h.style.display === 'block' ? 'none' : 'block';
   e.target.blur();
 });
+
+// The Tiber and the Palatine Hill (placeholder art)
+function drawTerrain() {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const trace = () => { ctx.beginPath(); RIVER.points.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y))); };
+  trace(); ctx.strokeStyle = '#a69a62'; ctx.lineWidth = RIVER.half * 2 + 14; ctx.stroke(); // muddy banks
+  trace(); ctx.strokeStyle = '#2a6fb0'; ctx.lineWidth = RIVER.half * 2; ctx.stroke();
+  trace(); ctx.strokeStyle = '#3b86c8'; ctx.lineWidth = RIVER.half * 1.1; ctx.stroke();
+  ctx.fillStyle = '#9cc7ea';
+  for (let y = 160; y < MAP_H; y += 90) { // little ripples drifting down the river
+    const wob = Math.sin(y / 70) * 16;
+    const near = RIVER.points.find((p, i) => RIVER.points[i + 1] && y >= p[1] && y < RIVER.points[i + 1][1]);
+    if (near) ctx.fillRect(sx(near[0] + wob), sy(y), 14, 3);
+  }
+  // the hill: stacked, lighter ovals look like rising ground
+  [[1, '#7f8c3a'], [0.86, '#8d9a45'], [0.7, '#99a653'], [0.52, '#a4b05f']].forEach(([k, color], i) => {
+    ctx.fillStyle = color; ctx.beginPath();
+    ctx.ellipse(sx(HILL.x), sy(HILL.y - i * 14), HILL.rx * k, HILL.ry * k, 0, 0, Math.PI * 2); ctx.fill();
+  });
+}

@@ -163,24 +163,6 @@ const LATIN = [
   "review_status": "approved"
  },
  {
-  "id": "order_ambula_ad_aquam",
-  "latin": "Ambulā ad aquam.",
-  "english": "Walk to the water.",
-  "type": "order",
-  "nle_category": "morphosyntax",
-  "spec_node_id": "MS-084",
-  "review_status": "approved"
- },
- {
-  "id": "order_ambula_ad_forum",
-  "latin": "Ambulā ad forum.",
-  "english": "Walk to the forum.",
-  "type": "order",
-  "nle_category": "morphosyntax",
-  "spec_node_id": "MS-084",
-  "review_status": "approved"
- },
- {
   "id": "name_romulus",
   "latin": "Rōmulus",
   "english": "Romulus",
@@ -512,5 +494,32 @@ const LATIN = [
   "nle_category": "culture",
   "spec_node_id": "RW-007",
   "review_status": "approved"
+ },
+ {
+  "id": "order_ambula_ad_flumen",
+  "latin": "Ambulā ad flūmen.",
+  "english": "Walk to the river.",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-084",
+  "review_status": "draft"
+ },
+ {
+  "id": "order_ambula_ad_montem",
+  "latin": "Ambulā ad Montem Palatīnum.",
+  "english": "Walk to the Palatine Hill.",
+  "type": "order",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-084",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_hill",
+  "latin": "Bene! Ambulā ad Montem Palatīnum.",
+  "english": "Good! Walk to the Palatine Hill.",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-084",
+  "review_status": "draft"
  }
 ];

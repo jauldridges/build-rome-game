@@ -154,21 +154,7 @@
   spec_node_id: MS-050   # also practices MS-026
   review_status: approved
 
-- id: order_ambula_ad_aquam
-  latin: "Ambulā ad aquam."
-  english: "Walk to the water."
-  type: order
-  nle_category: morphosyntax
-  spec_node_id: MS-084   # also practices MS-050, MS-019
-  review_status: approved
 
-- id: order_ambula_ad_forum
-  latin: "Ambulā ad forum."
-  english: "Walk to the forum."
-  type: order
-  nle_category: morphosyntax
-  spec_node_id: MS-084   # also practices MS-050, MS-026
-  review_status: approved
 
 # ---- Rōmulus's opening messages (proofread and approved by J. Sullivan) ----
 # English lines are plain translations of the Latin.
@@ -481,4 +467,35 @@
   nle_category: culture
   spec_node_id: RW-007
   review_status: approved
+
+# ---- Walking orders: to the Tiber and the Palatine (DRAFT, not yet proofread) ----
+# J. Sullivan wrote "ambula ad flumen" and "Ambula ad Montem Palatinam". The assistant changed:
+#  1. flumen -> flūmen (macron).
+#  2. Palatinam -> Palatīnum, because mōns is masculine and so is its adjective: ad Montem Palatīnum.
+#     (Palātīnus has a long ā in Palātium and a long ī in Palātīnus.) Please confirm, or give the form you want.
+#  3. Bene! is added to the second order, as in the other orders that follow a finished task.
+
+- id: order_ambula_ad_flumen
+  latin: "Ambulā ad flūmen."
+  english: "Walk to the river."
+  type: order
+  nle_category: morphosyntax
+  spec_node_id: MS-084   # ad + accusative; also MS-050
+  review_status: draft
+
+- id: order_ambula_ad_montem
+  latin: "Ambulā ad Montem Palatīnum."
+  english: "Walk to the Palatine Hill."
+  type: order
+  nle_category: morphosyntax
+  spec_node_id: MS-084   # ad + accusative; also MS-050, MS-064 (montem), MS-042 (Palatīnum agrees with montem)
+  review_status: draft
+
+- id: msg_romulus_hill
+  latin: "Bene! Ambulā ad Montem Palatīnum."
+  english: "Good! Walk to the Palatine Hill."
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-084   # also MS-050, MS-064, MS-042
+  review_status: draft
 
