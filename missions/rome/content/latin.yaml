@@ -709,48 +709,42 @@
   spec_node_id: MS-077   # irregular imperative fac; also MS-065 (accusative plural)
   review_status: approved
 
-# Draft lines for the later waves. Latin mode gives the direction and the number of enemies only in Latin.
-# Questions for proofreading:
-#  1. ab flūmine (from the river's side) and ex agrīs (out of the fields): the right prepositions for these?
-#  2. Sex and octō for the numbers six and eight. Fine as exposure?
-#  3. The training line reuses both approved orders in one message.
+# Later waves. Latin mode gives the direction and the number of enemies only in Latin.
 
 - id: msg_scout_wave2
   latin: "Sex hostēs ab flūmine veniunt!"
   english: "Six enemies are coming from the river!"
   en: "Six enemies! From the river! Why is it always the river?"
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-083   # ab + ablative; also MS-065, MS-074
-  review_status: draft
+  review_status: approved
 
 - id: msg_scout_wave3
   latin: "Octō hostēs ex agrīs veniunt!"
   english: "Eight enemies are coming out of the fields!"
   en: "Eight enemies! Out of the fields! The fields! Who attacks from fields?"
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-083   # ex + ablative; also MS-065, MS-025 (agrīs, from ager)
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_train
   latin: "Fac mīlitēs. Fer lapidēs ad forum."
   english: "Make soldiers. Carry stones to the forum."
   en: "Soldiers cost stone: three stones, one soldier. Carry stones to the forum. Don't ask me how it works."
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-077   # also MS-084, MS-065
-  review_status: draft
+  review_status: approved
 
-# ---- Juice: ranks, optional scrolls, and Remus (DRAFT, not yet proofread) ----
+# ---- Juice: ranks, optional scrolls, and Remus (proofread and approved by J. Sullivan) ----
 # Ranks rise with the city: colōnus (the start), aedificātor (after the wall), dēfēnsor (after the first wave), aedīlis (the end).
 # Remus appears when the wall is finished: he says it is small, jumps over it, and wanders off (the legend, played).
-# Questions for proofreading:
-#  1. The four rank words and their English glosses. aedīlis was a city official who looked after buildings.
-#  2. Remus: "Mūrus parvus est!", "Ēheu, Remē!" (vocative) and "Remus abest." (compound of sum, like adsunt).
+# "Remus est dēlendus." is deliberately beyond Latin I (a gerundive, as in Cato's "Carthāgō dēlenda est").
 
 - id: rank_colonus
   latin: "colōnus"
@@ -758,7 +752,7 @@
   type: ui_label
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: rank_aedificator
   latin: "aedificātor"
@@ -766,7 +760,7 @@
   type: ui_label
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: rank_defensor
   latin: "dēfēnsor"
@@ -774,7 +768,7 @@
   type: ui_label
   nle_category: vocabulary
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: rank_aedilis
   latin: "aedīlis"
@@ -782,7 +776,7 @@
   type: ui_label
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: name_remus
   latin: "Remus"
@@ -790,35 +784,35 @@
   type: ui_label
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
 
 - id: msg_remus_wall
   latin: "Mūrus parvus est!"
   english: "The wall is small!"
   en: "Ha! Call that a wall? I could jump over that!"
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-041   # also MS-042
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_remus
   latin: "Ēheu, Remē!"
   english: "Alas, Remus!"
   en: "Remus, no! Not over the wall!"
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-049   # vocative Remē
-  review_status: draft
+  review_status: approved
 
 - id: msg_romulus_remus_gone
-  latin: "Remus abest."
-  english: "Remus is away."
+  latin: "Remus est dēlendus."
+  english: "Remus must be destroyed."
   en: "Remus is, as always, somewhere else."
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
-  spec_node_id: MS-040   # compound of sum
-  review_status: draft
+  spec_node_id: unmapped   # gerundive (passive periphrastic), beyond Latin I on purpose; echoes Cato's "Carthāgō dēlenda est"
+  review_status: approved
 

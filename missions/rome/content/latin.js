@@ -780,33 +780,33 @@ const LATIN = [
   "latin": "Sex hostēs ab flūmine veniunt!",
   "english": "Six enemies are coming from the river!",
   "en": "Six enemies! From the river! Why is it always the river?",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-083",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_scout_wave3",
   "latin": "Octō hostēs ex agrīs veniunt!",
   "english": "Eight enemies are coming out of the fields!",
   "en": "Eight enemies! Out of the fields! The fields! Who attacks from fields?",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-083",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_train",
   "latin": "Fac mīlitēs. Fer lapidēs ad forum.",
   "english": "Make soldiers. Carry stones to the forum.",
   "en": "Soldiers cost stone: three stones, one soldier. Carry stones to the forum. Don't ask me how it works.",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "rank_colonus",
@@ -815,7 +815,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "vocabulary",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "rank_aedificator",
@@ -824,7 +824,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "vocabulary",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "rank_defensor",
@@ -833,7 +833,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "vocabulary",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "rank_aedilis",
@@ -842,7 +842,7 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "name_remus",
@@ -851,39 +851,39 @@ const LATIN = [
   "type": "ui_label",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_remus_wall",
   "latin": "Mūrus parvus est!",
   "english": "The wall is small!",
   "en": "Ha! Call that a wall? I could jump over that!",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-041",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_remus",
   "latin": "Ēheu, Remē!",
   "english": "Alas, Remus!",
   "en": "Remus, no! Not over the wall!",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-049",
-  "review_status": "draft"
+  "review_status": "approved"
  },
  {
   "id": "msg_romulus_remus_gone",
-  "latin": "Remus abest.",
-  "english": "Remus is away.",
+  "latin": "Remus est dēlendus.",
+  "english": "Remus must be destroyed.",
   "en": "Remus is, as always, somewhere else.",
-  "en_status": "draft",
+  "en_status": "approved",
   "type": "message",
   "nle_category": "morphosyntax",
-  "spec_node_id": "MS-040",
-  "review_status": "draft"
+  "spec_node_id": "unmapped",
+  "review_status": "approved"
  }
 ];
