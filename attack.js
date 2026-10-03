@@ -152,13 +152,33 @@ function wonWave() {
 // ---- History cards: shown at set moments in the mission and after the battle ----
 // Each card is a Latin heading with an English paragraph. A card pauses the game until it is dismissed.
 let cardPages = [], cardAt = 0, cardAfter = null;
+const WAR_CARDS = ['culture_why_war', 'culture_sabine_women']; // the cards about the conflict get a red tone
+
+// A few embers drift up the screen behind the card
+function makeEmbers() {
+  const box = document.getElementById('embers');
+  if (box.children.length) return;
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+    s.style.animationDuration = (7 + Math.random() * 9) + 's';
+    s.style.animationDelay = (-Math.random() * 14) + 's';
+    s.style.width = s.style.height = (2 + Math.random() * 3) + 'px';
+    box.appendChild(s);
+  }
+}
 
 function showCards(ids, after) {
-  cardPages = ids.map(line).filter(Boolean); // unapproved cards are simply skipped
+  cardPages = ids.map(id => { const l = line(id); return l && Object.assign(l, { war: WAR_CARDS.includes(id) }); }).filter(Boolean); // unapproved cards are simply skipped
   cardAt = 0; cardAfter = after || null;
   if (!cardPages.length) { if (after) after(); return; }
   cardOpen = true;
-  document.getElementById('card').style.display = 'flex';
+  const card = document.getElementById('card');
+  card.style.display = 'flex';
+  card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; // replay the fade-in and the bars
+  card.querySelectorAll('.bar').forEach(b => { b.style.animation = 'none'; void b.offsetWidth; b.style.animation = ''; });
+  makeEmbers();
   renderCardPage();
 }
 
@@ -166,9 +186,14 @@ function renderCardPage() {
   const p = cardPages[cardAt];
   document.getElementById('cardlatin').textContent = p.text;
   document.getElementById('cardenglish').textContent = p.english;
-  document.getElementById('cardpage').textContent = cardPages.length > 1 ? (cardAt + 1) + ' / ' + cardPages.length : '';
+  const dots = document.getElementById('cardpage');
+  dots.textContent = '';
+  if (cardPages.length > 1) cardPages.forEach((_, i) => { const d = document.createElement('i'); if (i === cardAt) d.className = 'on'; dots.appendChild(d); });
+  document.getElementById('card').classList.toggle('war', !!p.war);
   document.getElementById('cardok').textContent = cardAt + 1 < cardPages.length ? 'Next' : 'Continue';
   document.getElementById('cardenglish').scrollTop = 0;
+  const box = document.getElementById('cardbox'); // replay the entrance for every page
+  box.classList.remove('turn'); void box.offsetWidth; box.classList.add('turn');
   document.getElementById('cardok').focus();
 }
 

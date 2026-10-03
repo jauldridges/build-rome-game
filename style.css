@@ -54,17 +54,52 @@ canvas { display: block; image-rendering: pixelated; }
 #clock { display: none; height: 14px; margin-top: 8px; background: #d9c38a; border: 2px solid #3d2a0e; }
 #clockfill { height: 100%; width: 100%; background: #b3261e; }
 
-/* Ending card */
-#card { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); z-index: 6; }
-#cardbox { width: min(760px, 92vw); box-sizing: border-box; padding: 30px 40px; background: #f1e4c0; color: #2a1c08; border: 4px solid #8a5a1e; outline: 3px solid #3d2a0e; box-shadow: 6px 6px 0 rgba(0,0,0,0.4); }
-#cardlatin { font-size: 46px; font-weight: bold; margin-bottom: 14px; }
-#cardenglish { font-size: 22px; line-height: 1.5; margin-bottom: 22px; }
-#cardok { padding: 8px 22px; background: #d9c38a; border: 2px solid #3d2a0e; color: #2a1c08; cursor: pointer; font-size: 18px; font-weight: bold; }
 
 /* Explanation box beside a new building */
 #popup { position: fixed; display: none; transform: translate(-50%, -100%); pointer-events: none; z-index: 2; text-align: center;
   padding: 8px 16px; background: #f1e4c0; color: #2a1c08; border: 3px solid #3d2a0e; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); }
 #popup .latin { font-size: 24px; font-weight: bold; }
 #popup .en { font-size: 15px; font-style: italic; color: #5b4a2e; margin-top: 2px; }
-#cardpage { float: right; font-size: 16px; color: #8a5a1e; font-weight: bold; }
-#cardenglish { max-height: 55vh; overflow-y: auto; }
+
+/* History cards: a cinematic title card */
+#card { --accent: #e0b14a; --glow: rgba(224,177,74,0.55); --ember: #ffb347;
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 6; overflow: hidden;
+  background: radial-gradient(ellipse at center, rgba(28,18,8,0.80) 0%, rgba(6,4,2,0.96) 70%, #000 100%);
+  backdrop-filter: blur(3px); animation: cardFade 0.9s ease-out both; }
+#card.war { --accent: #e0553a; --glow: rgba(224,85,58,0.55); --ember: #ff6a3c;
+  background: radial-gradient(ellipse at center, rgba(40,10,6,0.80) 0%, rgba(10,3,2,0.96) 70%, #000 100%); }
+@keyframes cardFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* black bars top and bottom, like a film frame */
+#card .bar { position: absolute; left: 0; right: 0; height: 11vh; background: #000; z-index: 2; animation: barIn 1.1s cubic-bezier(.2,.7,.2,1) both; }
+#card .bar.top { top: 0; --from: -11vh; border-bottom: 1px solid var(--accent); }
+#card .bar.bottom { bottom: 0; --from: 11vh; border-top: 1px solid var(--accent); }
+@keyframes barIn { from { transform: translateY(var(--from)); } to { transform: none; } }
+
+/* drifting embers */
+#embers { position: absolute; inset: 0; pointer-events: none; }
+#embers span { position: absolute; bottom: -10px; width: 4px; height: 4px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 8px 2px var(--ember);
+  opacity: 0; animation: rise linear infinite; }
+@keyframes rise { 0% { transform: translate(0,0); opacity: 0; } 12% { opacity: 0.9; } 100% { transform: translate(var(--drift), -105vh); opacity: 0; } }
+
+#cardbox { position: relative; z-index: 1; width: min(720px, 88vw); text-align: center; color: #efe3c4; font-family: Georgia, "Palatino Linotype", "Book Antiqua", serif; }
+#cardpage { display: flex; justify-content: center; gap: 10px; height: 10px; margin-bottom: 26px; }
+#cardpage i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--accent); }
+#cardpage i.on { background: var(--accent); box-shadow: 0 0 8px var(--glow); }
+#cardlatin { font-size: clamp(36px, 7vw, 64px); font-weight: bold; color: var(--accent); text-shadow: 0 0 24px var(--glow), 0 3px 0 rgba(0,0,0,0.6);
+  letter-spacing: 0.08em; line-height: 1.1; }
+#cardrule { position: relative; width: 190px; height: 1px; margin: 22px auto 24px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+#cardrule::after { content: ''; position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; margin-left: -4px; background: var(--accent); transform: rotate(45deg); box-shadow: 0 0 10px var(--glow); }
+#cardenglish { font-size: clamp(17px, 2.3vw, 22px); line-height: 1.7; text-align: left; max-height: 44vh; overflow-y: auto; padding: 0 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+#cardok { margin-top: 30px; padding: 9px 30px; background: transparent; color: var(--accent); border: 1px solid var(--accent); font: bold 16px Georgia, serif; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
+#cardok:hover, #cardok:focus { background: var(--accent); color: #140c04; outline: none; box-shadow: 0 0 18px var(--glow); }
+
+/* each page: the title rises into place, the rule draws itself, then the words and the button fade in */
+#cardbox.turn #cardlatin { animation: titleIn 1.2s cubic-bezier(.2,.7,.2,1) both; }
+#cardbox.turn #cardrule { animation: ruleIn 0.9s 0.5s ease-out both; }
+#cardbox.turn #cardenglish { animation: textIn 1.1s 0.9s ease-out both; }
+#cardbox.turn #cardok { animation: textIn 0.8s 1.6s ease-out both; }
+@keyframes titleIn { from { opacity: 0; letter-spacing: 0.4em; transform: translateY(14px); filter: blur(6px); } to { opacity: 1; letter-spacing: 0.08em; transform: none; filter: none; } }
+@keyframes ruleIn { from { transform: scaleX(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes textIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #card, #card .bar, #embers span, #cardbox.turn * { animation: none !important; } }
