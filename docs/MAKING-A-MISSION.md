@@ -45,6 +45,8 @@ These are all set up in `mission.js`; none needs engine code.
 - **Optional scrolls.** A step may have `scroll: [{ card, at }]`. When the step is done, a glowing scroll appears at that spot on the map and the game goes on. The player clicks it to read the history card. Use `pre` or `after` for the cards every player must see.
 - **Cameos.** `cameos` describe someone walking across the map (Remus, in the Rome mission), optionally leaping over something. A step's `after` list can start one with `{ cameo: 'name' }` between messages.
 - **Ranks.** `ranks` is a list of `{ entry, when }`. The player's title is the last one whose `when` is true; a banner announces each new one.
+- **Art.** `engine/art.js` draws every sprite in code, one art pixel at a time (people, buildings, trees, rocks, sheep and geese), then the ground, the animated river and the light. A building uses one of its drawings through the `art` field in `mission.js` (house, wall, gate or forum). A new kind of building or person needs a new drawing function there. A mission lists wandering animals in `ambient`.
+- **Dusk.** The light warms and darkens as the waves go on, and windows and torches glow. Nothing to set up.
 - **Sound.** `engine/sound.js` makes chiptune effects in the browser (no sound files). The menu box has buttons to turn effects and the optional music on and off.
 - **Effects.** Floating numbers, puffs of dust, a pop when a building is finished and a screen shake when one falls are built in.
 

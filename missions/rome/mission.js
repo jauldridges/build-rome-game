@@ -46,6 +46,12 @@ const MISSION = {
     gate:  { order: 'order_aedifica_portam', art: 'gate',  w: 2, h: 1, cost: { wood: 4, stone: 2 },  work: 3 },
     forum: { order: 'order_aedifica_forum',  art: 'forum', w: 4, h: 3, cost: { stone: 12, wood: 8 }, work: 12 },
   },
+  // Wandering for no reason at all. around: [x, y, radius].
+  ambient: [
+    { kind: 'sheep', n: 4, around: [560, 330, 90] },
+    { kind: 'goose', n: 3, around: [235, 560, 36] },
+  ],
+
   // Farmers start in the bottom right. A finished house or forum brings new ones, announced by a popup.
   farmers: {
     start: [[1090, 700], [1138, 734], [1186, 700]],

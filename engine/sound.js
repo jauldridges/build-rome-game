@@ -58,19 +58,58 @@ function sfx(name) {
   try { SFX[name](); } catch (e) { /* sound is a bonus: never let it break the game */ }
 }
 
-// A very quiet looping tune. Off until the player turns it on.
-const TUNE = [ // [bass, lead] in Hz, one step each; a simple minor pattern
-  [110, 440], [110, 523], [110, 659], [110, 523], [131, 523], [131, 659], [131, 784], [131, 659],
-  [98, 392], [98, 494], [98, 587], [98, 494], [110, 440], [110, 523], [165, 659], [110, 523],
-];
+// ---- The theme: "Condenda Roma", about 25 seconds in D Dorian, looped. Off until the player turns it on. ----
+// A melody that climbs like a wall going up, a bass that walks root and fifth, and a drum that marches.
+// Notes: letter, octave. A dot holds the note for one more step. Two passes: the second adds a harmony a third above.
+function hz(name) {
+  const m = /^([A-G])(#?)(\d)$/.exec(name); if (!m) return 0;
+  const semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0) + (parseInt(m[3], 10) - 4) * 12 - 9;
+  return 440 * Math.pow(2, semis / 12);
+}
+const STEP = 0.2; // seconds per eighth note
+function thirdAbove(name) { // the note two steps up the scale (a third, near enough), for the second pass
+  const m = /^([A-G])(#?)(\d)$/.exec(name), order = 'CDEFGAB', i = order.indexOf(m[1]), j = (i + 2) % 7;
+  return order[j] + m[2] + (parseInt(m[3], 10) + (i + 2 >= 7 ? 1 : 0));
+}
+const THEME = {
+  melody: [ // eight bars of eight steps: part A (bars 1-4), part B (bars 5-8)
+    'D4 . F4 A4 D5 . C5 A4', 'G4 . A4 B4 C5 . B4 A4', 'F4 . A4 C5 F5 . E5 C5', 'D5 . . . A4 . . .',
+    'G4 . B4 D5 G5 . F5 D5', 'E5 . D5 C5 B4 . A4 G4', 'A4 . C5 E5 A5 . G5 E5', 'F5 . . . D5 . . .',
+  ],
+  bass: ['D', 'G', 'F', 'D', 'G', 'C', 'A', 'D'], // the root of each bar; the fifth alternates with it
+};
+const THEME_STEPS = [];
+(function buildTheme() {
+  for (let pass = 0; pass < 2; pass++) THEME.melody.forEach((bar, b) => {
+    const toks = bar.split(' ');
+    toks.forEach((t, i) => {
+      let len = 1; while (toks[i + len] === '.') len++;
+      const lead = t !== '.' ? t : null;
+      const root = THEME.bass[b] + '2';
+      const fifth = { D: 'A2', G: 'D3', F: 'C3', C: 'G2', A: 'E3' }[THEME.bass[b]];
+      THEME_STEPS.push({
+        lead: lead, len: len, harmony: pass && lead ? thirdAbove(lead) : null,
+        bass: i % 2 === 0 ? (i % 4 === 0 ? root : fifth) : null,
+        kick: i % 4 === 0, snare: i % 4 === 2, hat: i % 2 === 1,
+      });
+    });
+  });
+})();
+
+let themeAt = 0;
+function playThemeStep() {
+  if (!musicOn || !audio()) return;
+  const s = THEME_STEPS[themeAt++ % THEME_STEPS.length], dur = STEP * s.len * 0.92;
+  if (s.lead) tone(hz(s.lead), dur, 'square', 0.014);
+  if (s.harmony) tone(hz(s.harmony), dur, 'triangle', 0.012);
+  if (s.bass) tone(hz(s.bass), STEP * 1.8, 'triangle', 0.04);
+  if (s.kick) tone(130, 0.12, 'sine', 0.05, 0, 50);
+  if (s.snare) noise(0.07, 0.022);
+  if (s.hat) noise(0.02, 0.01);
+}
 function startMusic() {
   if (musicTimer) return;
-  let i = 0;
-  musicTimer = setInterval(() => {
-    if (!musicOn || !audio()) return;
-    const [bass, lead] = TUNE[i++ % TUNE.length];
-    tone(bass, 0.22, 'triangle', 0.035); tone(lead, 0.16, 'square', 0.012);
-  }, 240);
+  musicTimer = setInterval(playThemeStep, STEP * 1000);
 }
 
 function wireSoundButtons() {

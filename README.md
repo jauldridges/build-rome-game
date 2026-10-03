@@ -23,7 +23,8 @@ engine/                         the game engine (knows nothing about Rome)
   core.js                         map, farmers, gathering, building, messages, the steps of a mission
   defense.js                      waves of attackers, soldiers, training, the checkpoint, history cards
   quiz.js                         the closing check
-  sound.js                        chiptune sound effects and an optional tune
+  art.js                          every sprite, drawn in code (pixel art), the ground, the river, dusk lighting, stand-in portraits
+  sound.js                        chiptune sound effects and the short theme tune
   debug.js                        the ?debug=1 panel
   style.css, boot.js
 missions/rome/                  everything specific to Mission 1
@@ -34,6 +35,7 @@ missions/rome/                  everything specific to Mission 1
 tools/                          small scripts (Python 3 with PyYAML)
 tests/smoke.js                  plays the whole mission in a headless browser
 docs/MAKING-A-MISSION.md        how to make a new mission
+docs/PORTRAIT-PROMPTS.md        prompts and steps for the scout, Titus Tatius and Remus portraits
 latin1-spec (2).yaml            the course spec the content is tagged against
 condenda-roma-design.md         the plan
 ```

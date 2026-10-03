@@ -317,47 +317,34 @@ document.getElementById('cardok').addEventListener('click', nextCardPage);
 function endMission() { war.phase = 'over'; startQuiz(); }
 
 // ---- Drawing ----
-function drawForest() {
-  for (let r = 0; r < FOREST_H / TILE; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const x = c * TILE, y = r * TILE;
-      ctx.fillStyle = '#3f5f2a'; ctx.fillRect(x, y, TILE, TILE);
-      if ((c + r) % 2 === 0) {
-        ctx.fillStyle = '#5b3d1a'; ctx.fillRect(x + 14, y + 20, 5, 10);
-        ctx.fillStyle = '#25461f'; ctx.fillRect(x + 4, y + 4, 24, 20);
-      }
-    }
-  }
-}
-
 function attackThings() {
   return soldiers.map(s => ({ y: s.y, draw: () => drawSoldier(s) }))
     .concat(raiders.map(r => ({ y: r.y, draw: () => drawRaider(r) })));
 }
 
 function drawSoldier(s) {
-  const x = sx(s.x), y = sy(s.y) - (s.state === 'move' ? Math.abs(Math.sin(performance.now() / 110 + s.x * 0.05)) * 3 : 0);
-  if (s.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 10, 14, 6, 0, 0, 7); ctx.stroke(); }
-  ctx.fillStyle = '#2a6fb0'; ctx.fillRect(x - 6, y - 4, 12, 14);   // deep blue tunic
-  ctx.fillStyle = '#b08a3a'; ctx.fillRect(x - 5, y - 13, 10, 9);   // bronze helmet
-  ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 1, y - 17, 3, 5);    // crest
-  ctx.fillStyle = '#8a5a1e'; ctx.fillRect(x - 12, y - 2, 6, 12);   // shield
-  if (s.fighting) { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x + 8, y - 8 + (Math.floor(performance.now() / 120) % 2) * 5, 3, 10); }
+  const x = sx(s.x), y = sy(s.y), moving = s.state === 'move' || (!s.fighting && s.guard && Math.hypot(s.guard.x - s.x, s.guard.y - s.y) > 24);
+  if (s.facing === undefined) s.facing = 1;
+  const tx = s.state === 'move' ? s.tx : s.guard ? s.guard.x : null;
+  if (tx !== null && Math.abs(tx - s.x) > 3) s.facing = tx > s.x ? 1 : -1;
+  shadow(x, y + 11, 9, 3);
+  if (s.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 11, 15, 6, 0, 0, 7); ctx.stroke(); }
+  blit(personFrame(ART.soldier, moving, s.fighting), x, y + 13, s.facing < 0);
   if (s.hp < s.maxHp) { // health bar once hurt
-    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 8, y - 23, 16, 3);
-    ctx.fillStyle = '#4caf50'; ctx.fillRect(x - 8, y - 23, 16 * Math.max(0, s.hp) / s.maxHp, 3);
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 10, y - 30, 20, 4);
+    ctx.fillStyle = '#4caf50'; ctx.fillRect(x - 10, y - 30, 20 * Math.max(0, s.hp) / s.maxHp, 4);
   }
 }
 
 function drawRaider(r) {
   const x = sx(r.x), y = sy(r.y);
-  ctx.fillStyle = '#6b2a5a'; ctx.fillRect(x - 6, y - 4, 12, 14);   // purple tunic
-  ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8);
-  ctx.fillStyle = '#2a1c08'; ctx.fillRect(x - 5, y - 13, 10, 3);   // dark hair
-  ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + 8, y - 14, 2, 24);   // spear
-  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 8, y - 20, 16, 3);   // health bar
-  ctx.fillStyle = '#c0392b'; ctx.fillRect(x - 8, y - 20, 16 * Math.max(0, r.hp) / r.maxHp, 3);
-  if (r.fighting) { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x - 12, y - 8 + (Math.floor(performance.now() / 120) % 2) * 5, 3, 10); }
+  if (r.facing === undefined) r.facing = 1;
+  const tgt = r.target ? r.target.x + (r.target.w || 0) / 2 : null;
+  if (tgt !== null && Math.abs(tgt - r.x) > 3) r.facing = tgt > r.x ? 1 : -1;
+  shadow(x, y + 11, 9, 3);
+  blit(personFrame(ART.enemy, !r.fighting && !r.hitting, r.fighting || !!r.hitting), x, y + 13, r.facing < 0);
+  ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 10, y - 30, 20, 4);
+  ctx.fillStyle = '#c0392b'; ctx.fillRect(x - 10, y - 30, 20 * Math.max(0, r.hp) / r.maxHp, 4);
 }
 
 // Red markers where the next wave will arrive (in Latin mode only for the first wave: after that, the scout's words are the clue),

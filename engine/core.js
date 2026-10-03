@@ -94,7 +94,7 @@ let cursor = null;      // screen position of the mouse over the map
 
 // Resource nodes (trees, rocks, ...)
 const nodes = [];
-M.nodes.forEach(group => group.at.forEach(([x, y]) => nodes.push({ type: group.type, x, y, amount: group.amount })));
+M.nodes.forEach(group => group.at.forEach(([x, y], i) => nodes.push({ type: group.type, x, y, amount: group.amount, look: (nodes.length * 7 + i) % 5 })));
 
 // Farmers: a few to start. A finished house or forum may bring more (M.farmers.arrivals).
 const farmers = [];
@@ -534,11 +534,9 @@ function walkTo(o, tx, ty, dt, speed, reach) {
   return false;
 }
 function drawCameo(c) {
-  const x = sx(c.x), y = sy(c.y) - c.z;
-  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(sx(c.x), sy(c.y) + 10, 10, 4, 0, 0, 7); ctx.fill();
-  ctx.fillStyle = c.def.color; ctx.fillRect(x - 6, y - 4, 12, 14);
-  ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8);
-  ctx.fillStyle = '#2a1c08'; ctx.fillRect(x - 5, y - 13, 10, 3);
+  const x = sx(c.x), y = sy(c.y);
+  shadow(x, y + 11, 9 - c.z / 10, 3, 0.25);
+  blit(c.jump ? ART.remus[1] : personFrame(ART.remus, true, false), x, y + 13 - c.z, c.facing < 0);
 }
 
 // ---- Ranks: the player's title rises with the city ----
@@ -582,7 +580,7 @@ function showMessage(id, face, after, speaker) {
 
   // Portrait: a flat silhouette with the speaker's name stands in until the art file is found
   const img = document.getElementById('portrait'), ph = document.getElementById('placeholder');
-  ph.textContent = '';
+  ph.innerHTML = portraitSVG(speaker, face); // a cartoon stand-in until the painted portrait files are supplied
   const label = document.createElement('span'); label.textContent = name ? name.text : ''; ph.appendChild(label);
   ph.style.background = M.speakers[speaker].color;
   img.style.display = 'block'; ph.style.display = 'none';
@@ -694,6 +692,7 @@ function frame(now) {
   updatePopup(dt);
   for (let i = floaters.length - 1; i >= 0; i--) { floaters[i].t += dt; if (floaters[i].t > 1.2) floaters.splice(i, 1); }
   shake = Math.max(0, shake - dt * 30);
+  updateCritters(dt); updateDusk(dt);
   if (!boxOpen && !cardOpen) { // the clock stops while a message or the ending card is open
     farmers.forEach(f => update(f, dt));
     checkBeat();
@@ -713,21 +712,20 @@ function sy(y) { return Math.round(y - cam.y); }
 function drawScroll(s) {
   const bob = Math.sin((performance.now() - s.born) / 300) * 3, x = sx(s.x), y = sy(s.y) + bob;
   ctx.globalAlpha = 0.35 + 0.2 * Math.sin((performance.now() - s.born) / 250);
-  ctx.fillStyle = '#ffe9a0'; ctx.beginPath(); ctx.arc(x, y - 4, 20, 0, Math.PI * 2); ctx.fill(); // a soft glow so it is easy to spot
+  ctx.fillStyle = '#ffe9a0'; ctx.beginPath(); ctx.arc(x, y - 4, 22, 0, Math.PI * 2); ctx.fill(); // a soft glow so it is easy to spot
   ctx.globalAlpha = 1;
-  ctx.fillStyle = '#f1e4c0'; ctx.fillRect(x - 9, y - 11, 18, 14);
-  ctx.fillStyle = '#c8b27a'; ctx.fillRect(x - 11, y - 12, 4, 16); ctx.fillRect(x + 7, y - 12, 4, 16);
-  ctx.fillStyle = '#8a5a1e'; ctx.fillRect(x - 6, y - 7, 12, 2); ctx.fillRect(x - 6, y - 3, 9, 2);
+  blit(ART.scroll, x, y + 4, false);
 }
 
 function drawNode(n) {
   const x = sx(n.x), y = sy(n.y);
   if (n.type === 'wood') {
-    ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x - 3, y, 6, 14);        // trunk
-    ctx.fillStyle = RES.wood.color; ctx.fillRect(x - 12, y - 18, 24, 22); // leaves
-  } else if (n.type === 'stone') {
-    ctx.fillStyle = RES.stone.color; ctx.fillRect(x - 14, y - 8, 28, 20);
-    ctx.fillStyle = '#c9c4b6'; ctx.fillRect(x - 8, y - 12, 14, 8);
+    shadow(x, y + 13, 14, 4, 0.25);
+    const img = n.look % 4 === 0 ? ART.olive : ART.pine;
+    blit(img, x, y + 16, n.look % 2 === 1);
+  } else {
+    shadow(x, y + 10, 16, 4, 0.25);
+    blit(ART.rock[n.look % 2], x, y + 12, false);
   }
 }
 
@@ -738,16 +736,12 @@ function draw() {
   ctx.translate(view.ox, view.oy); ctx.scale(view.zoom, view.zoom);
   ctx.beginPath(); ctx.rect(0, 0, MAP_W, MAP_H); ctx.clip(); // nothing is drawn outside the map
   if (shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake); // when a building falls
-  for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++) {
-      ctx.fillStyle = GROUND_COLORS[ground[r][c]];
-      ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
-    }
-  drawTerrain();
-  drawForest();
-  // Storehouse
-  ctx.fillStyle = '#b8a47e'; ctx.fillRect(sx(store.x), sy(store.y), store.w, store.h);
-  ctx.fillStyle = '#a0522d'; ctx.fillRect(sx(store.x) - 4, sy(store.y) - 10, store.w + 8, 14);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(ART.ground, 0, 0);                    // grass, paths, the hill, the banks and the forest (drawn once)
+  drawRiver();                                        // the water moves, so it is drawn every frame
+  drawForestEyes();
+  buildingShadow(store); shadow(store.x + store.w / 2, store.y + store.h - 2, 30, 6, 0.18);
+  blitAt(ART.store, store.x - 2, store.y - 2);
 
   // Everything with a position draws back to front
   const things = nodes.map(n => ({ y: n.y, draw: () => drawNode(n) }))
@@ -755,12 +749,14 @@ function draw() {
     .concat(farmers.map(f => ({ y: f.y, draw: () => drawFarmer(f) })))
     .concat(scrolls.map(s => ({ y: s.y, draw: () => drawScroll(s) })))
     .concat(cameos.map(c => ({ y: c.y, draw: () => drawCameo(c) })))
+    .concat(critters.map(c => ({ y: c.y, draw: () => drawCritter(c) })))
     .concat(attackThings());
   things.sort((a, b) => a.y - b.y).forEach(t => t.draw());
   drawAttackOverlay();
+  drawLighting();                                     // dusk, and the glow of windows and torches
   floaters.forEach(f => { // rising numbers
     ctx.globalAlpha = Math.max(0, 1 - f.t / 1.2); ctx.fillStyle = f.color; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 3;
-    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.font = 'bold 18px Georgia, serif'; ctx.textAlign = 'center';
     ctx.strokeText(f.text, sx(f.x), sy(f.y) - f.t * 34); ctx.fillText(f.text, sx(f.x), sy(f.y) - f.t * 34);
     ctx.globalAlpha = 1;
   });
@@ -789,10 +785,15 @@ function drawBuilding(b) {
     const k = 1 + 0.15 * Math.sin(age / 400 * Math.PI), cx = sx(b.x + b.w / 2), cy = sy(b.y + b.h);
     ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
   }
-  ctx.globalAlpha = b.done ? 1 : 0.35 + 0.5 * b.progress / def.work;
+  buildingShadow(b);
+  ctx.globalAlpha = b.done ? 1 : 0.3 + 0.55 * b.progress / def.work;
   drawShape(b.type, b);
   ctx.restore();
   ctx.globalAlpha = 1;
+  if (!b.done) { // scaffolding: poles and a crossbeam
+    ctx.strokeStyle = '#8a5a1e'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(b.x, b.y + b.h); ctx.lineTo(b.x, b.y + 6); ctx.moveTo(b.x + b.w, b.y + b.h); ctx.lineTo(b.x + b.w, b.y + 6); ctx.moveTo(b.x - 4, b.y + b.h * 0.5); ctx.lineTo(b.x + b.w + 4, b.y + b.h * 0.5); ctx.stroke();
+  }
   if (!b.done) { // progress bar
     ctx.fillStyle = '#2a2a2a'; ctx.fillRect(sx(b.x), sy(b.y) - 8, b.w, 5);
     ctx.fillStyle = '#e0c060'; ctx.fillRect(sx(b.x), sy(b.y) - 8, b.w * b.progress / def.work, 5);
@@ -801,46 +802,33 @@ function drawBuilding(b) {
 
 // Placeholder art for each kind of building, drawn inside rectangle r
 function drawShape(type, r) {
-  const x = sx(r.x), y = sy(r.y), w = r.w, h = r.h;
-  if (type === 'house') {
-    ctx.fillStyle = '#d9ccaa'; ctx.fillRect(x, y + h * 0.35, w, h * 0.65);       // walls
-    ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 3, y, w + 6, h * 0.4);           // roof
-    ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + w / 2 - 6, y + h * 0.6, 12, h * 0.4); // door
-  } else if (type === 'wall') {
-    ctx.fillStyle = '#b9b3a3'; ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = '#d6d0c0'; ctx.fillRect(x, y, w, 8);
-    ctx.fillStyle = '#8f8a7c'; ctx.fillRect(x, y + h / 2, w, 2); ctx.fillRect(x + w / 2, y + 8, 2, h / 2 - 8);
-  } else if (type === 'gate') {
-    ctx.fillStyle = '#b9b3a3'; ctx.fillRect(x, y, 14, h); ctx.fillRect(x + w - 14, y, 14, h); // posts
-    ctx.fillRect(x, y, w, 10);                                                       // lintel
-    ctx.fillStyle = '#6b4a1e'; ctx.fillRect(x + 14, y + 10, w - 28, h - 10);        // door
-  } else {
-    ctx.fillStyle = '#d6cba8'; ctx.fillRect(x, y, w, h);                              // paved floor
-    ctx.strokeStyle = '#8f8a7c'; ctx.lineWidth = 3; ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
-    ctx.fillStyle = '#f2ecd8';
-    for (let cx = x + 10; cx < x + w - 10; cx += 24) ctx.fillRect(cx, y + 6, 8, 20);  // columns
-    ctx.fillStyle = '#2a6fb0'; ctx.fillRect(x + w / 2 - 8, y + h / 2, 16, 20);      // banner
-  }
+  const art = BUILD[type].art;
+  if (art === 'house') blitAt(ART.house, r.x - 2, r.y - 2);
+  else if (art === 'wall') blitAt(ART.wall, r.x, r.y);
+  else if (art === 'gate') blitAt(ART.gate, r.x, r.y);
+  else blitAt(ART.forum, r.x - 2, r.y - 2);
 }
 
 function drawFarmer(f) {
   const moving = f.state === 'move' || f.state === 'toNode' || f.state === 'toStore' || f.state === 'toBuild';
-  const x = sx(f.x), y = sy(f.y) - (moving ? Math.abs(Math.sin(performance.now() / 110 + f.x * 0.05)) * 3 : 0); // a little bob when walking
-  if (f.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 10, 14, 6, 0, 0, 7); ctx.stroke(); }
-  ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 6, y - 4, 12, 14); // terracotta tunic
-  ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8); // head
-  if (f.state === 'gather' || f.state === 'build') { // little swinging mark while working
-    ctx.fillStyle = '#f3e6c4'; ctx.fillRect(x + 8, y - 6 + (Math.floor(performance.now() / 150) % 2) * 4, 4, 4);
-  }
+  const working = f.state === 'gather' || f.state === 'build';
+  const x = sx(f.x), y = sy(f.y);
+  if (f.facing === undefined) f.facing = 1;
+  const tx = f.state === 'move' ? f.tx : f.state === 'toNode' && f.node ? f.node.x : f.state === 'toBuild' && f.site ? f.site.x + f.site.w / 2 : f.state === 'toStore' ? storeSpot.x : null;
+  if (tx !== null && Math.abs(tx - f.x) > 2) f.facing = tx > f.x ? 1 : -1;
+  shadow(x, y + 11, 9, 3);
+  if (f.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 11, 15, 6, 0, 0, 7); ctx.stroke(); }
+  blit(personFrame(ART.farmer, moving, working), x, y + 13, f.facing < 0);
   if (f.carryN > 0) { // load carried: colored boxes over the head, one per item
     ctx.fillStyle = RES[f.carry].color;
-    for (let i = 0; i < f.carryN; i++) ctx.fillRect(x - 12 + i * 5, y - 20, 4, 4);
+    for (let i = 0; i < f.carryN; i++) { ctx.fillRect(x - 13 + i * 6, y - 31, 5, 5); ctx.strokeStyle = '#2a1c08'; ctx.lineWidth = 1; ctx.strokeRect(x - 13 + i * 6 + 0.5, y - 31 + 0.5, 4, 4); }
   }
   if (f.state === 'move') { ctx.fillStyle = '#f3e6c4'; ctx.fillRect(sx(f.tx) - 2, sy(f.ty) - 2, 4, 4); }
 }
 
 // Called at the end of attack.js, once everything has loaded
 function startGame() {
+  buildArt(); buildGround(); addCritters(); // draw the sprites and the ground once
   resize();
   renderCommands();
   updateHud();
@@ -861,28 +849,6 @@ document.getElementById('helpbtn').addEventListener('click', e => {
 });
 
 // The Tiber and the Palatine Hill (placeholder art)
-function drawTerrain() {
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  if (RIVER) {
-    const trace = () => { ctx.beginPath(); RIVER.points.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y))); };
-    trace(); ctx.strokeStyle = '#a69a62'; ctx.lineWidth = RIVER.half * 2 + 14; ctx.stroke(); // muddy banks
-    trace(); ctx.strokeStyle = '#2a6fb0'; ctx.lineWidth = RIVER.half * 2; ctx.stroke();
-    trace(); ctx.strokeStyle = '#3b86c8'; ctx.lineWidth = RIVER.half * 1.1; ctx.stroke();
-    ctx.fillStyle = '#9cc7ea';
-    for (let y = 120; y < MAP_H; y += 70) { // little ripples drifting down the river
-      const wob = Math.sin(y / 70) * 16;
-      const near = RIVER.points.find((p, i) => RIVER.points[i + 1] && y >= p[1] && y < RIVER.points[i + 1][1]);
-      if (near) ctx.fillRect(sx(near[0] + wob), sy(y), 14, 3);
-    }
-  }
-  if (HILL) { // the hill: stacked, lighter ovals look like rising ground
-    [[1, '#7f8c3a'], [0.86, '#8d9a45'], [0.7, '#99a653'], [0.52, '#a4b05f']].forEach(([k, color], i) => {
-      ctx.fillStyle = color; ctx.beginPath();
-      ctx.ellipse(sx(HILL.x), sy(HILL.y - i * 14), HILL.rx * k, HILL.ry * k, 0, 0, Math.PI * 2); ctx.fill();
-    });
-  }
-}
-
 // ---- Title screen: choose how to play ----
 function entryText(id) { const e = LATIN.find(x => x.id === id); return e && (e.review_status === 'approved' || SHOW_DRAFTS) ? e : null; }
 

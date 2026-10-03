@@ -8,7 +8,7 @@
   const files = [
     'missions/' + name + '/content/latin.js',   // the mission's lines (built from latin.yaml by tools/build_content.py)
     'missions/' + name + '/mission.js',         // the mission's map, economy, steps and waves
-    'engine/sound.js', 'engine/core.js', 'engine/quiz.js', 'engine/defense.js',
+    'engine/sound.js', 'engine/core.js', 'engine/art.js', 'engine/quiz.js', 'engine/defense.js',
   ];
   if (params.has('debug')) files.push('engine/debug.js');
 
