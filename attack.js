@@ -84,7 +84,7 @@ function spawnPoints(n) {
   const c = townCenter();
   return Array.from({ length: n }, (_, i) => ({
     x: Math.max(30, Math.min(MAP_W - 30, c.x + (i - (n - 1) / 2) * 44)),
-    y: 40 + (i % 2) * 26,
+    y: 28 + (i % 2) * 24,
   }));
 }
 
@@ -212,11 +212,9 @@ function endMission() { war.phase = 'over'; }
 
 // ---- Drawing ----
 function drawForest() {
-  const c0 = Math.floor(cam.x / TILE), c1 = Math.min(COLS - 1, Math.ceil((cam.x + canvas.width) / TILE));
   for (let r = 0; r < FOREST_H / TILE; r++) {
-    if ((r + 1) * TILE < cam.y) continue;
-    for (let c = c0; c <= c1; c++) {
-      const x = c * TILE - Math.round(cam.x), y = r * TILE - Math.round(cam.y);
+    for (let c = 0; c < COLS; c++) {
+      const x = c * TILE, y = r * TILE;
       ctx.fillStyle = '#3f5f2a'; ctx.fillRect(x, y, TILE, TILE);
       if ((c + r) % 2 === 0) {
         ctx.fillStyle = '#5b3d1a'; ctx.fillRect(x + 14, y + 20, 5, 10);

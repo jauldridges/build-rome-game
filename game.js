@@ -1,12 +1,12 @@
 // Step 6: the Sabine attack (see attack.js) and the ending card.
 // Romulus gives the opening orders in message boxes with portraits. Orders are given in Latin. Every Latin line is read from content/latin.js (built from content/latin.yaml).
 // Placeholder art only.
-const TILE = 32, COLS = 60, ROWS = 40;
-const FOREST_H = 128; // the forest along the north edge, where the Sabines come from
+const TILE = 32, COLS = 40, ROWS = 25; // the whole world fits on one screen: no scrolling
+const FOREST_H = 96; // the forest along the north edge, where the Sabines come from
 
 // The Tiber runs north to south down the left side of the map, and the Palatine Hill rises just east of it.
-const RIVER = { half: 38, points: [[300, 128], [335, 320], [310, 520], [335, 720], [315, 920], [350, 1100], [320, 1280]] };
-const HILL = { x: 780, y: 540, rx: 240, ry: 150 };
+const RIVER = { half: 30, points: [[150, 96], [175, 220], [155, 360], [178, 500], [160, 640], [185, 740], [165, 800]] };
+const HILL = { x: 520, y: 380, rx: 190, ry: 120 };
 function riverDist(x, y) { // distance from a point to the middle of the river
   let best = Infinity;
   for (let i = 0; i + 1 < RIVER.points.length; i++) {
@@ -26,13 +26,18 @@ const PLACES = { river: { order: 'order_ambula_ad_flumen' }, hill: { order: 'ord
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const cam = { x: 0, y: 0 };
+const cam = { x: 0, y: 0 }; // the map never scrolls; the whole world is scaled to fit the window
 
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; clampCam(); }
-function clampCam() {
-  cam.x = Math.max(0, Math.min(cam.x, MAP_W - canvas.width));
-  cam.y = Math.max(0, Math.min(cam.y, MAP_H - canvas.height));
+// The world is drawn scaled to fit the window and centered. These convert between window pixels and world points.
+const view = { zoom: 1, ox: 0, oy: 0 };
+function resize() {
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  view.zoom = Math.min(canvas.width / MAP_W, canvas.height / MAP_H);
+  view.ox = (canvas.width - MAP_W * view.zoom) / 2;
+  view.oy = (canvas.height - MAP_H * view.zoom) / 2;
 }
+const toWorldXY = (x, y) => ({ x: (x - view.ox) / view.zoom, y: (y - view.oy) / view.zoom });
+const toScreenXY = (x, y) => ({ x: x * view.zoom + view.ox, y: y * view.zoom + view.oy });
 window.addEventListener('resize', resize);
 
 // Ground: olive grass with a few darker patches (deterministic pseudo-random)
@@ -62,7 +67,7 @@ const CARRY_MAX = 5;
 const stock = { wood: 0, stone: 0 };
 
 // Where gathered goods are dropped off (placeholder storehouse)
-const store = { x: 700, y: 780, w: 56, h: 48 };
+const store = { x: 470, y: 530, w: 56, h: 48 };
 const storeSpot = { x: store.x + store.w / 2, y: store.y + store.h + 14 };
 
 // Buildings you can put up. w and h are in tiles; work is farmer-seconds of building time.
@@ -79,8 +84,8 @@ let cursor = null;      // screen position of the mouse over the map
 // Resource nodes: trees to the south-east of the storehouse, rocks to the south-west
 const nodes = [];
 function addNodes(type, list, amount) { list.forEach(([x, y]) => nodes.push({ type, x, y, amount })); }
-addNodes('wood',  [[880, 840], [930, 870], [980, 830], [910, 920], [990, 900], [950, 790]], 60);
-addNodes('stone', [[520, 900], [560, 940], [490, 950], [580, 880]], 80);
+addNodes('wood',  [[620, 580], [665, 605], [710, 570], [650, 645], [720, 625], [690, 535]], 60);
+addNodes('stone', [[345, 600], [385, 640], [360, 670], [430, 590]], 80);
 
 // Farmers: three to start. A finished house brings one more, a finished forum three more.
 const farmers = [];
@@ -95,7 +100,7 @@ function addFarmer(x, y) {
     carry: null, carryN: 0, timer: 0,
   });
 }
-for (let i = 0; i < 3; i++) addFarmer(1660 + i * 50, 1130 + (i % 2) * 40); // they start in the bottom right corner
+for (let i = 0; i < 3; i++) addFarmer(1090 + i * 48, 700 + (i % 2) * 34); // they start in the bottom right corner
 
 const soldiers = []; // made in attack.js when the warning comes
 
@@ -116,7 +121,8 @@ function updatePopup(dt) {
   if (!popup) return;
   const el = document.getElementById('popup');
   popup.t += dt;
-  el.style.left = sx(popup.x) + 'px'; el.style.top = sy(popup.y) + 'px';
+  const s = toScreenXY(popup.x, popup.y);
+  el.style.left = s.x + 'px'; el.style.top = s.y + 'px';
   el.style.opacity = popup.t < 6 ? 1 : Math.max(0, 1 - (popup.t - 6) / 1.5);
   if (popup.t > 7.5) { el.style.display = 'none'; popup = null; }
 }
@@ -130,22 +136,14 @@ function onBuilt(b) {
   if (l) showPopup(b, l);
 }
 
-function toWorld(e) { return { x: e.clientX + cam.x, y: e.clientY + cam.y }; }
+function toWorld(e) { return toWorldXY(e.clientX, e.clientY); }
 
-// Mouse: a click selects or gives an order; dragging with the left button draws a selection box;
-// dragging with the right button scrolls the map (the arrow keys scroll too).
-let drag = null;   // scrolling the map
+// Mouse: a click selects or gives an order; dragging with the left button draws a selection box.
 let box = null;    // drawing a selection box
 canvas.addEventListener('mousedown', e => {
-  if (e.button === 2 || (e.button === 0 && keys[' '])) drag = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y, moved: false }; // right button, or Space held
-  else if (e.button === 0) box = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY, moved: false };
+  if (e.button === 0) box = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY, moved: false };
 });
 window.addEventListener('mousemove', e => {
-  if (drag) {
-    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
-    if (drag.moved) { cam.x = drag.cx - dx; cam.y = drag.cy - dy; clampCam(); }
-  }
   if (box) {
     box.x1 = e.clientX; box.y1 = e.clientY;
     if (Math.abs(box.x1 - box.x0) + Math.abs(box.y1 - box.y0) > 6) box.moved = true;
@@ -153,9 +151,8 @@ window.addEventListener('mousemove', e => {
 });
 canvas.addEventListener('mousemove', e => { cursor = { x: e.clientX, y: e.clientY }; });
 canvas.addEventListener('mouseleave', () => { cursor = null; });
-canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('contextmenu', e => { e.preventDefault(); setPlacing(null); }); // right-click cancels placing
 window.addEventListener('mouseup', e => {
-  if (drag && (e.button === 2 || e.button === 0)) { if (!drag.moved && e.button === 2) setPlacing(null); drag = null; } // a plain right-click cancels placing
   if (e.button === 0 && box) {
     const b = box; box = null;
     if (!b.moved) handleClick(toWorld(e), e.shiftKey);
@@ -164,8 +161,8 @@ window.addEventListener('mouseup', e => {
 });
 
 function selectInBox(b, shift) {
-  const x0 = Math.min(b.x0, b.x1) + cam.x, x1 = Math.max(b.x0, b.x1) + cam.x;
-  const y0 = Math.min(b.y0, b.y1) + cam.y, y1 = Math.max(b.y0, b.y1) + cam.y;
+  const a = toWorldXY(Math.min(b.x0, b.x1), Math.min(b.y0, b.y1)), z = toWorldXY(Math.max(b.x0, b.x1), Math.max(b.y0, b.y1));
+  const x0 = a.x, x1 = z.x, y0 = a.y, y1 = z.y;
   farmers.concat(soldiers).forEach(f => {
     const inside = f.x >= x0 && f.x <= x1 && f.y >= y0 && f.y <= y1;
     if (inside) f.selected = true; else if (!shift) f.selected = false;
@@ -187,8 +184,8 @@ let lastTip = null;
 function updateTip() {
   const tip = document.getElementById('tip');
   let id = null;
-  if (cursor && !boxOpen && !placing && !(drag && drag.moved) && !(box && box.moved)) {
-    const p = { x: cursor.x + cam.x, y: cursor.y + cam.y };
+  if (cursor && !boxOpen && !placing && !(box && box.moved)) {
+    const p = toWorldXY(cursor.x, cursor.y);
     if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_agricola'; // so students know what they are
     else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = 'vocab_miles';
     else if (farmers.some(f => f.selected)) {
@@ -311,14 +308,11 @@ function nextBuild(f) {
   f.site = best; f.state = best ? 'toBuild' : 'idle';
 }
 
-// Keyboard scrolling
-const keys = {};
+// Keyboard
 window.addEventListener('keydown', e => {
-  keys[e.key] = true;
   if (e.key === 'Escape') setPlacing(null);
   if ((e.key === 'a' || e.key === 'A') && !boxOpen && !cardOpen) farmers.forEach(f => f.selected = true); // A selects every farmer
 });
-window.addEventListener('keyup', e => { keys[e.key] = false; });
 
 // Walk toward (tx, ty); returns true when arrived
 function walk(f, tx, ty, dt, reach) {
@@ -579,12 +573,6 @@ function renderRecent() {
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  const scroll = 500 * dt;
-  if (keys.ArrowLeft) cam.x -= scroll;
-  if (keys.ArrowRight) cam.x += scroll;
-  if (keys.ArrowUp) cam.y -= scroll;
-  if (keys.ArrowDown) cam.y += scroll;
-  clampCam();
   updatePopup(dt);
   if (!boxOpen && !cardOpen) { // the clock stops while a message or the ending card is open
     farmers.forEach(f => update(f, dt));
@@ -612,12 +600,15 @@ function drawNode(n) {
 }
 
 function draw() {
-  const c0 = Math.floor(cam.x / TILE), c1 = Math.min(COLS - 1, Math.ceil((cam.x + canvas.width) / TILE));
-  const r0 = Math.floor(cam.y / TILE), r1 = Math.min(ROWS - 1, Math.ceil((cam.y + canvas.height) / TILE));
-  for (let r = r0; r <= r1; r++)
-    for (let c = c0; c <= c1; c++) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#1c1c1c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(view.ox, view.oy); ctx.scale(view.zoom, view.zoom);
+  ctx.beginPath(); ctx.rect(0, 0, MAP_W, MAP_H); ctx.clip(); // nothing is drawn outside the map
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++) {
       ctx.fillStyle = GROUND_COLORS[ground[r][c]];
-      ctx.fillRect(c * TILE - Math.round(cam.x), r * TILE - Math.round(cam.y), TILE, TILE);
+      ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
     }
   drawTerrain();
   drawForest();
@@ -632,17 +623,19 @@ function draw() {
     .concat(attackThings());
   things.sort((a, b) => a.y - b.y).forEach(t => t.draw());
   drawAttackOverlay();
-  if (box && box.moved) {
-    ctx.fillStyle = 'rgba(243,230,196,0.15)'; ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2;
-    ctx.fillRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0); ctx.strokeRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0);
-  }
 
   if (placing && cursor) { // ghost of the building being placed, red where it can't go
-    const r = ghostRect(placing, { x: cursor.x + cam.x, y: cursor.y + cam.y });
+    const r = ghostRect(placing, toWorldXY(cursor.x, cursor.y));
     ctx.globalAlpha = 0.55;
     drawShape(placing, r);
     if (!canPlace(r)) { ctx.fillStyle = '#d02020'; ctx.fillRect(sx(r.x), sy(r.y), r.w, r.h); }
     ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+
+  if (box && box.moved) { // the selection box is drawn in window pixels
+    ctx.fillStyle = 'rgba(243,230,196,0.15)'; ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2;
+    ctx.fillRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0); ctx.strokeRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0);
   }
 }
 
@@ -699,7 +692,6 @@ function drawFarmer(f) {
 // Called at the end of attack.js, once everything has loaded
 function startGame() {
   resize();
-  cam.x = MAP_W; cam.y = MAP_H; clampCam(); // start in the bottom right corner, where the farmers are
   renderCommands();
   updateHud();
   startBeat(0);
@@ -726,7 +718,7 @@ function drawTerrain() {
   trace(); ctx.strokeStyle = '#2a6fb0'; ctx.lineWidth = RIVER.half * 2; ctx.stroke();
   trace(); ctx.strokeStyle = '#3b86c8'; ctx.lineWidth = RIVER.half * 1.1; ctx.stroke();
   ctx.fillStyle = '#9cc7ea';
-  for (let y = 160; y < MAP_H; y += 90) { // little ripples drifting down the river
+  for (let y = 120; y < MAP_H; y += 70) { // little ripples drifting down the river
     const wob = Math.sin(y / 70) * 16;
     const near = RIVER.points.find((p, i) => RIVER.points[i + 1] && y >= p[1] && y < RIVER.points[i + 1][1]);
     if (near) ctx.fillRect(sx(near[0] + wob), sy(y), 14, 3);
