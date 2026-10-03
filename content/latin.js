@@ -502,7 +502,7 @@ const LATIN = [
   "type": "quiz_item",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-084",
-  "review_status": "draft",
+  "review_status": "approved",
   "question": "Where does the new farmer go?",
   "choices": [
    "To the gate",
@@ -519,7 +519,7 @@ const LATIN = [
   "type": "quiz_item",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-083",
-  "review_status": "draft",
+  "review_status": "approved",
   "question": "What are the soldiers doing?",
   "choices": [
    "Building a house",
@@ -536,7 +536,7 @@ const LATIN = [
   "type": "quiz_item",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-015",
-  "review_status": "draft",
+  "review_status": "approved",
   "question": "Who is being helped?",
   "choices": [
    "The farmer",
@@ -553,7 +553,7 @@ const LATIN = [
   "type": "quiz_item",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-020",
-  "review_status": "draft",
+  "review_status": "approved",
   "question": "How many gates does the passage describe?",
   "choices": [
    "One",
@@ -570,7 +570,7 @@ const LATIN = [
   "type": "quiz_item",
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
-  "review_status": "draft",
+  "review_status": "approved",
   "question": "In what order are you told to do these things?",
   "choices": [
    "Build a wall, then gather stone",
