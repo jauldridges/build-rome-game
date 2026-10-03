@@ -807,5 +807,83 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "MS-077",
   "review_status": "draft"
+ },
+ {
+  "id": "rank_colonus",
+  "latin": "colōnus",
+  "english": "settler",
+  "type": "ui_label",
+  "nle_category": "vocabulary",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "rank_aedificator",
+  "latin": "aedificātor",
+  "english": "builder",
+  "type": "ui_label",
+  "nle_category": "vocabulary",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "rank_defensor",
+  "latin": "dēfēnsor",
+  "english": "defender",
+  "type": "ui_label",
+  "nle_category": "vocabulary",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "rank_aedilis",
+  "latin": "aedīlis",
+  "english": "aedile (a city official in charge of buildings)",
+  "type": "ui_label",
+  "nle_category": "culture",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "name_remus",
+  "latin": "Remus",
+  "english": "Remus",
+  "type": "ui_label",
+  "nle_category": "culture",
+  "spec_node_id": "unmapped",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_remus_wall",
+  "latin": "Mūrus parvus est!",
+  "english": "The wall is small!",
+  "en": "Ha! Call that a wall? I could jump over that!",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-041",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_remus",
+  "latin": "Ēheu, Remē!",
+  "english": "Alas, Remus!",
+  "en": "Remus, no! Not over the wall!",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-049",
+  "review_status": "draft"
+ },
+ {
+  "id": "msg_romulus_remus_gone",
+  "latin": "Remus abest.",
+  "english": "Remus is away.",
+  "en": "Remus is, as always, somewhere else.",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-040",
+  "review_status": "draft"
  }
 ];

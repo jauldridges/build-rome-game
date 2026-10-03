@@ -745,3 +745,80 @@
   spec_node_id: MS-077   # also MS-084, MS-065
   review_status: draft
 
+# ---- Juice: ranks, optional scrolls, and Remus (DRAFT, not yet proofread) ----
+# Ranks rise with the city: colōnus (the start), aedificātor (after the wall), dēfēnsor (after the first wave), aedīlis (the end).
+# Remus appears when the wall is finished: he says it is small, jumps over it, and wanders off (the legend, played).
+# Questions for proofreading:
+#  1. The four rank words and their English glosses. aedīlis was a city official who looked after buildings.
+#  2. Remus: "Mūrus parvus est!", "Ēheu, Remē!" (vocative) and "Remus abest." (compound of sum, like adsunt).
+
+- id: rank_colonus
+  latin: "colōnus"
+  english: "settler"
+  type: ui_label
+  nle_category: vocabulary
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: rank_aedificator
+  latin: "aedificātor"
+  english: "builder"
+  type: ui_label
+  nle_category: vocabulary
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: rank_defensor
+  latin: "dēfēnsor"
+  english: "defender"
+  type: ui_label
+  nle_category: vocabulary
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: rank_aedilis
+  latin: "aedīlis"
+  english: "aedile (a city official in charge of buildings)"
+  type: ui_label
+  nle_category: culture
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: name_remus
+  latin: "Remus"
+  english: "Remus"
+  type: ui_label
+  nle_category: culture
+  spec_node_id: unmapped
+  review_status: draft
+
+- id: msg_remus_wall
+  latin: "Mūrus parvus est!"
+  english: "The wall is small!"
+  en: "Ha! Call that a wall? I could jump over that!"
+  en_status: draft
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-041   # also MS-042
+  review_status: draft
+
+- id: msg_romulus_remus
+  latin: "Ēheu, Remē!"
+  english: "Alas, Remus!"
+  en: "Remus, no! Not over the wall!"
+  en_status: draft
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-049   # vocative Remē
+  review_status: draft
+
+- id: msg_romulus_remus_gone
+  latin: "Remus abest."
+  english: "Remus is away."
+  en: "Remus is, as always, somewhere else."
+  en_status: draft
+  type: message
+  nle_category: morphosyntax
+  spec_node_id: MS-040   # compound of sum
+  review_status: draft
+

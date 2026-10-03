@@ -57,6 +57,7 @@ function showResults() {
   document.getElementById('quiztitle').textContent = 'Closing check';
   const dots = document.getElementById('quizdots'); dots.textContent = '';
   document.getElementById('quizscore').textContent = right + ' / ' + quizResults.length;
+  document.getElementById('quizscrolls').textContent = scrollsTotal ? 'Scrolls read: ' + scrollsRead + ' of ' + scrollsTotal : '';
   const list = document.getElementById('quizreview');
   list.textContent = '';
   quizResults.forEach(r => { // the translation and the right answer are shown only now, after the check

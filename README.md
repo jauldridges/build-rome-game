@@ -23,6 +23,7 @@ engine/                         the game engine (knows nothing about Rome)
   core.js                         map, farmers, gathering, building, messages, the steps of a mission
   defense.js                      waves of attackers, soldiers, training, the checkpoint, history cards
   quiz.js                         the closing check
+  sound.js                        chiptune sound effects and an optional tune
   debug.js                        the ?debug=1 panel
   style.css, boot.js
 missions/rome/                  everything specific to Mission 1

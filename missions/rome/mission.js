@@ -24,13 +24,14 @@ const MISSION = {
     romulus: { name: 'name_romulus', color: '#5b3a1a' },
     scout: { name: 'name_scout', color: '#2d4a5a' },
     tatius: { name: 'name_tatius', color: '#4a2d5a' },
+    remus: { name: 'name_remus', color: '#3f7a3f' },
   },
 
   // ---- Economy ----
   // word: the entry shown on the counter. order: the entry for "gather this". gatherTime: seconds per item.
   resources: {
-    wood:  { word: 'vocab_lignum', order: 'order_collige_lignum',  color: '#2f5a2a', gatherTime: 1.0 },
-    stone: { word: 'vocab_lapis',  order: 'order_collige_lapidem', color: '#9a958a', gatherTime: 1.4 },
+    wood:  { word: 'vocab_lignum', order: 'order_collige_lignum',  color: '#2f5a2a', gatherTime: 0.8 },
+    stone: { word: 'vocab_lapis',  order: 'order_collige_lapidem', color: '#9a958a', gatherTime: 1.1 },
   },
   carryMax: 5,
   store: { x: 470, y: 530, w: 56, h: 48 },                 // where gathered goods are dropped off
@@ -54,6 +55,24 @@ const MISSION = {
   // The words shown when the mouse hovers over a farmer or a soldier
   words: { farmer: 'vocab_agricola', soldier: 'vocab_miles' },
 
+  // ---- Titles: the player's rank rises with the city. 'when' is checked all the time; the highest one that is true shows. ----
+  ranks: [
+    { entry: 'rank_colonus', when: () => true },
+    { entry: 'rank_aedificator', when: () => isBuilt('wall', 4) },
+    { entry: 'rank_defensor', when: () => war.wave >= 1 || war.phase === 'won' || war.phase === 'over' },
+    { entry: 'rank_aedilis', when: () => war.phase === 'won' || war.phase === 'over' },
+  ],
+
+  // ---- Cameos: someone walks across the map. 'path' returns the points to walk through; {jump: true} leaps to that point. ----
+  cameos: {
+    remus: { color: '#3f7a3f', speed: 80, path: () => { // comes up to the middle of the wall, hops over it, and strolls off
+      const walls = buildings.filter(b => b.type === 'wall' && b.done).sort((a, b) => a.x - b.x);
+      const w = walls[Math.floor(walls.length / 2)] || { x: 400, y: 200, w: 32, h: 32 };
+      const cx = w.x + w.w / 2;
+      return [{ x: Math.max(10, cx - 220), y: w.y + 90 }, { x: cx - 30, y: w.y + 48 }, { x: cx, y: w.y - 26, jump: true }, { x: cx + 160, y: w.y - 50 }, { x: MAP_W + 20, y: w.y - 50 }];
+    } },
+  },
+
   // ---- The command menu ----
   // The menu is built from these entries. The defense adds Defende, Fer and Fac when the warning comes (see 'defense').
   commands: { gather: 'cmd_collige', build: 'cmd_aedifica', replay: 'cmd_relege', walk: 'cmd_ambula' },
@@ -61,21 +80,27 @@ const MISSION = {
 
   // ---- The opening orders: one at a time, each waits for the player to do it ----
   // say: the entry shown. face: Romulus's portrait. expects: the work order that is right now ([] means none is).
-  // allow: 'gather' means gathering is never a mistake here. pre / post: history cards before / after the step.
+  // allow: 'gather' means gathering is never a mistake here. pre: history cards before the step.
   // walk: the place Romulus is sending you to (the mouse shows its order while you hover over it).
   // done: true when the step is finished. run: starts something instead of showing a message.
   beats: [
     { say: 'msg_romulus_intro', face: 'pleased', pre: ['culture_romulus_remus'], expects: null, done: () => true },
-    { say: 'order_ambula_ad_flumen', face: 'neutral', expects: [], walk: 'river', post: ['culture_hills'], done: () => farmersAt('river') >= 3 },
+    { say: 'order_ambula_ad_flumen', face: 'neutral', expects: [], walk: 'river', scroll: [{ card: 'culture_hills', at: [250, 330] }], done: () => farmersAt('river') >= 3 },
     { say: 'msg_romulus_hill', face: 'pleased', expects: [], walk: 'hill', done: () => farmersAt('hill') >= 3 },
     { say: 'order_collige_lignum', face: 'neutral', expects: ['order_collige_lignum'], done: () => stock.wood >= 8 },
     { say: 'msg_romulus_stone', face: 'pleased', expects: ['order_collige_lapidem'], done: () => stock.stone >= 5 },
     { say: 'msg_romulus_house', face: 'pleased', expects: ['order_aedifica_casam'], allow: 'gather', done: () => isBuilt('house') },
-    { say: 'msg_romulus_done', face: 'pleased', expects: null, post: ['culture_asylum'], done: () => true },
-    { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: 'gather', post: ['culture_pomerium'], done: () => isBuilt('wall', 4) },
+    { say: 'msg_romulus_done', face: 'pleased', expects: null, scroll: [{ card: 'culture_asylum', at: () => { const h = lastBuilt('house'); return h ? [h.x + h.w / 2, h.y + h.h + 26] : [HILL.x, HILL.y + 60]; } }], done: () => true },
+    { say: 'msg_romulus_wall', face: 'pleased', expects: ['order_aedifica_murum'], allow: 'gather', done: () => isBuilt('wall', 4),
+      scroll: [{ card: 'culture_pomerium', at: () => { const w = lastBuilt('wall'); return w ? [w.x + w.w / 2, w.y + w.h + 26] : [HILL.x, HILL.y]; } }],
+      after: [ // Remus mocks the wall, jumps over it, and wanders off (the legend, played)
+        { msg: 'msg_remus_wall', speaker: 'remus', face: 'pleased' }, { cameo: 'remus' },
+        { msg: 'msg_romulus_remus', face: 'alarmed' }, { msg: 'msg_romulus_remus_gone', face: 'neutral' },
+      ] },
     { say: 'msg_romulus_gate', face: 'pleased', expects: ['order_aedifica_portam'], allow: 'gather', done: () => isBuilt('gate') },
-    { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: 'gather', post: ['culture_senate'], done: () => isBuilt('forum') },
-    { say: 'msg_romulus_final', face: 'pleased', expects: null, post: ['culture_sabines'], done: () => true },
+    { say: 'msg_romulus_forum', face: 'pleased', expects: ['order_aedifica_forum'], allow: 'gather', done: () => isBuilt('forum'),
+      scroll: [{ card: 'culture_senate', at: () => { const f = lastBuilt('forum'); return f ? [f.x + f.w / 2, f.y + f.h + 30] : [HILL.x, HILL.y]; } }] },
+    { say: 'msg_romulus_final', face: 'pleased', expects: null, scroll: [{ card: 'culture_sabines', at: () => [MAP_W / 2, FOREST_H + 30] }], done: () => true },
     { run: 'defense', expects: null, done: null },                      // the warning, three waves and the ending
   ],
 

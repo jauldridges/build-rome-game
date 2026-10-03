@@ -39,11 +39,20 @@ Copy `missions/rome/` to `missions/<newname>/`. Open the game with `index.html?m
 5. **One screen.** The world is scaled to fit the window; there is no scrolling. Keep the world about 1280 by 800.
 6. **Soft failure.** Losing a building costs a building. Losing the whole town restarts the defense from the checkpoint. Nothing sends the student back to the beginning.
 
-## 4. What needs engine changes
+## 4. The tools a mission gets for free
+
+These are all set up in `mission.js`; none needs engine code.
+- **Optional scrolls.** A step may have `scroll: [{ card, at }]`. When the step is done, a glowing scroll appears at that spot on the map and the game goes on. The player clicks it to read the history card. Use `pre` or `after` for the cards every player must see.
+- **Cameos.** `cameos` describe someone walking across the map (Remus, in the Rome mission), optionally leaping over something. A step's `after` list can start one with `{ cameo: 'name' }` between messages.
+- **Ranks.** `ranks` is a list of `{ entry, when }`. The player's title is the last one whose `when` is true; a banner announces each new one.
+- **Sound.** `engine/sound.js` makes chiptune effects in the browser (no sound files). The menu box has buttons to turn effects and the optional music on and off.
+- **Effects.** Floating numbers, puffs of dust, a pop when a building is finished and a screen shake when one falls are built in.
+
+## 5. What needs engine changes
 
 New *kinds* of things need code in `engine/`: a new building drawing (`drawShape` in `core.js`), a new unit type, or a mechanic that is not gathering, building, or waves of attackers. Anything that is a different number, place, order of steps or wording needs only the mission folder.
 
-## 5. Checking your work
+## 6. Checking your work
 
 - `?debug=1` adds a panel for skipping steps, adding resources, calling a wave or losing the town.
 - `?drafts=1` shows lines you have not approved yet.

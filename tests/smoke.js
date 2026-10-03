@@ -22,7 +22,7 @@ async function playthrough(browser, lang) {
   await page.goto(URL + '?mission=' + MISSION + '&lang=' + lang);
   await page.waitForFunction(() => typeof startGame === 'function' && typeof beat !== 'undefined', null, { timeout: 15000 });
 
-  const open = () => page.evaluate(() => cardOpen || boxOpen || quizOpen);
+  const open = () => page.evaluate(() => cardOpen || boxOpen || quizOpen || cameos.length > 0);
   const dismiss = async () => {                                  // click through every message and card that is open
     for (let i = 0; i < 40; i++) { await page.waitForTimeout(260); if (!(await open())) return; await page.keyboard.press('Enter'); }
   };

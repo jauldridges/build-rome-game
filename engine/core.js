@@ -113,6 +113,14 @@ M.farmers.start.forEach(([x, y]) => addFarmer(x, y));
 
 const soldiers = []; // made in defense.js when the warning comes
 
+// Little effects: coloured puffs, rising numbers and words, and a screen shake that fades
+const fx = [];
+const floaters = [];
+let shake = 0;
+function puff(x, y, color) { fx.push({ x, y, t: 0, color: color || '#f3e6c4' }); }
+function floater(x, y, text, color) { floaters.push({ x, y, text, color: color || '#fff', t: 0 }); }
+const lastBuilt = type => buildings.filter(b => b.type === type && b.done).slice(-1)[0];
+
 const NEW_FARMERS = M.farmers.arrivals;
 // A box beside the new building that explains the arrival, then fades away
 let popup = null;
@@ -137,6 +145,10 @@ function updatePopup(dt) {
 }
 
 function onBuilt(b) {
+  b.doneAt = performance.now(); // the building pops into place
+  sfx('built');
+  for (let i = 0; i < 5; i++) puff(b.x + Math.random() * b.w, b.y + b.h - 4, '#d9ccaa');
+  floater(b.x + b.w / 2, b.y - 6, '✓', '#9be07f');
   const arrival = NEW_FARMERS[b.type];
   if (!arrival) return;
   const n = arrival.n;
@@ -195,7 +207,9 @@ function updateTip() {
   let id = null;
   if (cursor && !boxOpen && !placing && !(box && box.moved)) {
     const p = toWorldXY(cursor.x, cursor.y);
-    if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.farmer; // so students know what they are
+    const sc = scrolls.find(s => Math.hypot(s.x - p.x, s.y - 4 - p.y) < 20);
+    if (sc) id = sc.card; // a scroll shows the heading of its card
+    else if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.farmer; // so students know what they are
     else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.soldier;
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
@@ -218,6 +232,8 @@ function updateTip() {
 
 function handleClick(p, shift) {
   if (placing) { tryPlace(p); return; }
+  const scroll = scrolls.find(s => Math.hypot(s.x - p.x, s.y - 4 - p.y) < 20);
+  if (scroll) { readScroll(scroll); return; }
   const people = farmers.concat(soldiers);
   const hit = people.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
   if (hit) {
@@ -286,6 +302,7 @@ function tryPlace(p) {
   if (!afford(def.cost)) { setPlacing(null); setMsg('Not enough resources.'); return; }
   if (!canPlace(r)) { setMsg("Can't build there."); return; }
   Object.keys(def.cost).forEach(k => stock[k] -= def.cost[k]);
+  sfx('place');
   const site = { type: placing, x: r.x, y: r.y, w: r.w, h: r.h, progress: 0, done: false };
   buildings.push(site);
   // Selected farmers build it; with nobody selected, the nearest farmer does
@@ -342,7 +359,7 @@ function update(f, dt) {
     if (f.node.amount <= 0) { f.state = f.carryN ? 'toStore' : 'idle'; return; }
     f.timer += dt;
     if (f.timer >= RES[f.node.type].gatherTime) {
-      f.timer = 0; f.carry = f.node.type; f.carryN++; f.node.amount--;
+      f.timer = 0; f.carry = f.node.type; f.carryN++; f.node.amount--; sfx('gather');
       if (f.carryN >= CARRY_MAX) f.state = 'toStore';
     }
   } else if (f.state === 'toBuild') {
@@ -353,11 +370,13 @@ function update(f, dt) {
     const s = f.site;
     if (s.done) { nextBuild(f); return; }
     s.progress += dt;
+    if (Math.random() < dt * 2.5) puff(s.x + Math.random() * s.w, s.y + s.h, '#cdbf9a'); // dust while building
     if (s.progress >= BUILD[s.type].work) { s.done = true; onBuilt(s); nextBuild(f); }
   } else if (f.state === 'toStore') {
     const forum = f.toForum ? buildings.find(b => b.type === 'forum' && b.done) : null; // stone for the soldiers goes to the forum
     const spot = forum ? { x: forum.x + forum.w / 2, y: forum.y + forum.h + 14 } : storeSpot;
     if (walk(f, spot.x, spot.y, dt, 4)) {
+      floater(spot.x, spot.y - 12, '+' + f.carryN, RES[f.carry].color === '#2f5a2a' ? '#8fd18a' : '#e8e4d8'); sfx('coin');
       if (forum && f.carry === 'stone') depositToForum(f.carryN); else stock[f.carry] += f.carryN;
       f.carry = null; f.carryN = 0;
       updateHud();
@@ -467,6 +486,83 @@ function updateHud() {
   });
 }
 
+// ---- Optional scrolls: history the player may stop and read ----
+const scrolls = [];
+let scrollsRead = 0, scrollsTotal = 0;
+function addScroll(def) {
+  if (!line(def.card)) return; // an unapproved card is simply skipped
+  const at = typeof def.at === 'function' ? def.at() : def.at;
+  scrolls.push({ card: def.card, x: at[0], y: at[1], born: performance.now() });
+  scrollsTotal++;
+  sfx('ping');
+}
+function readScroll(s) {
+  scrolls.splice(scrolls.indexOf(s), 1);
+  scrollsRead++;
+  sfx('page');
+  showCards([s.card]);
+}
+
+// ---- Cameos: someone walks across the map (and may jump the wall) ----
+const cameos = [];
+function startCameo(name, done) {
+  const def = M.cameos[name], path = def.path();
+  if (!path || !path.length) { done(); return; }
+  cameos.push({ def, path, i: 0, x: path[0].x, y: path[0].y, z: 0, jump: null, done });
+}
+function updateCameos(dt) {
+  for (let k = cameos.length - 1; k >= 0; k--) {
+    const c = cameos[k];
+    if (c.jump) { // an arc from one point to the next
+      c.jump.t += dt;
+      const u = Math.min(1, c.jump.t / c.jump.dur);
+      c.x = c.jump.x0 + (c.jump.x1 - c.jump.x0) * u; c.y = c.jump.y0 + (c.jump.y1 - c.jump.y0) * u; c.z = Math.sin(u * Math.PI) * 34;
+      if (u >= 1) { c.jump = null; c.z = 0; c.i++; }
+    } else {
+      const next = c.path[c.i + 1];
+      if (!next) { cameos.splice(k, 1); c.done(); continue; }
+      if (next.jump) { c.jump = { x0: c.x, y0: c.y, x1: next.x, y1: next.y, t: 0, dur: 0.8 }; sfx('jump'); }
+      else if (walkTo(c, next.x, next.y, dt, c.def.speed || 70, 3)) c.i++;
+    }
+  }
+}
+function walkTo(o, tx, ty, dt, speed, reach) {
+  const dx = tx - o.x, dy = ty - o.y, d = Math.hypot(dx, dy);
+  if (d <= reach) return true;
+  const step = Math.min(speed * dt, d);
+  o.x += dx / d * step; o.y += dy / d * step; o.facing = dx;
+  return false;
+}
+function drawCameo(c) {
+  const x = sx(c.x), y = sy(c.y) - c.z;
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(sx(c.x), sy(c.y) + 10, 10, 4, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = c.def.color; ctx.fillRect(x - 6, y - 4, 12, 14);
+  ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8);
+  ctx.fillStyle = '#2a1c08'; ctx.fillRect(x - 5, y - 13, 10, 3);
+}
+
+// ---- Ranks: the player's title rises with the city ----
+let rankNow = -1;
+function updateRank() {
+  if (!M.ranks) return;
+  let best = 0;
+  M.ranks.forEach((r, i) => { if (r.when()) best = i; });
+  if (best <= rankNow) return;
+  const first = rankNow < 0;
+  rankNow = best;
+  const l = line(M.ranks[best].entry);
+  const el = document.getElementById('rank');
+  el.textContent = l ? l.text : '';
+  el.title = l ? l.english : '';
+  if (!first && l) { // a banner announces the new rank
+    const b = document.getElementById('banner');
+    b.textContent = l.text; b.title = l.english; b.style.display = 'block';
+    b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+    setTimeout(() => { b.style.display = 'none'; }, 3200);
+    sfx('rank');
+  }
+}
+
 // ---- Messages from Romulus ----
 let boxOpen = false, boxAfter = null;
 const messagesSeen = new Set(); // messages whose English hint has already been shown
@@ -493,6 +589,7 @@ function showMessage(id, face, after, speaker) {
   img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
   img.src = 'missions/' + M.id + '/assets/portraits/portrait_' + speaker + '_' + face + '.png';
 
+  sfx('msg');
   boxOpen = true; boxAfter = after || null;
   document.getElementById('msgbox').style.display = 'flex';
   document.getElementById('mok').focus();
@@ -529,6 +626,7 @@ function runSequence(steps, after) {
     if (i >= steps.length) { if (after) after(); return; }
     const s = steps[i];
     if (s.cards) showCards(s.cards, () => next(i + 1));
+    else if (s.cameo) startCameo(s.cameo, () => next(i + 1));
     else showMessage(s.msg, s.face || 'neutral', () => next(i + 1), s.speaker);
   };
   next(0);
@@ -548,8 +646,11 @@ function startBeat(i) {
 
 function checkBeat() {
   const b = BEATS[beat];
-  if (b && b.done && b.done()) {
-    if (b.post) showCards(b.post, () => startBeat(beat + 1)); // history cards after the step is done
+  if (b && b.done && !b.finishing && b.done()) {
+    b.finishing = true; // a cameo does not pause the game, so make sure the ending of a step happens only once
+    if (b.scroll) b.scroll.forEach(addScroll); // optional history appears on the map
+    const steps = b.after || (b.post ? [{ cards: b.post }] : null); // messages, cameos and mandatory cards after the step
+    if (steps) runSequence(steps, () => startBeat(beat + 1));
     else startBeat(beat + 1);
   }
 }
@@ -591,10 +692,14 @@ let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000) * (window.TIMESCALE || 1); last = now; // TIMESCALE is only set by the debug panel
   updatePopup(dt);
+  for (let i = floaters.length - 1; i >= 0; i--) { floaters[i].t += dt; if (floaters[i].t > 1.2) floaters.splice(i, 1); }
+  shake = Math.max(0, shake - dt * 30);
   if (!boxOpen && !cardOpen) { // the clock stops while a message or the ending card is open
     farmers.forEach(f => update(f, dt));
     checkBeat();
     updateAttack(dt);
+    updateCameos(dt);
+    updateRank();
   }
   for (let i = nodes.length - 1; i >= 0; i--) if (nodes[i].amount <= 0) nodes.splice(i, 1);
   draw();
@@ -604,6 +709,16 @@ function frame(now) {
 
 function sx(x) { return Math.round(x - cam.x); }
 function sy(y) { return Math.round(y - cam.y); }
+
+function drawScroll(s) {
+  const bob = Math.sin((performance.now() - s.born) / 300) * 3, x = sx(s.x), y = sy(s.y) + bob;
+  ctx.globalAlpha = 0.35 + 0.2 * Math.sin((performance.now() - s.born) / 250);
+  ctx.fillStyle = '#ffe9a0'; ctx.beginPath(); ctx.arc(x, y - 4, 20, 0, Math.PI * 2); ctx.fill(); // a soft glow so it is easy to spot
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#f1e4c0'; ctx.fillRect(x - 9, y - 11, 18, 14);
+  ctx.fillStyle = '#c8b27a'; ctx.fillRect(x - 11, y - 12, 4, 16); ctx.fillRect(x + 7, y - 12, 4, 16);
+  ctx.fillStyle = '#8a5a1e'; ctx.fillRect(x - 6, y - 7, 12, 2); ctx.fillRect(x - 6, y - 3, 9, 2);
+}
 
 function drawNode(n) {
   const x = sx(n.x), y = sy(n.y);
@@ -622,6 +737,7 @@ function draw() {
   ctx.save();
   ctx.translate(view.ox, view.oy); ctx.scale(view.zoom, view.zoom);
   ctx.beginPath(); ctx.rect(0, 0, MAP_W, MAP_H); ctx.clip(); // nothing is drawn outside the map
+  if (shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake); // when a building falls
   for (let r = 0; r < ROWS; r++)
     for (let c = 0; c < COLS; c++) {
       ctx.fillStyle = GROUND_COLORS[ground[r][c]];
@@ -637,9 +753,18 @@ function draw() {
   const things = nodes.map(n => ({ y: n.y, draw: () => drawNode(n) }))
     .concat(buildings.map(b => ({ y: b.y + b.h, draw: () => drawBuilding(b) })))
     .concat(farmers.map(f => ({ y: f.y, draw: () => drawFarmer(f) })))
+    .concat(scrolls.map(s => ({ y: s.y, draw: () => drawScroll(s) })))
+    .concat(cameos.map(c => ({ y: c.y, draw: () => drawCameo(c) })))
     .concat(attackThings());
   things.sort((a, b) => a.y - b.y).forEach(t => t.draw());
   drawAttackOverlay();
+  floaters.forEach(f => { // rising numbers
+    ctx.globalAlpha = Math.max(0, 1 - f.t / 1.2); ctx.fillStyle = f.color; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 3;
+    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.strokeText(f.text, sx(f.x), sy(f.y) - f.t * 34); ctx.fillText(f.text, sx(f.x), sy(f.y) - f.t * 34);
+    ctx.globalAlpha = 1;
+  });
+  ctx.textAlign = 'start';
 
   if (placing && cursor) { // ghost of the building being placed, red where it can't go
     const r = ghostRect(placing, toWorldXY(cursor.x, cursor.y));
@@ -658,8 +783,15 @@ function draw() {
 
 function drawBuilding(b) {
   const def = BUILD[b.type];
+  const age = b.doneAt ? performance.now() - b.doneAt : 1e9; // a little pop when it is finished
+  ctx.save();
+  if (age < 400) {
+    const k = 1 + 0.15 * Math.sin(age / 400 * Math.PI), cx = sx(b.x + b.w / 2), cy = sy(b.y + b.h);
+    ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
+  }
   ctx.globalAlpha = b.done ? 1 : 0.35 + 0.5 * b.progress / def.work;
   drawShape(b.type, b);
+  ctx.restore();
   ctx.globalAlpha = 1;
   if (!b.done) { // progress bar
     ctx.fillStyle = '#2a2a2a'; ctx.fillRect(sx(b.x), sy(b.y) - 8, b.w, 5);
@@ -692,7 +824,8 @@ function drawShape(type, r) {
 }
 
 function drawFarmer(f) {
-  const x = sx(f.x), y = sy(f.y);
+  const moving = f.state === 'move' || f.state === 'toNode' || f.state === 'toStore' || f.state === 'toBuild';
+  const x = sx(f.x), y = sy(f.y) - (moving ? Math.abs(Math.sin(performance.now() / 110 + f.x * 0.05)) * 3 : 0); // a little bob when walking
   if (f.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 10, 14, 6, 0, 0, 7); ctx.stroke(); }
   ctx.fillStyle = '#c4623a'; ctx.fillRect(x - 6, y - 4, 12, 14); // terracotta tunic
   ctx.fillStyle = '#e8c9a0'; ctx.fillRect(x - 5, y - 12, 10, 8); // head

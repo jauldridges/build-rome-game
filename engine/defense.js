@@ -2,7 +2,6 @@
 // Loaded after core.js, which it relies on. Placeholder art only. It holds no text: lines come from the mission's content.
 
 const raiders = [];                       // the attackers
-const fx = [];                            // little puffs when someone falls or a building is lost
 const war = { phase: 'none', clock: 0, clockMax: 10, wave: 0, snapshot: null, trainTold: false };
 let cardOpen = false;
 
@@ -13,6 +12,7 @@ const HP = DEFENSE.hp;
 // ---- The warning ----
 function beginWarning() {
   war.wave = 0; war.phase = 'warn';
+  sfx('alarm');
   spawnSoldiers(DEFENSE.soldier.start);
   const c = DEFENSE.commands;
   COMMANDS.push(
@@ -80,10 +80,9 @@ function spawnSoldiers(n) {
     soldiers.push({ x: x + (i - (n - 1) / 2) * 26 + (Math.random() * 8 - 4), y: y + Math.random() * 8, speed: S.speed, hp: S.hp, maxHp: S.hp, selected: false, state: 'idle', tx: 0, ty: 0, guard: null });
     puff(x + (i - (n - 1) / 2) * 26, y);
   }
+  if (war.phase !== 'warn') sfx('recruit');
   updateHud();
 }
-
-function puff(x, y, color) { fx.push({ x, y, t: 0, color: color || '#f3e6c4' }); }
 
 // The place behind the wall where defenders stand: just south of the finished wall pieces, or north of the town if there are none
 function guardPoint() {
@@ -140,7 +139,7 @@ function updateSoldier(s, dt) {
   raiders.forEach(r => { const d = Math.hypot(r.x - s.x, r.y - s.y); if (d < best) { foe = r; best = d; } });
   if (foe) {
     s.fighting = walk(s, foe.x, foe.y, dt, 22);
-    if (s.fighting) foe.hp -= DEFENSE.soldier.dmg * dt;
+    if (s.fighting) { foe.hp -= DEFENSE.soldier.dmg * dt; if (Math.random() < dt * 3) sfx('hit'); }
   } else {
     s.fighting = false;
     if (s.guard && Math.hypot(s.guard.x - s.x, s.guard.y - s.y) > 24) walk(s, s.guard.x, s.guard.y, dt, 6);
@@ -170,6 +169,7 @@ function spawnPoints(from, n) {
 function launchWave() {
   const w = DEFENSE.waves[war.wave], S = DEFENSE.enemy;
   war.phase = 'attack'; updateClock();
+  sfx('horn');
   spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null }));
 }
 
@@ -184,7 +184,7 @@ function updateRaider(r, dt) {
   let foe = null, best = 46;
   soldiers.forEach(u => { const d = Math.hypot(u.x - r.x, u.y - r.y); if (d < best) { foe = u; best = d; } });
   r.fighting = !!foe;
-  if (foe) { foe.hp -= S.dmgSoldier * dt; return; }
+  if (foe) { foe.hp -= S.dmgSoldier * dt; if (Math.random() < dt * 3) sfx('hit'); return; }
 
   if (!r.target || !buildings.includes(r.target)) {
     const homes = buildings.filter(b => b.done && !isWall(b));
@@ -206,6 +206,7 @@ function updateRaider(r, dt) {
     b.hp -= S.dmgBuilding * dt;
     if (b.hp <= 0) { // a building falls: the fight goes on, and the loss is the player's to rebuild
       buildings.splice(buildings.indexOf(b), 1);
+      shake = 9; sfx('crash'); floater(b.x + b.w / 2, b.y, '✗', '#ff8a70');
       puff(b.x + b.w / 2, b.y + b.h / 2, '#c4623a'); puff(b.x + b.w / 4, b.y + b.h / 2, '#c4623a'); puff(b.x + b.w * 0.75, b.y + b.h / 2, '#c4623a');
       r.hitting = null;
     }
@@ -219,14 +220,14 @@ function updateAttack(dt) {
   soldiers.forEach(s => updateSoldier(s, dt));
   for (let i = fx.length - 1; i >= 0; i--) { fx[i].t += dt; if (fx[i].t > 0.6) fx.splice(i, 1); }
   for (let i = soldiers.length - 1; i >= 0; i--) {
-    if (soldiers[i].hp <= 0) { puff(soldiers[i].x, soldiers[i].y, '#2a6fb0'); soldiers.splice(i, 1); updateHud(); }
+    if (soldiers[i].hp <= 0) { puff(soldiers[i].x, soldiers[i].y, '#2a6fb0'); sfx('soldierFall'); soldiers.splice(i, 1); updateHud(); }
   }
   if (war.phase === 'prep') {
     war.clock -= dt; updateClock();
     if (war.clock <= 0) launchWave();
   } else if (war.phase === 'attack') {
     raiders.forEach(r => updateRaider(r, dt));
-    for (let i = raiders.length - 1; i >= 0; i--) if (raiders[i].hp <= 0) { puff(raiders[i].x, raiders[i].y, '#6b2a5a'); raiders.splice(i, 1); }
+    for (let i = raiders.length - 1; i >= 0; i--) if (raiders[i].hp <= 0) { puff(raiders[i].x, raiders[i].y, '#6b2a5a'); sfx('enemyFall'); raiders.splice(i, 1); }
     if (!townStands()) fallenTown();
     else if (!raiders.length) wonWave();
   }
@@ -236,6 +237,7 @@ function updateAttack(dt) {
 function fallenTown() {
   raiders.length = 0;
   war.phase = 'fail';
+  sfx('defeat');
   showMessage(DEFENSE.fallen.msg, DEFENSE.fallen.face, () => {
     restoreCheckpoint();
     war.wave = 0;
@@ -248,6 +250,7 @@ function wonWave() {
   war.wave++;
   if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
   war.phase = 'won'; updateClock();
+  sfx('victory');
   runSequence(DEFENSE.victory, endMission);
 }
 
@@ -272,6 +275,7 @@ function makeEmbers() {
 }
 
 function showCards(ids, after) {
+  sfx('card');
   cardPages = ids.map(id => { const l = line(id); return l && Object.assign(l, { war: WAR_CARDS.includes(id) }); }).filter(Boolean); // unapproved cards are simply skipped
   cardAt = 0; cardAfter = after || null;
   if (!cardPages.length) { if (after) after(); return; }
@@ -332,7 +336,7 @@ function attackThings() {
 }
 
 function drawSoldier(s) {
-  const x = sx(s.x), y = sy(s.y);
+  const x = sx(s.x), y = sy(s.y) - (s.state === 'move' ? Math.abs(Math.sin(performance.now() / 110 + s.x * 0.05)) * 3 : 0);
   if (s.selected) { ctx.strokeStyle = '#f3e6c4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 10, 14, 6, 0, 0, 7); ctx.stroke(); }
   ctx.fillStyle = '#2a6fb0'; ctx.fillRect(x - 6, y - 4, 12, 14);   // deep blue tunic
   ctx.fillStyle = '#b08a3a'; ctx.fillRect(x - 5, y - 13, 10, 9);   // bronze helmet
