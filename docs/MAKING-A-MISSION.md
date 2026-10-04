@@ -49,7 +49,8 @@ These are all set up in `mission.js`; none needs engine code.
 - **The menu bar.** The commands, counters and rank sit in a bar along the bottom. The map is drawn above it, so it never hides anything.
 - **Art.** `engine/art.js` draws every sprite in code, one art pixel at a time (people, buildings, trees, rocks, sheep and geese), then the ground, the animated river and the light. A building uses one of its drawings through the `art` field in `mission.js` (house, wall, gate or forum). A new kind of building or person needs a new drawing function there. A mission lists wandering animals in `ambient`.
 - **Dusk.** The light warms and darkens as the waves go on, and windows and torches glow. Nothing to set up.
-- **Sound.** `engine/sound.js` makes chiptune effects in the browser (no sound files). The menu box has buttons to turn effects and the optional music on and off.
+- **Sound.** `engine/sound.js` makes chiptune effects in the browser (no sound files). The menu box has buttons to turn effects and the optional music on and off. Two music themes live there: `peace` and `war`; a mission switches with `setMusicMode(...)` (the Sabine waves do this automatically).
+- **Collision.** `engine/collision.js` makes every walker path around buildings, trees and rocks and keeps bodies apart. A finished gate is open to friends but solid to attackers.
 - **Effects.** Floating numbers, puffs of dust, a pop when a building is finished and a screen shake when one falls are built in.
 
 ## 5. What needs engine changes

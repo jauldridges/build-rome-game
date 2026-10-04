@@ -24,7 +24,8 @@ engine/                         the game engine (knows nothing about Rome)
   defense.js                      waves of attackers, soldiers, training, the checkpoint, history cards
   quiz.js                         the closing check
   art.js                          every sprite, drawn in code (pixel art), the ground, the river, dusk lighting, stand-in portraits
-  sound.js                        chiptune sound effects and the short theme tune
+  sound.js                        chiptune sound effects and two music themes (peace, and an ominous war march for the Sabines)
+  collision.js                    pathfinding and bumping: nobody walks through walls, houses, trees or each other
   debug.js                        the ?debug=1 panel
   style.css, boot.js
 missions/rome/                  everything specific to Mission 1

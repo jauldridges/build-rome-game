@@ -43,7 +43,7 @@ body.en #rank { text-transform: capitalize; }
 #huntbar button:hover { background: #e0b14a; color: #140c04; }
 
 /* Last order given, bottom right */
-#order { position: fixed; right: 12px; bottom: calc(var(--barH) + 10px); padding: 6px 12px; background: #6b4a1e; color: #f3e6c4; font-size: 20px; border: 2px solid #3d2a0e; min-width: 120px; text-align: center; }
+#order { position: fixed; right: 10px; bottom: calc(var(--barH) + 8px); padding: 3px 10px; background: rgba(40,28,10,0.4); color: rgba(243,230,196,0.8); font-size: 15px; border-radius: 3px; pointer-events: none; text-align: center; }
 #order:empty { display: none; }
 
 /* Latin order that floats above the cursor */
@@ -51,10 +51,11 @@ body.en #rank { text-transform: capitalize; }
   padding: 4px 12px; background: #f1e4c0; color: #2a1c08; border: 3px solid #3d2a0e; font-size: 22px; font-weight: bold; }
 
 /* The last three orders from Romulus, top right */
-#recent { position: fixed; top: 12px; right: 12px; min-width: 180px; padding: 8px 12px; background: #6b4a1e; color: #f3e6c4;
-  border: 3px solid #3d2a0e; font-size: 16px; line-height: 1.5; z-index: 1; }
+#recent { position: fixed; top: 8px; right: 10px; max-width: 220px; padding: 3px 8px; background: rgba(40,28,10,0.35); color: rgba(243,230,196,0.75);
+  font-size: 12px; line-height: 1.35; text-align: right; z-index: 1; pointer-events: none; border-radius: 3px; }
 #recent:empty { display: none; }
-#recent .current { font-size: 22px; font-weight: bold; color: #fff; }
+#recent div { opacity: 0.55; }
+#recent .current { font-size: 14px; font-weight: bold; color: #fff; opacity: 0.9; }
 
 /* Message box: stops the game until dismissed */
 #msgbox { position: fixed; inset: 0; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.4); z-index: 5; }

@@ -178,7 +178,7 @@ function spawnPoints(from, n) {
 function launchWave() {
   const w = DEFENSE.waves[war.wave], S = DEFENSE.enemy;
   war.phase = 'attack'; updateClock();
-  sfx('horn');
+  sfx('horn'); setMusicMode('war');
   spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null, enemy: true }));
 }
 
@@ -247,6 +247,7 @@ function updateAttack(dt) {
 
 // The whole town is gone: Romulus sighs, and the defense starts again from the checkpoint
 function fallenTown() {
+  setMusicMode('peace');
   raiders.length = 0;
   war.phase = 'fail';
   sfx('defeat');
@@ -259,6 +260,7 @@ function fallenTown() {
 
 // A wave is beaten. Another follows until the last; then the victory sequence plays.
 function wonWave() {
+  setMusicMode('peace');
   war.wave++;
   if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
   war.phase = 'won'; updateClock();

@@ -58,58 +58,81 @@ function sfx(name) {
   try { SFX[name](); } catch (e) { /* sound is a bonus: never let it break the game */ }
 }
 
-// ---- The theme: "Condenda Roma", about 25 seconds in D Dorian, looped. Off until the player turns it on. ----
-// A melody that climbs like a wall going up, a bass that walks root and fifth, and a drum that marches.
-// Notes: letter, octave. A dot holds the note for one more step. Two passes: the second adds a harmony a third above.
+// ---- Music: two short themes, looped. "Peace" is a gentle pastoral tune in G major while the town is built; "war" is a slow,
+// ominous D minor march with a drone that takes over when the Sabines arrive. Off until the player turns it on.
+// Melody notes: letter, octave. A dot holds the note for one more step. Peace repeats with a harmony a third above on the second pass.
 function hz(name) {
   const m = /^([A-G])(#?)(\d)$/.exec(name); if (!m) return 0;
   const semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0) + (parseInt(m[3], 10) - 4) * 12 - 9;
   return 440 * Math.pow(2, semis / 12);
 }
-const STEP = 0.2; // seconds per eighth note
 function thirdAbove(name) { // the note two steps up the scale (a third, near enough), for the second pass
   const m = /^([A-G])(#?)(\d)$/.exec(name), order = 'CDEFGAB', i = order.indexOf(m[1]), j = (i + 2) % 7;
-  return order[j] + m[2] + (parseInt(m[3], 10) + (i + 2 >= 7 ? 1 : 0));
+  return order[j] + (parseInt(m[3], 10) + (i + 2 >= 7 ? 1 : 0));
 }
-const THEME = {
-  melody: [ // eight bars of eight steps: part A (bars 1-4), part B (bars 5-8)
-    'D4 . F4 A4 D5 . C5 A4', 'G4 . A4 B4 C5 . B4 A4', 'F4 . A4 C5 F5 . E5 C5', 'D5 . . . A4 . . .',
-    'G4 . B4 D5 G5 . F5 D5', 'E5 . D5 C5 B4 . A4 G4', 'A4 . C5 E5 A5 . G5 E5', 'F5 . . . D5 . . .',
-  ],
-  bass: ['D', 'G', 'F', 'D', 'G', 'C', 'A', 'D'], // the root of each bar; the fifth alternates with it
+// Laptop and Chromebook speakers cannot play very low notes, so the basses sit fairly high.
+const THEMES = {
+  peace: {
+    step: 0.24, lead: 'triangle', leadVol: 0.07, harmony: true,
+    melody: [
+      'G4 . B4 D5 G5 . D5 B4', 'E4 . G4 B4 E5 . B4 G4', 'C5 . E5 G5 E5 . C5 E5', 'D5 . . . B4 . A4 .',
+      'G4 . B4 D5 B4 . G4 B4', 'A4 . C5 E5 A5 . E5 C5', 'B4 . D5 G5 F#5 . D5 B4', 'G4 . . . . . . .',
+    ],
+    bass: [['G3', 'D4'], ['E3', 'B3'], ['C4', 'G3'], ['G3', 'D4'], ['G3', 'D4'], ['A3', 'E4'], ['D4', 'A3'], ['G3', 'D4']],
+    bassEvery: 4, bassVol: 0.07, kickEvery: 8, snareEvery: 0, hatEvery: 4,
+  },
+  war: {
+    step: 0.17, lead: 'sawtooth', leadVol: 0.03, harmony: false,
+    melody: [
+      'D4 . . D4 . . F4 .', 'E4 . . . A3 . . .', 'D4 . . D4 . . G4 F4', 'E4 . . . . . . .',
+      'A4 . . A4 . G4 F4 .', 'D#4 . . . E4 . . .', 'A3 . D4 F4 A4 . G#4 .', 'D4 . . . . . . .',
+    ],
+    bass: [['D3', 'A3'], ['D3', 'A3'], ['A#3', 'F4'], ['A3', 'E4'], ['D3', 'A3'], ['G3', 'D4'], ['A3', 'E4'], ['D3', 'A3']],
+    bassEvery: 2, bassVol: 0.085, kickEvery: 4, snareEvery: 8, hatEvery: 0,
+  },
 };
-const THEME_STEPS = [];
-(function buildTheme() {
-  for (let pass = 0; pass < 2; pass++) THEME.melody.forEach((bar, b) => {
+let themeName = 'peace', themeAt = 0;
+Object.keys(THEMES).forEach(name => {
+  const T = THEMES[name]; T.steps = [];
+  for (let pass = 0; pass < 2; pass++) T.melody.forEach((bar, b) => {
     const toks = bar.split(' ');
     toks.forEach((t, i) => {
       let len = 1; while (toks[i + len] === '.') len++;
       const lead = t !== '.' ? t : null;
-      const root = THEME.bass[b] + '3'; // laptop and Chromebook speakers cannot play very low notes, so the bass sits higher
-      const fifth = { D: 'A3', G: 'D4', F: 'C4', C: 'G3', A: 'E4' }[THEME.bass[b]];
-      THEME_STEPS.push({
-        lead: lead, len: len, harmony: pass && lead ? thirdAbove(lead) : null,
-        bass: i % 2 === 0 ? (i % 4 === 0 ? root : fifth) : null,
-        kick: i % 4 === 0, snare: i % 4 === 2, hat: i % 2 === 1,
+      T.steps.push({
+        lead, len, harmony: T.harmony && pass && lead ? thirdAbove(lead) : null,
+        bass: i % T.bassEvery === 0 ? T.bass[b][i % (T.bassEvery * 2) === 0 ? 0 : 1] : null,
+        kick: T.kickEvery && i % T.kickEvery === 0, snare: T.snareEvery && i % T.snareEvery === T.snareEvery / 2,
+        hat: T.hatEvery && i % T.hatEvery === T.hatEvery / 2,
       });
     });
   });
-})();
+});
 
-let themeAt = 0;
 function playThemeStep() {
   if (!musicOn || !audio()) return;
-  const s = THEME_STEPS[themeAt++ % THEME_STEPS.length], dur = STEP * s.len * 0.92;
-  if (s.lead) tone(hz(s.lead), dur, 'square', 0.035);
-  if (s.harmony) tone(hz(s.harmony), dur, 'triangle', 0.035);
-  if (s.bass) tone(hz(s.bass), STEP * 1.8, 'triangle', 0.075);
-  if (s.kick) { tone(200, 0.13, 'triangle', 0.09, 0, 70); noise(0.03, 0.03); }
-  if (s.snare) noise(0.09, 0.05);
-  if (s.hat) noise(0.025, 0.02);
+  const T = THEMES[themeName], s = T.steps[themeAt++ % T.steps.length], dur = T.step * s.len * 0.92;
+  if (s.lead) { tone(hz(s.lead), dur, T.lead, T.leadVol); if (themeName === 'peace') tone(hz(s.lead), dur, 'square', 0.012); }
+  if (s.harmony) tone(hz(s.harmony), dur, 'triangle', 0.05);
+  if (s.bass) tone(hz(s.bass), T.step * (T.bassEvery === 2 ? 1.6 : 3), 'triangle', T.bassVol);
+  if (s.kick) { tone(themeName === 'war' ? 150 : 200, 0.15, 'triangle', themeName === 'war' ? 0.13 : 0.06, 0, 60); }
+  if (s.snare) noise(0.12, 0.06);
+  if (s.hat) noise(0.03, 0.015);
 }
 function startMusic() {
-  if (musicTimer) return;
-  musicTimer = setInterval(playThemeStep, STEP * 1000);
+  if (musicTimer) clearInterval(musicTimer);
+  musicTimer = setInterval(playThemeStep, THEMES[themeName].step * 1000);
+}
+
+// Switch between the "peace" and "war" themes, with a short stinger when the mood turns dark
+function setMusicMode(name) {
+  if (name === themeName || !THEMES[name]) return;
+  themeName = name; themeAt = 0;
+  if (musicOn && audio()) {
+    if (name === 'war') { tone(110, 0.9, 'sawtooth', 0.06, 0, 55); tone(116.5, 0.9, 'sawtooth', 0.04, 0, 58); noise(0.5, 0.05); }
+    else { tone(392, 0.2, 'triangle', 0.07); tone(523, 0.2, 'triangle', 0.07, 0.15); tone(659, 0.4, 'triangle', 0.07, 0.3); }
+    startMusic();
+  }
 }
 
 function wireSoundButtons() {
