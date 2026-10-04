@@ -171,7 +171,7 @@ body.en #res { text-transform: capitalize; }
 
 /* Sound buttons, rank line and the rank banner */
 #mutebtn.off { opacity: 0.45; text-decoration: line-through; }
-#musicbtn { opacity: 0.5; }
+#musicbtn { opacity: 0.55; }
 #musicbtn.on { opacity: 1; background: #fff6dc; }
 #tools { gap: 3px; }
 #rank { position: absolute; top: 9px; left: 12px; font-size: 15px; font-weight: bold; letter-spacing: 0.08em; color: #8a5a1e; }

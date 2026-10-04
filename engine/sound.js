@@ -85,8 +85,8 @@ const THEME_STEPS = [];
     toks.forEach((t, i) => {
       let len = 1; while (toks[i + len] === '.') len++;
       const lead = t !== '.' ? t : null;
-      const root = THEME.bass[b] + '2';
-      const fifth = { D: 'A2', G: 'D3', F: 'C3', C: 'G2', A: 'E3' }[THEME.bass[b]];
+      const root = THEME.bass[b] + '3'; // laptop and Chromebook speakers cannot play very low notes, so the bass sits higher
+      const fifth = { D: 'A3', G: 'D4', F: 'C4', C: 'G3', A: 'E4' }[THEME.bass[b]];
       THEME_STEPS.push({
         lead: lead, len: len, harmony: pass && lead ? thirdAbove(lead) : null,
         bass: i % 2 === 0 ? (i % 4 === 0 ? root : fifth) : null,
@@ -100,12 +100,12 @@ let themeAt = 0;
 function playThemeStep() {
   if (!musicOn || !audio()) return;
   const s = THEME_STEPS[themeAt++ % THEME_STEPS.length], dur = STEP * s.len * 0.92;
-  if (s.lead) tone(hz(s.lead), dur, 'square', 0.014);
-  if (s.harmony) tone(hz(s.harmony), dur, 'triangle', 0.012);
-  if (s.bass) tone(hz(s.bass), STEP * 1.8, 'triangle', 0.04);
-  if (s.kick) tone(130, 0.12, 'sine', 0.05, 0, 50);
-  if (s.snare) noise(0.07, 0.022);
-  if (s.hat) noise(0.02, 0.01);
+  if (s.lead) tone(hz(s.lead), dur, 'square', 0.035);
+  if (s.harmony) tone(hz(s.harmony), dur, 'triangle', 0.035);
+  if (s.bass) tone(hz(s.bass), STEP * 1.8, 'triangle', 0.075);
+  if (s.kick) { tone(200, 0.13, 'triangle', 0.09, 0, 70); noise(0.03, 0.03); }
+  if (s.snare) noise(0.09, 0.05);
+  if (s.hat) noise(0.025, 0.02);
 }
 function startMusic() {
   if (musicTimer) return;
@@ -116,7 +116,15 @@ function wireSoundButtons() {
   const mute = document.getElementById('mutebtn'), music = document.getElementById('musicbtn');
   if (!mute || !music) return;
   mute.addEventListener('click', () => { sfxMuted = !sfxMuted; mute.classList.toggle('off', sfxMuted); mute.blur(); });
-  music.addEventListener('click', () => { musicOn = !musicOn; music.classList.toggle('on', musicOn); if (musicOn) startMusic(); music.blur(); });
+  music.addEventListener('click', () => { setMusic(!musicOn); music.blur(); });
   document.getElementById('panel').addEventListener('click', e => { if (e.target.tagName === 'BUTTON' && !e.target.closest('#tools')) sfx('click'); });
 }
 wireSoundButtons();
+
+// Music starts when play begins (the click on the title screen allows sound) and the button turns it off
+function setMusic(on) {
+  musicOn = on;
+  const music = document.getElementById('musicbtn');
+  if (music) music.classList.toggle('on', on);
+  if (on) { audio(); startMusic(); }
+}

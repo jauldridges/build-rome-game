@@ -209,8 +209,8 @@ function updateTip() {
     const p = toWorldXY(cursor.x, cursor.y);
     const sc = scrolls.find(s => Math.hypot(s.x - p.x, s.y - 4 - p.y) < 20);
     if (sc) id = sc.card; // a scroll shows the heading of its card
-    else if (farmers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.farmer; // so students know what they are
-    else if (soldiers.some(f => Math.hypot(f.x - p.x, f.y - p.y) < 16)) id = M.words.soldier;
+    else if (personAt(p, farmers)) id = M.words.farmer; // so students know what they are
+    else if (personAt(p, soldiers)) id = M.words.soldier;
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
       if (t) id = t.site ? BUILD[t.site.type].order : t.node ? RES[t.node.type].order
@@ -230,17 +230,29 @@ function updateTip() {
   tip.style.display = 'block';
 }
 
+// The person under a point: the click target is the whole sprite (head to feet), not just its middle
+function personAt(p, list) {
+  let best = null, bestD = Infinity;
+  (list || farmers.concat(soldiers)).forEach(f => {
+    if (Math.abs(p.x - f.x) > 14 || p.y < f.y - 26 || p.y > f.y + 15) return;
+    const d = Math.hypot(p.x - f.x, p.y - f.y + 6);
+    if (d < bestD) { best = f; bestD = d; }
+  });
+  return best;
+}
+
 function handleClick(p, shift) {
-  if (placing) { tryPlace(p); return; }
+  // Scrolls and people come first, even while a building is being placed, so you can still pick who builds it
   const scroll = scrolls.find(s => Math.hypot(s.x - p.x, s.y - 4 - p.y) < 20);
-  if (scroll) { readScroll(scroll); return; }
+  if (scroll && !placing) { readScroll(scroll); return; }
   const people = farmers.concat(soldiers);
-  const hit = people.find(f => Math.hypot(f.x - p.x, f.y - p.y) < 16);
+  const hit = personAt(p);
   if (hit) {
     if (!shift) people.forEach(f => f.selected = false);
     hit.selected = shift ? !hit.selected : true;
     return;
   }
+  if (placing) { tryPlace(p); return; }
   const sel = farmers.filter(f => f.selected);
   const target = targetAt(p);
   if (target && target.site) { sel.forEach(f => sendToBuild(f, target.site)); if (sel.length) showOrder(BUILD[target.site.type].order); return; }
@@ -522,7 +534,7 @@ function updateCameos(dt) {
       const next = c.path[c.i + 1];
       if (!next) { cameos.splice(k, 1); c.done(); continue; }
       if (next.jump) { c.jump = { x0: c.x, y0: c.y, x1: next.x, y1: next.y, t: 0, dur: 0.8 }; sfx('jump'); }
-      else if (walkTo(c, next.x, next.y, dt, c.def.speed || 70, 3)) c.i++;
+      else if (walkTo(c, next.x, next.y, dt, next.speed || c.def.speed || 70, 3)) c.i++;
     }
   }
 }
@@ -858,6 +870,7 @@ function beginPlay(lang) {
   document.documentElement.lang = lang === 'en' ? 'en' : 'la';
   document.getElementById('title').style.display = 'none';
   startGame();
+  setMusic(true);
 }
 
 function showTitle() {

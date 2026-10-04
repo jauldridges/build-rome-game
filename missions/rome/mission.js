@@ -71,11 +71,12 @@ const MISSION = {
 
   // ---- Cameos: someone walks across the map. 'path' returns the points to walk through; {jump: true} leaps to that point. ----
   cameos: {
-    remus: { color: '#3f7a3f', speed: 80, path: () => { // comes up to the middle of the wall, hops over it, and strolls off
+    remus: { color: '#3f7a3f', speed: 110, path: () => { // comes up to the middle of the wall, hops over it, and strolls off
       const walls = buildings.filter(b => b.type === 'wall' && b.done).sort((a, b) => a.x - b.x);
       const w = walls[Math.floor(walls.length / 2)] || { x: 400, y: 200, w: 32, h: 32 };
       const cx = w.x + w.w / 2;
-      return [{ x: Math.max(10, cx - 220), y: w.y + 90 }, { x: cx - 30, y: w.y + 48 }, { x: cx, y: w.y - 26, jump: true }, { x: cx + 160, y: w.y - 50 }, { x: MAP_W + 20, y: w.y - 50 }];
+      return [{ x: Math.max(10, cx - 180), y: w.y + 80 }, { x: cx - 30, y: w.y + 48 }, { x: cx, y: w.y - 26, jump: true },
+        { x: cx + 160, y: w.y - 50, speed: 340 }, { x: MAP_W + 20, y: w.y - 50, speed: 340 }]; // over the wall he bolts, like someone who has just remembered something
     } },
   },
 
