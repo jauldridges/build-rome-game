@@ -885,5 +885,16 @@ const LATIN = [
   "nle_category": "morphosyntax",
   "spec_node_id": "unmapped",
   "review_status": "approved"
+ },
+ {
+  "id": "msg_romulus_scrolls",
+  "latin": "Collige volūmina!",
+  "english": "Gather the scrolls!",
+  "en": "You forgot the scrolls! Rome's whole story is lying around out there. Go and pick it up!",
+  "en_status": "draft",
+  "type": "message",
+  "nle_category": "morphosyntax",
+  "spec_node_id": "MS-077",
+  "review_status": "draft"
  }
 ];

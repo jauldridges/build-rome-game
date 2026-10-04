@@ -57,7 +57,8 @@ function showResults() {
   document.getElementById('quiztitle').textContent = 'Closing check';
   const dots = document.getElementById('quizdots'); dots.textContent = '';
   document.getElementById('quizscore').textContent = right + ' / ' + quizResults.length;
-  document.getElementById('quizscrolls').textContent = scrollsTotal ? 'Scrolls read: ' + scrollsRead + ' of ' + scrollsTotal : '';
+  const rankLine = M.ranks && rankNow >= 0 ? line(M.ranks[rankNow].entry) : null; // your title at the end of the story
+  document.getElementById('quizscrolls').textContent = (rankLine ? '★ ' + rankLine.text + (scrollsTotal ? '   ·   ' : '') : '') + (scrollsTotal ? 'Scrolls read: ' + scrollsRead + ' of ' + scrollsTotal : '');
   const list = document.getElementById('quizreview');
   list.textContent = '';
   quizResults.forEach(r => { // the translation and the right answer are shown only now, after the check

@@ -61,13 +61,16 @@ const MISSION = {
   // The words shown when the mouse hovers over a farmer or a soldier
   words: { farmer: 'vocab_agricola', soldier: 'vocab_miles' },
 
-  // ---- Titles: the player's rank rises with the city. 'when' is checked all the time; the highest one that is true shows. ----
+  // ---- Titles: the player's rank rises with the city, and each new rank brings a gift ----
+  // 'when' is checked all the time; the highest rank whose 'when' is true is the player's. reward: supplies and/or soldiers.
+  // The last rank needs every scroll, so reading them is how you become aedile.
   ranks: [
     { entry: 'rank_colonus', when: () => true },
-    { entry: 'rank_aedificator', when: () => isBuilt('wall', 4) },
-    { entry: 'rank_defensor', when: () => war.wave >= 1 || war.phase === 'won' || war.phase === 'over' },
-    { entry: 'rank_aedilis', when: () => war.phase === 'won' || war.phase === 'over' },
+    { entry: 'rank_aedificator', when: () => isBuilt('wall', 4), reward: { stock: { wood: 10, stone: 10 } } },
+    { entry: 'rank_defensor', when: () => war.wave >= 1 || war.phase === 'won' || war.phase === 'over', reward: { soldiers: 2 } },
+    { entry: 'rank_aedilis', when: () => war.wave >= 3 && scrollsTotal > 0 && scrollsRead >= scrollsTotal },
   ],
+  scrollReward: { wood: 6, stone: 6 },   // every scroll read brings a gift of supplies
 
   // ---- Cameos: someone walks across the map. 'path' returns the points to walk through; {jump: true} leaps to that point. ----
   cameos: {
@@ -144,8 +147,10 @@ const MISSION = {
     victory: [
       { msg: 'msg_tatius_peace', speaker: 'tatius', face: 'neutral' },
       { msg: 'msg_romulus_peace', face: 'pleased' },
-      { cards: ['culture_sabine_women_end', 'culture_tatius', 'culture_kings', 'culture_story_history'] },
     ],
+    // If scrolls are still on the map after the battle, Romulus sends the player to gather them before the story ends.
+    scrollsPrompt: { msg: 'msg_romulus_scrolls', face: 'alarmed' },
+    ending: [{ cards: ['culture_sabine_women_end', 'culture_tatius', 'culture_kings', 'culture_story_history'] }],
     warCards: ['culture_why_war', 'culture_sabine_women'],     // history cards about the conflict get a red tone
   },
 };

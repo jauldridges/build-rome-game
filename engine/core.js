@@ -33,9 +33,11 @@ const cam = { x: 0, y: 0 }; // the map never scrolls; the whole world is scaled 
 const view = { zoom: 1, ox: 0, oy: 0 };
 function resize() {
   canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-  view.zoom = Math.min(canvas.width / MAP_W, canvas.height / MAP_H);
+  const bar = document.getElementById('panel').offsetHeight, room = canvas.height - bar; // the menu bar sits under the map
+  document.documentElement.style.setProperty('--barH', bar + 'px');
+  view.zoom = Math.min(canvas.width / MAP_W, room / MAP_H);
   view.ox = (canvas.width - MAP_W * view.zoom) / 2;
-  view.oy = (canvas.height - MAP_H * view.zoom) / 2;
+  view.oy = (room - MAP_H * view.zoom) / 2;
 }
 const toWorldXY = (x, y) => ({ x: (x - view.ox) / view.zoom, y: (y - view.oy) / view.zoom });
 const toScreenXY = (x, y) => ({ x: x * view.zoom + view.ox, y: y * view.zoom + view.oy });
@@ -211,6 +213,7 @@ function updateTip() {
     if (sc) id = sc.card; // a scroll shows the heading of its card
     else if (personAt(p, farmers)) id = M.words.farmer; // so students know what they are
     else if (personAt(p, soldiers)) id = M.words.soldier;
+    else if (soldiers.some(s => s.selected) && enemyAt(p)) id = DEFENSE.commands.defend.cmd; // the mouse says what a click will do
     else if (farmers.some(f => f.selected)) {
       const t = targetAt(p);
       if (t) id = t.site ? BUILD[t.site.type].order : t.node ? RES[t.node.type].order
@@ -252,6 +255,9 @@ function handleClick(p, shift) {
     hit.selected = shift ? !hit.selected : true;
     return;
   }
+  // With soldiers selected, clicking a Sabine sends them after it
+  const attackers = soldiers.filter(s => s.selected), foe = attackers.length && enemyAt(p);
+  if (foe) { attackers.forEach(s => { s.target = foe; s.state = 'idle'; }); showOrder(DEFENSE.commands.defend.cmd); sfx('hit'); return; }
   if (placing) { tryPlace(p); return; }
   const sel = farmers.filter(f => f.selected);
   const target = targetAt(p);
@@ -507,12 +513,38 @@ function addScroll(def) {
   scrolls.push({ card: def.card, x: at[0], y: at[1], born: performance.now() });
   scrollsTotal++;
   sfx('ping');
+  updateScrollCount();
 }
+// Reading a scroll earns a gift of supplies, and counts toward the highest rank
 function readScroll(s) {
   scrolls.splice(scrolls.indexOf(s), 1);
   scrollsRead++;
   sfx('page');
+  const gift = M.scrollReward;
+  if (gift) { applyReward({ stock: gift }); floater(s.x, s.y - 14, Object.keys(gift).map(k => '+' + gift[k]).join(' '), '#ffd54a'); for (let i = 0; i < 6; i++) puff(s.x + (Math.random() - 0.5) * 30, s.y + (Math.random() - 0.5) * 20, '#ffd54a'); }
+  updateScrollCount();
   showCards([s.card]);
+}
+function updateScrollCount() {
+  const el = document.getElementById('scrollcount');
+  if (!scrollsTotal) { el.textContent = ''; return; }
+  el.textContent = '';
+  const img = document.createElement('img'); img.src = ART.scroll.toDataURL();
+  el.appendChild(img); el.appendChild(document.createTextNode(scrollsRead + ' / ' + scrollsTotal));
+  el.classList.toggle('hot', scrolls.length > 0);
+}
+
+// Gifts: supplies and extra soldiers
+function applyReward(r) {
+  if (r.stock) Object.keys(r.stock).forEach(k => { stock[k] += r.stock[k]; });
+  if (r.soldiers) spawnSoldiers(r.soldiers);
+  updateHud();
+}
+function rewardText(r) { // "+10 lignum +10 lapis" for the banner
+  const parts = [];
+  if (r.stock) Object.keys(r.stock).forEach(k => parts.push('+' + r.stock[k] + ' ' + say(RES[k].word)));
+  if (r.soldiers) parts.push('+' + r.soldiers + ' ' + say(M.words.soldier));
+  return parts.join('   ');
 }
 
 // ---- Cameos: someone walks across the map (and may jump the wall) ----
@@ -551,26 +583,40 @@ function drawCameo(c) {
   blit(c.jump ? ART.remus[1] : personFrame(ART.remus, true, false), x, y + 13 - c.z, c.facing < 0);
 }
 
-// ---- Ranks: the player's title rises with the city ----
+// ---- Ranks: the player's title rises with the city, and each rank brings a gift ----
 let rankNow = -1;
+function renderRank() {
+  const el = document.getElementById('rank'), cur = line(M.ranks[rankNow].entry), nxt = M.ranks[rankNow + 1] && line(M.ranks[rankNow + 1].entry);
+  el.textContent = cur ? cur.text : '';
+  el.title = cur ? cur.english : '';
+  if (nxt) { const n = document.createElement('span'); n.className = 'next'; n.textContent = '  →  ' + nxt.text; n.title = nxt.english; el.appendChild(n); }
+  const bar = document.getElementById('rankbar');
+  bar.textContent = '';
+  M.ranks.forEach((_, i) => { const d = document.createElement('i'); d.className = i < rankNow ? 'done' : i === rankNow ? 'now' : ''; bar.appendChild(d); });
+}
+function announceRank(rank) { // a golden banner, a fanfare and a shower of sparkles
+  const l = line(rank.entry);
+  if (!l) return;
+  const b = document.getElementById('banner');
+  b.textContent = '';
+  const big = document.createElement('div'); big.textContent = '★  ' + l.text + '  ★'; b.appendChild(big);
+  if (rank.reward) { const small = document.createElement('div'); small.className = 'gift'; small.textContent = rewardText(rank.reward); b.appendChild(small); }
+  b.title = l.english; b.style.display = 'block';
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  setTimeout(() => { b.style.display = 'none'; }, 4200);
+  sfx('rank');
+  for (let i = 0; i < 26; i++) puff(80 + Math.random() * (MAP_W - 160), 60 + Math.random() * (MAP_H * 0.6), i % 2 ? '#ffd54a' : '#fff2a0');
+}
 function updateRank() {
   if (!M.ranks) return;
   let best = 0;
   M.ranks.forEach((r, i) => { if (r.when()) best = i; });
   if (best <= rankNow) return;
   const first = rankNow < 0;
+  for (let i = rankNow + 1; i <= best; i++) if (!first && M.ranks[i].reward) applyReward(M.ranks[i].reward);
   rankNow = best;
-  const l = line(M.ranks[best].entry);
-  const el = document.getElementById('rank');
-  el.textContent = l ? l.text : '';
-  el.title = l ? l.english : '';
-  if (!first && l) { // a banner announces the new rank
-    const b = document.getElementById('banner');
-    b.textContent = l.text; b.title = l.english; b.style.display = 'block';
-    b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
-    setTimeout(() => { b.style.display = 'none'; }, 3200);
-    sfx('rank');
-  }
+  renderRank();
+  if (!first) announceRank(M.ranks[best]);
 }
 
 // ---- Messages from Romulus ----
@@ -853,6 +899,7 @@ document.getElementById('fold').addEventListener('click', e => {
   const folded = document.getElementById('panel').classList.toggle('folded');
   e.target.textContent = folded ? '+' : '–';
   e.target.blur();
+  resize();
 });
 document.getElementById('helpbtn').addEventListener('click', e => {
   const h = document.getElementById('help');

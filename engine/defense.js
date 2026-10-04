@@ -133,8 +133,17 @@ function facOrder() {
   showOrder(DEFENSE.commands.make.order);
 }
 
+// The attacker under a point (the whole sprite counts as a target)
+function enemyAt(p) { return personAt(p, raiders); }
+
 function updateSoldier(s, dt) {
   if (s.state === 'move') { if (walk(s, s.tx, s.ty, dt, 2)) s.state = 'idle'; return; }
+  if (s.target && (s.target.hp <= 0 || !raiders.includes(s.target))) s.target = null;
+  if (s.target) { // told to attack this one: chase it wherever it goes
+    s.fighting = walk(s, s.target.x, s.target.y, dt, 22);
+    if (s.fighting) { s.target.hp -= DEFENSE.soldier.dmg * dt; if (Math.random() < dt * 3) sfx('hit'); }
+    return;
+  }
   let foe = null, best = s.guard ? 190 : 110;
   raiders.forEach(r => { const d = Math.hypot(r.x - s.x, r.y - s.y); if (d < best) { foe = r; best = d; } });
   if (foe) {
@@ -222,7 +231,10 @@ function updateAttack(dt) {
   for (let i = soldiers.length - 1; i >= 0; i--) {
     if (soldiers[i].hp <= 0) { puff(soldiers[i].x, soldiers[i].y, '#2a6fb0'); sfx('soldierFall'); soldiers.splice(i, 1); updateHud(); }
   }
-  if (war.phase === 'prep') {
+  if (war.phase === 'hunt') {
+    war.huntT += dt; updateHunt();
+    if (!scrolls.length) endHunt();
+  } else if (war.phase === 'prep') {
     war.clock -= dt; updateClock();
     if (war.clock <= 0) launchWave();
   } else if (war.phase === 'attack') {
@@ -251,8 +263,29 @@ function wonWave() {
   if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
   war.phase = 'won'; updateClock();
   sfx('victory');
-  runSequence(DEFENSE.victory, endMission);
+  runSequence(DEFENSE.victory, () => huntScrolls(() => runSequence(DEFENSE.ending, endMission)));
 }
+
+// If scrolls are still lying on the map, Romulus tells the player to gather them before the story ends
+function huntScrolls(done) {
+  if (!scrolls.length || !DEFENSE.scrollsPrompt) { done(); return; }
+  war.phase = 'hunt'; war.huntT = 0; war.huntDone = done;
+  showMessage(DEFENSE.scrollsPrompt.msg, DEFENSE.scrollsPrompt.face, () => { document.getElementById('huntbar').style.display = 'flex'; updateHunt(); });
+}
+function updateHunt() {
+  const t = document.getElementById('hunttext');
+  t.textContent = '';
+  const img = document.createElement('img'); img.src = ART.scroll.toDataURL(); img.style.cssText = 'width:24px;height:24px;image-rendering:pixelated;vertical-align:middle';
+  t.appendChild(img); t.appendChild(document.createTextNode('  × ' + scrolls.length));
+  document.getElementById('huntbtn').style.display = war.huntT > 15 ? 'inline-block' : 'none'; // a way out if a student cannot find the last one
+}
+function endHunt() {
+  document.getElementById('huntbar').style.display = 'none';
+  war.phase = 'won';
+  const done = war.huntDone; war.huntDone = null;
+  if (done) done();
+}
+document.getElementById('huntbtn').addEventListener('click', endHunt);
 
 // ---- History cards: shown at set moments in the mission and after the battle ----
 // Each card is a Latin heading with an English paragraph. A card pauses the game until it is dismissed.
@@ -342,6 +375,7 @@ function drawRaider(r) {
   const tgt = r.target ? r.target.x + (r.target.w || 0) / 2 : null;
   if (tgt !== null && Math.abs(tgt - r.x) > 3) r.facing = tgt > r.x ? 1 : -1;
   shadow(x, y + 11, 9, 3);
+  if (soldiers.some(s => s.target === r)) { ctx.strokeStyle = '#ff5a3c'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y + 11, 15, 6, 0, 0, 7); ctx.stroke(); }
   blit(personFrame(ART.enemy, !r.fighting && !r.hitting, r.fighting || !!r.hitting), x, y + 13, r.facing < 0);
   ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 10, y - 30, 20, 4);
   ctx.fillStyle = '#c0392b'; ctx.fillRect(x - 10, y - 30, 20 * Math.max(0, r.hp) / r.maxHp, 4);

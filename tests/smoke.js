@@ -74,7 +74,11 @@ async function playthrough(browser, lang) {
     await page.evaluate(() => { raiders.forEach(r => r.hp = 0); }); await page.waitForTimeout(400); await dismiss();
   }
   await dismiss();
-  check(await page.evaluate(() => quizOpen), 'after the third wave and the history cards, the closing check opens');
+  check((await state()).phase === 'hunt', 'if scrolls are still on the map, Romulus sends the player to gather them after the battle');
+  while (await page.evaluate(() => scrolls.length)) { await page.evaluate(() => readScroll(scrolls[0])); await dismiss(); }
+  await dismiss();
+  check(await page.evaluate(() => rankNow === M.ranks.length - 1), 'reading every scroll earns the highest rank');
+  check(await page.evaluate(() => quizOpen), 'after the scrolls and the history cards, the closing check opens');
 
   // The closing check
   const n = await page.evaluate(() => quizItems.length);
