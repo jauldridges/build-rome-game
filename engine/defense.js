@@ -179,12 +179,12 @@ function launchWave() {
   const w = DEFENSE.waves[war.wave], S = DEFENSE.enemy;
   war.phase = 'attack'; updateClock();
   sfx('horn');
-  spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null }));
+  spawnPoints(w.from, w.n).forEach(p => raiders.push({ x: p.x, y: p.y, hp: S.hp, maxHp: S.hp, speed: S.speed, target: null, hitting: null, enemy: true }));
 }
 
 const isWall = b => b.type === 'wall' || b.type === 'gate';
 function blockerAt(x, y) {
-  return buildings.find(b => b.done && isWall(b) && x > b.x - 6 && x < b.x + b.w + 6 && y > b.y - 6 && y < b.y + b.h + 6);
+  return buildings.find(b => b.done && isWall(b) && x > b.x - 14 && x < b.x + b.w + 14 && y > b.y - 14 && y < b.y + b.h + 14); // close enough to touch
 }
 
 function updateRaider(r, dt) {
@@ -201,12 +201,12 @@ function updateRaider(r, dt) {
   }
   if (r.hitting && !buildings.includes(r.hitting)) r.hitting = null;
   if (!r.hitting) {
-    const t = r.target, tx = t.x + t.w / 2, ty = t.y + t.h / 2, d = Math.hypot(tx - r.x, ty - r.y);
-    if (d <= Math.max(t.w, t.h) / 2 + 14) r.hitting = t === store ? null : t;
+    const t = r.target, tx = t.x + t.w / 2, ty = t.y + t.h / 2;
+    if (Math.hypot(tx - r.x, ty - r.y) <= Math.max(t.w, t.h) / 2 + 18) r.hitting = t === store ? null : t; // at the foot of the target: start breaking it
     else {
-      const step = r.speed * dt, nx = r.x + (tx - r.x) / d * step, ny = r.y + (ty - r.y) / d * step;
-      const wall = blockerAt(nx, ny);
-      if (wall) r.hitting = wall; else { r.x = nx; r.y = ny; }
+      navWalk(r, tx, ty, dt, 0);                    // walks around houses, trees and rocks, but straight at walls and gates
+      const wall = blockerAt(r.x, r.y);
+      if (wall) r.hitting = wall;                   // a wall or gate in the way: break it down
     }
   }
   if (r.hitting) {

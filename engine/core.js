@@ -359,13 +359,7 @@ window.addEventListener('keydown', e => {
 });
 
 // Walk toward (tx, ty); returns true when arrived
-function walk(f, tx, ty, dt, reach) {
-  const dx = tx - f.x, dy = ty - f.y, d = Math.hypot(dx, dy);
-  if (d <= reach) return true;
-  const step = Math.min(f.speed * dt, d);
-  f.x += dx / d * step; f.y += dy / d * step;
-  return false;
-}
+function walk(f, tx, ty, dt, reach) { return navWalk(f, tx, ty, dt, reach); } // collision.js: walks around whatever is in the way
 
 function update(f, dt) {
   if (f.state === 'move') {
@@ -755,6 +749,7 @@ function frame(now) {
     farmers.forEach(f => update(f, dt));
     checkBeat();
     updateAttack(dt);
+    resolveCollisions();   // nobody stands on anybody, or inside a building
     updateCameos(dt);
     updateRank();
   }
