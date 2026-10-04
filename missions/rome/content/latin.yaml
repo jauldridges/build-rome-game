@@ -816,15 +816,15 @@
   spec_node_id: unmapped   # gerundive (passive periphrastic), beyond Latin I on purpose; echoes Cato's "Carthāgō dēlenda est"
   review_status: approved
 
-# ---- Romulus sends the player to gather the scrolls (DRAFT, not yet proofread) ----
+# ---- Romulus sends the player to gather the scrolls (proofread and approved by J. Sullivan) ----
 # After the last wave, if scrolls are still lying on the map. It reuses the command Collige.
 - id: msg_romulus_scrolls
   latin: "Collige volūmina!"
   english: "Gather the scrolls!"
   en: "You forgot the scrolls! Rome's whole story is lying around out there. Go and pick it up!"
-  en_status: draft
+  en_status: approved
   type: message
   nle_category: morphosyntax
   spec_node_id: MS-077   # Collige; volūmina is the neuter plural of volūmen (MS-027 / MS-066 pattern)
-  review_status: draft
+  review_status: approved
 
