@@ -916,6 +916,7 @@ function beginPlay(lang) {
 }
 
 function showTitle() {
+  if (window.ONLY_LANG) { beginPlay(window.ONLY_LANG); return; } // latin.html: students never see a choice
   const asked = new URLSearchParams(location.search).get('lang'); // a teacher can link straight to one mode
   if (asked === 'en' || asked === 'la') { beginPlay(asked); return; }
   const t = entryText(M.titleEntry);

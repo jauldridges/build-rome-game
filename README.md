@@ -6,6 +6,8 @@ A small browser strategy game that teaches students about the founding of Rome. 
 
 Open `index.html` in Chrome (double-click it). Choose **Play with Latin** or **Play in English**.
 
+**Two links, two audiences.** `index.html` is the full game with the Latin/English choice (for other teachers). `latin.html` goes straight into Latin with no choice, and ignores `?lang=en` (the link for your own students). `latin.html` is a copy of `index.html` with one extra line; if you ever edit `index.html`, run `tools/make_latin_page.sh` to rebuild it.
+
 Handy addresses (add them after `index.html`):
 
 | Address ending | What it does |
