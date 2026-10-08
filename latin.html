@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Condenda Roma</title>
+<link rel="stylesheet" href="engine/style.css">
+</head>
+<body>
+<div id="clock"><div id="clockfill"></div></div>
+<div id="waves"></div>
+<div id="panel">
+  <div id="tools"><button id="mutebtn" title="Sound effects on/off">♪</button><button id="musicbtn" title="Music on/off">♫</button><button id="helpbtn" title="Help">?</button><button id="fold" title="Fold the menu away">–</button></div>
+  <div id="left">
+    <div id="rank"></div>
+    <div id="rankbar"></div>
+    <div id="res"></div>
+    <div id="scrollcount"></div>
+  </div>
+  <div id="mid">
+    <div id="cmds"></div>
+    <div id="orders"></div>
+  </div>
+  <div id="right"><div id="msg"></div></div>
+  <div id="help">Click a farmer or drag a box around several (A selects all), then choose a command, or click the ground to walk, or a tree or rock. Soldiers: click a Sabine to attack.</div>
+</div>
+<div id="huntbar"><span id="hunttext"></span><button id="huntbtn">Finish</button></div>
+<div id="order"></div>
+<div id="recent"></div>
+<div id="msgbox">
+  <div id="mbox">
+    <div id="pframe"><img id="portrait" alt=""><div id="placeholder"></div></div>
+    <div id="mbody">
+      <div id="speaker"></div>
+      <div id="mtext"></div>
+      <div id="mhint"></div>
+      <button id="mok">Continue</button>
+    </div>
+  </div>
+</div>
+<div id="tip"></div>
+<div id="banner"></div>
+<div id="popup"></div>
+<div id="card">
+  <div class="bar top"></div>
+  <div class="bar bottom"></div>
+  <div id="embers"></div>
+  <div id="cardbox">
+    <div id="cardpage"></div>
+    <div id="cardlatin"></div>
+    <div id="cardrule"></div>
+    <div id="cardenglish"></div>
+    <button id="cardok">Continue</button>
+  </div>
+</div>
+<div id="title">
+  <div class="bar top"></div>
+  <div class="bar bottom"></div>
+  <div id="titlebox">
+    <div id="titlelatin"></div>
+    <div id="titlerule"></div>
+    <div id="titleenglish"></div>
+    <div id="titlechoices">
+      <button id="playla"><b>Play with Latin</b><span>Orders arrive in Latin. Best for Latin students.</span></button>
+      <button id="playen"><b>Play in English</b><span>The same game, all in English. Best for history and social studies.</span></button>
+    </div>
+  </div>
+</div>
+<div id="quiz">
+  <div class="bar top"></div>
+  <div class="bar bottom"></div>
+  <div id="quizbox">
+    <div id="quiztitle"></div>
+    <div id="quizdots"></div>
+    <div id="quizquestionbox">
+      <div id="quizlatin"></div>
+      <div id="cardrule2"></div>
+      <div id="quizquestion"></div>
+      <div id="quizchoices"></div>
+    </div>
+    <div id="quizresults">
+      <div id="quizscore"></div>
+      <div id="quizscrolls"></div>
+      <div id="quizreview"></div>
+      <button id="quizagain">Play again</button>
+    </div>
+  </div>
+</div>
+<canvas id="game"></canvas>
+<script>window.ONLY_LANG = 'la';</script>
+<script src="engine/boot.js"></script>
+</body>
+</html>
