@@ -419,7 +419,7 @@ const LATIN = [
  {
   "id": "culture_sabine_women",
   "latin": "Sabīnae fēminae",
-  "english": "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back.",
+  "english": "In the early days, Rome had too many men and not nearly enough women. So Romulus decided to host a big party and invite their neighbors, the Sabines. Once the Sabine women came to town, the Romans kidnapped them and made them their wives. Obviously the Sabine men were not thrilled about this, so they waged war against the Romans to get their women back.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
