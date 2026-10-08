@@ -384,7 +384,7 @@
 
 - id: culture_romulus_remus
   latin: "Rōmulus et Remus"
-  english: "According to legend, Romulus and Remus were twin sons of the war god Mars. As babies they were left by the river Tiber and raised by a she-wolf. When they grew up, they decided to found a city but quarreled over where: Romulus chose the Palatine Hill, Remus the Aventine. In the best-known version of the story, Remus mocked his brother's new wall by jumping over it, and Romulus killed him in anger. Romulus then named the city Rome after himself. The Romans dated the founding to 753 BCE."
+  english: "The Ancient Romans had some wild stories about their city's founding. Romulus and Remus were twins, the sons of Mars, god of war. Their great uncle tried to kill them and left them by the river to die right after they were born. A friendly mama wolf took them into her cave and raised them. They grew up and wanted to start a new city. The brothers disagreed which hill should be the home base of the city. Romulus started to build a wall; Remus made fun of it; and Romulus killed him out of spite. Then he named the city Rome, after himself. According to the Romans, this happened in 753 B.C."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
