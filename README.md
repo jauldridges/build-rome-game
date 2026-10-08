@@ -17,6 +17,10 @@ Handy addresses (add them after `index.html`):
 | `?debug=1` | shows a test panel for jumping around the mission |
 | `?mission=name` | plays `missions/name/` instead of the Rome mission |
 
+## License
+
+Free to play and use in class; not for resale or reuse in other products. See `LICENSE`.
+
 ## What is where
 
 ```
