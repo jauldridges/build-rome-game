@@ -384,7 +384,7 @@
 
 - id: culture_romulus_remus
   latin: "Rōmulus et Remus"
-  english: "According to legend, Romulus and Remus were twin sons of the war god Mars. As babies they were left by the river Tiber and raised by a she-wolf. When they grew up, they decided to found a city but quarreled over where: Romulus chose the Palatine Hill, Remus the Aventine. In the best-known version of the story, Remus mocked his brother's new wall by jumping over it, and Romulus killed him in anger. Romulus then named the city Rome after himself. The Romans dated the founding to 753 BCE."
+  english: "The Ancient Romans had some wild stories about their city's founding. Romulus and Remus were twins, the sons of Mars, god of war. Their great uncle tried to kill them and left them by the river to die right after they were born. A friendly mama wolf took them into her cave and raised them. They grew up and wanted to start a new city. The brothers disagreed which hill should be the home base of the city. Romulus started to build a wall; Remus made fun of it; and Romulus killed him out of spite. Then he named the city Rome, after himself. According to the Romans, this happened in 753 B.C."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
@@ -394,7 +394,7 @@
 
 - id: culture_pomerium
   latin: "Pōmērium"
-  english: "Romulus is said to have marked out his city by plowing a furrow around the Palatine Hill. The sacred boundary of a Roman city became known as the pōmērium. Roman law and religion treated the space inside it differently: for example, a general's military command did not extend across it, and burials were not allowed within it. As Rome grew, the pōmērium was later moved outward."
+  english: "According to legend, Romulus plowed a line around the Palatine Hill to show where the city began and ended. Romans considered this a sacred boundary, and called it the “pōmerium”. The boundary line became an important part of their law and religion; military generals weren't allowed to order troops within the line, and people had to bury their dead outside of it. As Rome kept growing, the pōmerium moved outward."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
@@ -404,7 +404,7 @@
 
 - id: culture_sabine_women
   latin: "Sabīnae fēminae"
-  english: "The legend says early Rome had too few women. Romulus invited the neighboring Sabines to a festival, and the Romans carried off the young Sabine women. The Sabines went to war to get them back."
+  english: "In the early days, Rome had too many men and not nearly enough women. So Romulus decided to host a big party and invite their neighbors, the Sabines. Once the Sabine women came to town, the Romans kidnapped them and made them their wives. Obviously the Sabine men were not thrilled about this, so they waged war against the Romans to get their women back."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
@@ -414,7 +414,7 @@
 
 - id: culture_sabine_women_end
   latin: "Sabīnae fēminae"
-  english: "When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons."
+  english: "Before all the Roman and Sabine men killed each other, the womenfolk ran between them and begged them to stop and make peace. Luckily, the men agreed, and they all lived happily ever after."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
@@ -424,7 +424,7 @@
 
 - id: culture_tatius
   latin: "Titus Tatius et Rōmulus"
-  english: "After the peace, the Romans and the Sabines became one people, and the Sabine king Titus Tatius shared the rule of the city with Romulus. According to the tradition, Tatius died a few years later, and Romulus ruled alone again. Rome's later story kept this memory of two peoples joined into one."
+  english: "Once they resolved the whole kidnapping-their-women situation, the Sabines and the Romans became one people. The king of the Sabines, Titus Tatius, became co-ruler with Romulus. Titus Tatius died a few years later (that's a whole other, gnarly story), and Romulus again became the sole king."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-009
@@ -437,7 +437,7 @@
 
 - id: culture_hills
   latin: "Septem collēs"
-  english: "Rome grew up on the Tiber river, about fifteen miles (25 km) from the sea, among low hills that the Romans later counted as seven: the Palatine, Capitoline, Quirinal, Viminal, Esquiline, Caelian and Aventine. The hills were easy to defend, and a crossing of the river and an old route that carried salt from the coast ran close by. Archaeologists have found traces of huts on the Palatine from about the 8th century BCE, not far from the date the Romans gave for the founding."
+  english: "Rome was founded next to the Tiber River in Italy. There were seven hills: the Palatine, Capitoline, Quirinal, Viminal, Esquiline, Caelian, and Aventine. The hills made the city easy to defend from invaders, and the river made it easy for them to conduct trade and access the sea."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-001   # also RW-005
@@ -447,7 +447,7 @@
 
 - id: culture_asylum
   latin: "Asylum"
-  english: "A new town needs people. According to the Roman historian Livy, Romulus set aside a place of refuge, an asylum, and welcomed anyone from the neighboring lands who wanted a fresh start, whether free or enslaved. The crowd that came was mostly men. The Romans themselves told this story because they were proud that Rome had always grown by taking in newcomers."
+  english: "According to the Roman historian Livy (writing about 700 years after Rome was founded), Romulus tried to attract new residents by offering “asylum” to all the freed slaves and criminals from the surrounding towns. These were mostly men, which ended up being a problem..."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-007
@@ -457,7 +457,7 @@
 
 - id: culture_sabines
   latin: "Sabīnī"
-  english: "The Sabines were a people of central Italy who lived in the hills northeast of Rome, only a day or two away on foot. They were farmers and herders who spoke their own Italic language, related to Latin, and they worshiped many of the same gods. The Romans remembered that some of their own customs came from the Sabines: the god Quirinus, for example, and Numa Pompilius, their second king. Some great Roman families, like the Claudii, claimed Sabine ancestors. Over the following centuries Rome fought the Sabines many times, and by about 290 BCE they had become part of the Roman state."
+  english: "The Sabines were Rome's neighbors to the northeast. They spoke an Italic language that sounded very similar to Latin, and they worshipped a lot of the same gods. The two peoples eventually became one, and lots of famous Romans claimed that their ancestors were Sabines."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-006
@@ -467,7 +467,7 @@
 
 - id: culture_why_war
   latin: "Cūr bellum?"
-  english: "Why would the Sabines go to war with a new town? In the legend, Rome had men but few women, so Romulus sent messengers to the neighboring peoples asking for the right to marry their daughters. The neighbors refused. Some looked down on the newcomers, and others feared that this fast-growing town would soon be too strong to stop. Behind the story lies a real situation: small neighboring communities in early Italy competed for land, pasture and power, and they often fought and then joined together."
+  english: "The Sabines invaded Rome because the Romans had tricked the Sabine women into coming to Rome for a party, then kidnapped them. The Sabine men were just trying to get their women back. Whether all this is literally true is impossible to say; but we are fairly confident that from the moment the city was founded, the Romans were competing with neighboring tribes for land, resources, and power."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
@@ -477,7 +477,7 @@
 
 - id: culture_senate
   latin: "Senātus"
-  english: "The Romans believed that Romulus chose one hundred elders to advise him, and called them patrēs, “fathers.” The word senātus comes from senex, “old man,” so the Senate was a council of elders. The families that descended from these fathers were later called patricians. Tradition also said that Romulus divided the people into three tribes, and that the names of two of them were linked to Romulus himself and to Titus Tatius. These stories show how the Romans saw themselves: a people made up of more than one community."
+  english: "Romulus chose a hundred old men to advise him. He called these men patrēs, fathers. The Latin word senātus comes from the word senex, meaning old man. The families that descended from these fathers were called “patricians”."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-016   # also RW-022 (patricians)
@@ -487,7 +487,7 @@
 
 - id: culture_kings
   latin: "Septem rēgēs"
-  english: "Romulus was the first of seven kings. His successor, Numa Pompilius, was said to be a Sabine and was remembered as a peaceful priest-king. The last king, Tarquinius Superbus, was driven out in 509 BCE, and the Romans founded a republic. They never lost their hatred of the word rēx, “king.”"
+  english: "Romulus was the first of seven kings. His successor, Numa Pompilius, was a Sabine. Romans remembered him as a peaceful, religious leader. The last king, Tarquinius Superbus, was exiled in 509 BCE. That's when the Romans decided they were done with kings, and founded a REPUBLIC."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-009   # also RW-011
