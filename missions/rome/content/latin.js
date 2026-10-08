@@ -430,7 +430,7 @@ const LATIN = [
  {
   "id": "culture_sabine_women_end",
   "latin": "Sabīnae fēminae",
-  "english": "When the armies met, the Sabine women ran between them and begged their fathers and their new husbands to stop. Both sides laid down their weapons.",
+  "english": "Before all the Roman and Sabine men killed each other, the womenfolk ran between them and begged them to stop and make peace. Luckily, the men agreed, and they all lived happily ever after.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
