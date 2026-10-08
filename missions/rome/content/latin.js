@@ -496,7 +496,7 @@ const LATIN = [
  {
   "id": "culture_senate",
   "latin": "Senātus",
-  "english": "The Romans believed that Romulus chose one hundred elders to advise him, and called them patrēs, “fathers.” The word senātus comes from senex, “old man,” so the Senate was a council of elders. The families that descended from these fathers were later called patricians. Tradition also said that Romulus divided the people into three tribes, and that the names of two of them were linked to Romulus himself and to Titus Tatius. These stories show how the Romans saw themselves: a people made up of more than one community.",
+  "english": "Romulus chose a hundred old men to advise him. He called these men patrēs, fathers. The Latin word senātus comes from the word senex, meaning old man. The families that descended from these fathers were called “patricians”.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-016",
