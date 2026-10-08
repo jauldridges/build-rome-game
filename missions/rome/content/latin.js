@@ -452,7 +452,7 @@ const LATIN = [
  {
   "id": "culture_hills",
   "latin": "Septem collēs",
-  "english": "Rome grew up on the Tiber river, about fifteen miles (25 km) from the sea, among low hills that the Romans later counted as seven: the Palatine, Capitoline, Quirinal, Viminal, Esquiline, Caelian and Aventine. The hills were easy to defend, and a crossing of the river and an old route that carried salt from the coast ran close by. Archaeologists have found traces of huts on the Palatine from about the 8th century BCE, not far from the date the Romans gave for the founding.",
+  "english": "Rome was founded next to the Tiber River in Italy. There were seven hills: the Palatine, Capitoline, Quirinal, Viminal, Esquiline, Caelian, and Aventine. The hills made the city easy to defend from invaders, and the river made it easy for them to conduct trade and access the sea.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-001",
