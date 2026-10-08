@@ -457,7 +457,7 @@
 
 - id: culture_sabines
   latin: "Sabīnī"
-  english: "The Sabines were a people of central Italy who lived in the hills northeast of Rome, only a day or two away on foot. They were farmers and herders who spoke their own Italic language, related to Latin, and they worshiped many of the same gods. The Romans remembered that some of their own customs came from the Sabines: the god Quirinus, for example, and Numa Pompilius, their second king. Some great Roman families, like the Claudii, claimed Sabine ancestors. Over the following centuries Rome fought the Sabines many times, and by about 290 BCE they had become part of the Roman state."
+  english: "The Sabines were Rome's neighbors to the northeast. They spoke an Italic language that sounded very similar to Latin, and they worshipped a lot of the same gods. The two peoples eventually became one, and lots of famous Romans claimed that their ancestors were Sabines."
   type: culture_note
   nle_category: culture
   spec_node_id: RW-006
