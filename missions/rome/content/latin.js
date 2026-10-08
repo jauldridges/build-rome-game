@@ -463,7 +463,7 @@ const LATIN = [
  {
   "id": "culture_asylum",
   "latin": "Asylum",
-  "english": "A new town needs people. According to the Roman historian Livy, Romulus set aside a place of refuge, an asylum, and welcomed anyone from the neighboring lands who wanted a fresh start, whether free or enslaved. The crowd that came was mostly men. The Romans themselves told this story because they were proud that Rome had always grown by taking in newcomers.",
+  "english": "According to the Roman historian Livy (writing about 700 years after Rome was founded), Romulus tried to attract new residents by offering “asylum” to all the freed slaves and criminals from the surrounding towns. These were mostly men, which ended up being a problem...",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-007",
