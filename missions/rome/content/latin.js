@@ -507,7 +507,7 @@ const LATIN = [
  {
   "id": "culture_kings",
   "latin": "Septem rēgēs",
-  "english": "Romulus was the first of seven kings. His successor, Numa Pompilius, was said to be a Sabine and was remembered as a peaceful priest-king. The last king, Tarquinius Superbus, was driven out in 509 BCE, and the Romans founded a republic. They never lost their hatred of the word rēx, “king.”",
+  "english": "Romulus was the first of seven kings. His successor, Numa Pompilius, was a Sabine. Romans remembered him as a peaceful, religious leader. The last king, Tarquinius Superbus, was exiled in 509 BCE. That's when the Romans decided they were done with kings, and founded a REPUBLIC.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "RW-009",
