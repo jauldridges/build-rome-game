@@ -485,7 +485,7 @@ const LATIN = [
  {
   "id": "culture_why_war",
   "latin": "Cūr bellum?",
-  "english": "Why would the Sabines go to war with a new town? In the legend, Rome had men but few women, so Romulus sent messengers to the neighboring peoples asking for the right to marry their daughters. The neighbors refused. Some looked down on the newcomers, and others feared that this fast-growing town would soon be too strong to stop. Behind the story lies a real situation: small neighboring communities in early Italy competed for land, pasture and power, and they often fought and then joined together.",
+  "english": "The Sabines invaded Rome because the Romans had tricked the Sabine women into coming to Rome for a party, then kidnapped them. The Sabine men were just trying to get their women back. Whether all this is literally true is impossible to say; but we are fairly confident that from the moment the city was founded, the Romans were competing with neighboring tribes for land, resources, and power.",
   "type": "culture_note",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
