@@ -394,7 +394,7 @@
 
 - id: culture_pomerium
   latin: "Pōmērium"
-  english: "Romulus is said to have marked out his city by plowing a furrow around the Palatine Hill. The sacred boundary of a Roman city became known as the pōmērium. Roman law and religion treated the space inside it differently: for example, a general's military command did not extend across it, and burials were not allowed within it. As Rome grew, the pōmērium was later moved outward."
+  english: "According to legend, Romulus plowed a line around the Palatine Hill to show where the city began and ended. Romans considered this a sacred boundary, and called it the “pōmerium”. The boundary line became an important part of their law and religion; military generals weren't allowed to order troops within the line, and people had to bury their dead outside of it. As Rome kept growing, the pōmerium moved outward."
   type: culture_note
   nle_category: culture
   spec_node_id: unmapped
