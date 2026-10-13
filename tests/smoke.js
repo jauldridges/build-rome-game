@@ -19,7 +19,7 @@ async function playthrough(browser, lang) {
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  await page.goto(URL + '?mission=' + MISSION + '&lang=' + lang);
+  await page.goto(URL + '?mission=' + MISSION + '&lang=' + lang + '&nopause=1');
   await page.waitForFunction(() => typeof startGame === 'function' && typeof beat !== 'undefined', null, { timeout: 15000 });
 
   const open = () => page.evaluate(() => cardOpen || boxOpen || quizOpen || cameos.length > 0);
@@ -90,9 +90,68 @@ async function playthrough(browser, lang) {
   await page.close();
 }
 
+// The history-card pause, the question after a card, the points and the finale
+async function features(browser) {
+  console.log('\n== cards, questions and score ==');
+  const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  const load = async q => { await page.goto(URL + '?mission=' + MISSION + '&lang=en' + q); await page.waitForFunction(() => typeof startGame === 'function' && typeof beat !== 'undefined'); await page.evaluate(() => { beat = 99; boxOpen = false; document.getElementById('msgbox').style.display = 'none'; cardOpen = false; document.getElementById('card').style.display = 'none'; }); };
+
+  // 1. Continue waits three seconds. (Draft questions stay hidden from students.)
+  await load('');
+  await page.evaluate(() => showCards(['culture_hills']));
+  check(await page.evaluate(() => document.getElementById('cardok').disabled), 'a history card cannot be skipped at once');
+  await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  check(await page.evaluate(() => cardOpen), 'pressing Enter during the pause does nothing');
+  await page.waitForTimeout(3000);
+  check(await page.evaluate(() => !document.getElementById('cardok').disabled), 'Continue works after the pause');
+  await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+  check(await page.evaluate(() => !cardOpen), 'with no approved question, the card simply closes');
+
+  // 2. With drafts shown: a question follows, a wrong answer replays the card, a right answer scores
+  await load('&drafts=1&nopause=1');
+  const pts = () => page.evaluate(() => score.total);
+  await page.evaluate(() => showCards(['culture_hills']));
+  await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+  check(await page.evaluate(() => cardMode === 'ask' && document.getElementById('cardq').style.display === 'block'), 'a question follows the card');
+  const pick = (right) => page.evaluate(r => { const q = cardQ, bs = Array.from(document.querySelectorAll('#cardqchoices button')); const i = cardQOrder.findIndex(ci => (ci === q.answer) === r); bs[i].click(); }, right);
+  await pick(false); await page.waitForTimeout(2000);
+  check(await page.evaluate(() => cardMode === 'read' && cardTry === 1 && document.getElementById('cardenglish').style.display !== 'none'), 'a wrong answer sends the student back to re-read the card');
+  await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+  await pick(true);
+  check((await pts()) === 25, 'a right answer on the second try earns half the points');
+  await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+  check(await page.evaluate(() => !cardOpen), 'after the answer the card closes');
+  await page.evaluate(() => showCards(['culture_hills']));
+  await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+  await pick(true);
+  check((await pts()) === 75, 'a right answer on the first try earns the full points');
+  await page.keyboard.press('Enter');
+  await page.evaluate(() => { const f = { type: 'house', x: 700, y: 330, w: 64, h: 64, progress: 99, done: true }; buildings.push(f); onBuilt(f); });
+  check((await pts()) === 105, 'a finished house earns points');
+  check((await page.textContent('#score')).includes('105'), 'the score shows in the menu bar');
+
+  // 3. The finale
+  await page.evaluate(() => { endMission(); });
+  for (let i = 0; i < 5; i++) await page.keyboard.press('1');
+  await page.waitForTimeout(2500);
+  check(/Congratulations|Nice try/.test(await page.textContent('#finhead')), 'the finale says congratulations or try again');
+  check(Number(await page.textContent('#finscore')) >= 105, 'the finale shows the total score');
+  check((await page.textContent('#finrank')).length > 0, 'the finale shows the rank');
+  check(await page.evaluate(() => document.getElementById('finconfirm').style.display === 'none'), 'Play again is not one click away');
+  await page.evaluate(() => document.getElementById('quizagain').click());
+  check(await page.evaluate(() => document.getElementById('finconfirm').style.display === 'block'), 'Play again asks first');
+  await page.evaluate(() => document.getElementById('finno').click());
+  check(await page.evaluate(() => quizOpen), 'saying no stays on the finale');
+  check(errors.length === 0, 'no errors in the page' + (errors.length ? ': ' + errors[0] : ''));
+  await page.close();
+}
+
 (async () => {
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   for (const lang of ['la', 'en']) await playthrough(browser, lang);
+  await features(browser);
   await browser.close();
   console.log(failures ? '\n' + failures + ' check(s) failed' : '\nAll checks passed');
   process.exit(failures ? 1 : 0);

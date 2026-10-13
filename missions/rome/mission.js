@@ -72,6 +72,18 @@ const MISSION = {
   ],
   scrollReward: { wood: 6, stone: 6 },   // every scroll read brings a gift of supplies
 
+  // ---- Points ----
+  score: {
+    build: { house: 30, wall: 5, gate: 20, forum: 60 },   // per finished building
+    scroll: 20,                                            // per scroll read
+    question: 50,                                          // a right answer after a history card (half if it takes a second try)
+    questionGift: { stone: 3 },                            // and a small gift of supplies
+    wave: 100,                                             // per wave beaten
+    check: 100,                                            // per right answer in the closing check
+    timeMax: 500, timePar: 900,                            // speed bonus: up to 500, falling to nothing after 15 minutes of play
+    goal: 1300,                                            // this many or more earns the "congratulations"
+  },
+
   // ---- Cameos: someone walks across the map. 'path' returns the points to walk through; {jump: true} leaps to that point. ----
   cameos: {
     remus: { color: '#3f7a3f', speed: 110, path: () => { // comes up to the middle of the wall, hops over it, and strolls off
