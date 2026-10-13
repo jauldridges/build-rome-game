@@ -3,11 +3,11 @@ button, input { font-family: inherit; }
 canvas { display: block; image-rendering: pixelated; }
 
 /* The menu bar along the bottom of the screen. The map is drawn above it, so nothing on the map is ever hidden. */
-:root { --barH: 112px; }
-#panel { position: fixed; left: 0; right: 0; bottom: 0; height: var(--barH); box-sizing: border-box; padding: 8px 16px; z-index: 1;
+:root { --barH: 112px; --panelH: 112px; } /* --barH is measured by resize(); --panelH is the bar's own height, so folding and unfolding can never leave it stuck short */
+#panel { position: fixed; left: 0; right: 0; bottom: 0; height: var(--panelH); box-sizing: border-box; padding: 8px 16px; z-index: 1;
   display: grid; grid-template-columns: 330px 1fr 260px; gap: 18px; align-items: start;
   background: linear-gradient(#f1e4c0, #e6d6a8); color: #2a1c08; border-top: 4px solid #8a5a1e; box-shadow: 0 -3px 0 #3d2a0e; }
-#panel.folded { --barH: 46px; height: 46px; }
+#panel.folded { --panelH: 46px; }
 #panel.folded #mid, #panel.folded #right, #panel.folded #rankbar, #panel.folded #scrollcount { display: none; }
 #tools { position: absolute; top: 6px; right: 10px; display: flex; gap: 4px; z-index: 2; }
 #tools button { width: 26px; height: 26px; padding: 0; line-height: 1; font-size: 15px; }
