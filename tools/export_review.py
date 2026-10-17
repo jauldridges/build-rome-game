@@ -20,7 +20,7 @@ for m in names:
         if e.get('en_status') == 'draft': what.append('English-mode wording')
         if not what: continue
         extra = ''
-        if e['type'] == 'quiz_item':
+        if e['type'] in ('quiz_item', 'card_question'):
             extra = e.get('question', '') + ' | ' + ' / '.join(e.get('choices', [])) + ' | answer: ' + str(e.get('choices', [''])[e.get('answer', 0)])
         rows.append([' + '.join(what), e['id'], e['type'], e.get('latin', ''), e.get('english', ''), e.get('en_title', '') + (' | ' if e.get('en_title') and e.get('en') else '') + e.get('en', ''), extra, '', ''])
     out = os.path.join('review', m + '-to-proofread.csv')

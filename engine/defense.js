@@ -261,6 +261,7 @@ function fallenTown() {
 // A wave is beaten. Another follows until the last; then the victory sequence plays.
 function wonWave() {
   setMusicMode('peace');
+  if (SC) addPoints('battle', SC.wave);
   war.wave++;
   if (war.wave < DEFENSE.waves.length) { war.phase = 'between'; updateClock(); announceWave(); return; }
   war.phase = 'won'; updateClock();
@@ -309,9 +310,17 @@ function makeEmbers() {
   }
 }
 
+// ---- History cards ----
+// Every page waits three seconds before Continue works (add ?nopause=1 to the address to skip that when testing).
+// After a card, a question may follow (entries of type card_question in the content file). A right answer earns points and a small
+// gift; a wrong answer sends the student back to read the card again, once. After a second miss the right answer is shown and play goes on.
+const CARD_PAUSE = new URLSearchParams(location.search).has('nopause') ? 0 : 3000;
+let cardLocked = false, cardTimer = null, cardMode = 'read', cardTry = 0;
+const cardQuestion = id => id && LATIN.find(e => e.type === 'card_question' && e.card === id && (e.review_status === 'approved' || SHOW_DRAFTS));
+
 function showCards(ids, after) {
   sfx('card');
-  cardPages = ids.map(id => { const l = line(id); return l && Object.assign(l, { war: WAR_CARDS.includes(id) }); }).filter(Boolean); // unapproved cards are simply skipped
+  cardPages = ids.map(id => { const l = line(id); return l && Object.assign(l, { id, war: WAR_CARDS.includes(id) }); }).filter(Boolean); // unapproved cards are simply skipped
   cardAt = 0; cardAfter = after || null;
   if (!cardPages.length) { if (after) after(); return; }
   cardOpen = true;
@@ -323,29 +332,109 @@ function showCards(ids, after) {
   renderCardPage();
 }
 
-function renderCardPage() {
+// The button is greyed out, with a countdown on it, until the pause is over
+function lockCard(label) {
+  const ok = document.getElementById('cardok');
+  clearInterval(cardTimer);
+  ok.style.display = 'inline-block';
+  if (!CARD_PAUSE) { cardLocked = false; ok.disabled = false; ok.textContent = label; ok.focus(); return; }
+  const end = performance.now() + CARD_PAUSE;
+  cardLocked = true; ok.disabled = true;
+  const tick = () => {
+    const left = end - performance.now();
+    if (left <= 0) { clearInterval(cardTimer); cardLocked = false; ok.disabled = false; ok.textContent = label; ok.focus(); }
+    else ok.textContent = label + '  ' + Math.ceil(left / 1000);
+  };
+  tick(); cardTimer = setInterval(tick, 100);
+}
+
+function renderCardPage(again) {
   const p = cardPages[cardAt];
+  cardMode = 'read'; if (!again) cardTry = 0;
   document.getElementById('cardlatin').textContent = p.text;
   document.getElementById('cardenglish').textContent = p.english;
+  document.getElementById('cardenglish').style.display = '';
+  document.getElementById('cardq').style.display = 'none';
   const dots = document.getElementById('cardpage');
   dots.textContent = '';
   if (cardPages.length > 1) cardPages.forEach((_, i) => { const d = document.createElement('i'); if (i === cardAt) d.className = 'on'; dots.appendChild(d); });
   document.getElementById('card').classList.toggle('war', !!p.war);
-  document.getElementById('cardok').textContent = cardAt + 1 < cardPages.length ? 'Next' : 'Continue';
   document.getElementById('cardenglish').scrollTop = 0;
   const box = document.getElementById('cardbox'); // replay the entrance for every page
   box.classList.remove('turn'); void box.offsetWidth; box.classList.add('turn');
-  document.getElementById('cardok').focus();
+  lockCard(cardQuestion(p.id) ? 'Question' : cardAt + 1 < cardPages.length ? 'Next' : 'Continue');
+}
+
+// The question after a card
+let cardQ = null, cardQOrder = [];
+function askCardQuestion(q) {
+  cardQ = q; cardMode = 'ask';
+  document.getElementById('cardenglish').style.display = 'none';
+  document.getElementById('cardok').style.display = 'none';
+  document.getElementById('cardq').style.display = 'block';
+  document.getElementById('cardqtext').textContent = q.question + (q.review_status === 'approved' ? '' : ' [draft]');
+  document.getElementById('cardqnote').textContent = cardTry ? 'One more try!' : '';
+  const list = document.getElementById('cardqchoices');
+  list.textContent = '';
+  cardQOrder = shuffled(q.choices.length);
+  cardQOrder.forEach((ci, n) => {
+    const b = document.createElement('button');
+    b.textContent = (n + 1) + '.  ' + q.choices[ci];
+    b.addEventListener('click', () => answerCardQuestion(ci, b));
+    list.appendChild(b);
+  });
+  sfx('page');
+}
+
+function answerCardQuestion(choice, button) {
+  if (cardMode !== 'ask') return;
+  const q = cardQ, right = choice === q.answer, note = document.getElementById('cardqnote');
+  const buttons = Array.from(document.querySelectorAll('#cardqchoices button'));
+  buttons.forEach(b => { b.disabled = true; });
+  const last = cardAt + 1 >= cardPages.length ? 'Continue' : 'Next';
+  if (right) {
+    cardMode = 'done';
+    if (button) button.classList.add('right');
+    const pts = SC ? (cardTry ? Math.round(SC.question / 2) : SC.question) : 0, gift = SC && SC.questionGift;
+    if (pts) addPoints('read', pts);
+    if (gift) applyReward({ stock: gift });
+    note.textContent = '✓  Correct!' + (pts ? '   +' + pts + ' ★' : '') + (gift ? '   ' + rewardText({ stock: gift }) : '');
+    sfx('ping');
+    lockCardDone(last);
+  } else if (!cardTry) {
+    if (button) button.classList.add('wrong');
+    note.textContent = 'Not quite. Read the card once more!';
+    cardMode = 'wait';
+    setTimeout(() => { if (cardOpen) { cardTry = 1; renderCardPage(true); } }, 1700);
+  } else {
+    cardMode = 'done';
+    if (button) button.classList.add('wrong');
+    buttons.forEach((b, n) => { if (cardQOrder[n] === q.answer) b.classList.add('right'); });
+    note.textContent = 'The answer: ' + q.choices[q.answer];
+    lockCardDone(last);
+  }
+}
+function lockCardDone(label) { // after the answer: a short breath, then on
+  const ok = document.getElementById('cardok');
+  clearInterval(cardTimer); cardLocked = false; ok.disabled = false; ok.style.display = 'inline-block'; ok.textContent = label; ok.focus();
 }
 
 function nextCardPage() {
-  if (!cardOpen) return;
+  if (!cardOpen || cardLocked) return;
+  if (cardMode === 'ask' || cardMode === 'wait') return;     // the question must be answered first
+  if (cardMode === 'read') { const q = cardQuestion(cardPages[cardAt].id); if (q) { askCardQuestion(q); return; } }
   if (++cardAt < cardPages.length) { renderCardPage(); return; }
   cardOpen = false;
+  clearInterval(cardTimer);
   document.getElementById('card').style.display = 'none';
   const after = cardAfter; cardAfter = null;
   if (after) after();
 }
+window.addEventListener('keydown', e => { // 1 to 4 choose an answer to the question after a card
+  if (!cardOpen || cardMode !== 'ask') return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= cardQOrder.length) { const b = document.querySelectorAll('#cardqchoices button')[n - 1]; answerCardQuestion(cardQOrder[n - 1], b); }
+});
 document.getElementById('cardok').addEventListener('click', nextCardPage);
 
 // After the last card the closing check begins (quiz.js).

@@ -62,3 +62,6 @@ New *kinds* of things need code in `engine/`: a new building drawing (`drawShape
 - `?debug=1` adds a panel for skipping steps, adding resources, calling a wave or losing the town.
 - `?drafts=1` shows lines you have not approved yet.
 - `node tests/smoke.js <newname>` plays the mission through (update the steps in `tests/smoke.js` if your mission's steps differ).
+- **History-card questions.** An entry of type `card_question` with `card: <culture_note id>`, a `question`, `choices` and the `answer` (a number counting from 0) is asked after that card. A right answer earns points and a small gift; a wrong one sends the student back to re-read once. Every card page waits three seconds before Continue works.
+- **Score.** `score:` in `mission.js` sets the points for each kind of thing, the speed bonus and the `goal` that earns "Congratulations!" at the end. `engine/score.js` keeps the total; `engine/quiz.js` shows the finale.
+

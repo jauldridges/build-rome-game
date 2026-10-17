@@ -151,6 +151,7 @@ function onBuilt(b) {
   sfx('built');
   for (let i = 0; i < 5; i++) puff(b.x + Math.random() * b.w, b.y + b.h - 4, '#d9ccaa');
   floater(b.x + b.w / 2, b.y - 6, '✓', '#9be07f');
+  if (SC) addPoints('build', SC.build[b.type], b.x + b.w / 2, b.y - 22);
   const arrival = NEW_FARMERS[b.type];
   if (!arrival) return;
   const n = arrival.n;
@@ -514,6 +515,7 @@ function readScroll(s) {
   scrolls.splice(scrolls.indexOf(s), 1);
   scrollsRead++;
   sfx('page');
+  if (SC) addPoints('read', SC.scroll, s.x, s.y - 34);
   const gift = M.scrollReward;
   if (gift) { applyReward({ stock: gift }); floater(s.x, s.y - 14, Object.keys(gift).map(k => '+' + gift[k]).join(' '), '#ffd54a'); for (let i = 0; i < 6; i++) puff(s.x + (Math.random() - 0.5) * 30, s.y + (Math.random() - 0.5) * 20, '#ffd54a'); }
   updateScrollCount();
@@ -752,6 +754,7 @@ function frame(now) {
     resolveCollisions();   // nobody stands on anybody, or inside a building
     updateCameos(dt);
     updateRank();
+    if (war.phase !== 'over') scoreTick(dt);
   }
   for (let i = nodes.length - 1; i >= 0; i--) if (nodes[i].amount <= 0) nodes.splice(i, 1);
   draw();
@@ -885,6 +888,7 @@ function startGame() {
   resize();
   renderCommands();
   updateHud();
+  renderScore();
   startBeat(0);
   requestAnimationFrame(frame);
 }

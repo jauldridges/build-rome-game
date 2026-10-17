@@ -14,6 +14,7 @@ Handy addresses (add them after `index.html`):
 |---|---|
 | `?lang=la` or `?lang=en` | skips the title screen and plays in that mode (good for links you hand to a class) |
 | `?drafts=1` | also shows lines that have not been proofread yet, marked `[draft]` |
+| `?nopause=1` | skips the three-second wait on history cards (for testing) |
 | `?debug=1` | shows a test panel for jumping around the mission |
 | `?mission=name` | plays `missions/name/` instead of the Rome mission |
 
@@ -31,6 +32,7 @@ engine/                         the game engine (knows nothing about Rome)
   quiz.js                         the closing check
   art.js                          every sprite, drawn in code (pixel art), the ground, the river, dusk lighting, stand-in portraits
   sound.js                        chiptune sound effects and two music themes (peace, and an ominous war march for the Sabines)
+  score.js                        points: building, reading, waves, the closing check and a speed bonus
   collision.js                    pathfinding and bumping: nobody walks through walls, houses, trees or each other
   debug.js                        the ?debug=1 panel
   style.css, boot.js
