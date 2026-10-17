@@ -24,7 +24,7 @@ async function playthrough(browser, lang) {
 
   const open = () => page.evaluate(() => cardOpen || boxOpen || quizOpen || cameos.length > 0);
   const dismiss = async () => {                                  // click through every message and card that is open
-    for (let i = 0; i < 40; i++) { await page.waitForTimeout(260); if (!(await open())) return; await page.keyboard.press('Enter'); }
+    for (let i = 0; i < 40; i++) { await page.waitForTimeout(260); if (!(await open())) return; await page.evaluate(() => { if (cardOpen && cardMode === 'ask') document.querySelectorAll('#cardqchoices button')[cardQOrder.indexOf(cardQ.answer)].click(); }); await page.keyboard.press('Enter'); }
   };
   const state = () => page.evaluate(() => ({ beat, phase: war.phase, wave: war.wave, raiders: raiders.length, soldiers: soldiers.length, farmers: farmers.length }));
 
@@ -107,7 +107,7 @@ async function features(browser) {
   await page.waitForTimeout(3000);
   check(await page.evaluate(() => !document.getElementById('cardok').disabled), 'Continue works after the pause');
   await page.keyboard.press('Enter'); await page.waitForTimeout(200);
-  check(await page.evaluate(() => !cardOpen), 'with no approved question, the card simply closes');
+  check(await page.evaluate(() => cardMode === 'ask'), 'after the pause, Continue brings the question');
 
   // 2. With drafts shown: a question follows, a wrong answer replays the card, a right answer scores
   await load('&drafts=1&nopause=1');

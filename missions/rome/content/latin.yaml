@@ -828,7 +828,7 @@
   spec_node_id: MS-077   # Collige; volūmina is the neuter plural of volūmen (MS-027 / MS-066 pattern)
   review_status: approved
 
-# ---- A question after each history card (DRAFT: read, fix, then tell Claude to approve) ----
+# ---- A question after each history card (proofread and approved by J. Sullivan) ----
 # A right answer earns points and a small gift; a wrong one sends the student back to re-read the card.
 - id: cq_romulus_remus
   latin: ""
@@ -836,7 +836,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_romulus_remus
   question: "Who was the father of Romulus and Remus?"
   choices: ["Mars, god of war", "Jupiter, king of the gods", "Their great uncle"]
@@ -848,7 +848,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_hills
   question: "Why was the river useful to the Romans?"
   choices: ["It helped them trade and reach the sea", "It kept out every invader", "It gave them stone for their walls"]
@@ -860,7 +860,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_asylum
   question: "Who did Romulus invite to live in his new city?"
   choices: ["Freed slaves and criminals from nearby towns", "Only rich families from the Sabines", "Kings from other cities"]
@@ -872,7 +872,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_pomerium
   question: "What was the pōmerium?"
   choices: ["A sacred boundary line around the city", "A kind of Roman sword", "A hill in Rome"]
@@ -884,7 +884,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_senate
   question: "Where does the Latin word senātus come from?"
   choices: ["The word senex, meaning old man", "The word collis, meaning hill", "The word rex, meaning king"]
@@ -896,7 +896,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_sabines
   question: "What did the Sabines and the Romans have in common?"
   choices: ["Similar languages and many of the same gods", "The same king", "The same hill"]
@@ -908,7 +908,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_why_war
   question: "Why did the Sabine men invade Rome?"
   choices: ["To get their women back", "To steal the Roman wall", "To find the she-wolf"]
@@ -920,7 +920,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_sabine_women
   question: "What was Rome's problem in its early days?"
   choices: ["Too many men and not enough women", "Too many hills", "Too little water"]
@@ -932,7 +932,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_sabine_women_end
   question: "How did the women stop the fighting?"
   choices: ["They ran between the armies and begged for peace", "They built a wall", "They hid all the weapons"]
@@ -944,7 +944,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_tatius
   question: "Who was Titus Tatius?"
   choices: ["The Sabine king who ruled with Romulus", "A Roman general", "Romulus's brother"]
@@ -956,7 +956,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_kings
   question: "What did the Romans found after they exiled the last king?"
   choices: ["A republic", "A bigger kingdom", "A new hill"]
@@ -968,7 +968,7 @@
   type: card_question
   nle_category: culture
   spec_node_id: unmapped
-  review_status: draft
+  review_status: approved
   card: culture_story_history
   question: "What do the legends show us?"
   choices: ["What the Romans wanted to believe about themselves", "The exact day Rome was founded", "Where every king was buried"]

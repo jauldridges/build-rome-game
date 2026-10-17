@@ -904,7 +904,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_romulus_remus",
   "question": "Who was the father of Romulus and Remus?",
   "choices": [
@@ -921,7 +921,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_hills",
   "question": "Why was the river useful to the Romans?",
   "choices": [
@@ -938,7 +938,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_asylum",
   "question": "Who did Romulus invite to live in his new city?",
   "choices": [
@@ -955,7 +955,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_pomerium",
   "question": "What was the pōmerium?",
   "choices": [
@@ -972,7 +972,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_senate",
   "question": "Where does the Latin word senātus come from?",
   "choices": [
@@ -989,7 +989,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_sabines",
   "question": "What did the Sabines and the Romans have in common?",
   "choices": [
@@ -1006,7 +1006,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_why_war",
   "question": "Why did the Sabine men invade Rome?",
   "choices": [
@@ -1023,7 +1023,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_sabine_women",
   "question": "What was Rome's problem in its early days?",
   "choices": [
@@ -1040,7 +1040,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_sabine_women_end",
   "question": "How did the women stop the fighting?",
   "choices": [
@@ -1057,7 +1057,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_tatius",
   "question": "Who was Titus Tatius?",
   "choices": [
@@ -1074,7 +1074,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_kings",
   "question": "What did the Romans found after they exiled the last king?",
   "choices": [
@@ -1091,7 +1091,7 @@ const LATIN = [
   "type": "card_question",
   "nle_category": "culture",
   "spec_node_id": "unmapped",
-  "review_status": "draft",
+  "review_status": "approved",
   "card": "culture_story_history",
   "question": "What do the legends show us?",
   "choices": [
