@@ -22,7 +22,9 @@
     - { type: primary, work: Plutarch, ref: "Life of Romulus 3-4" }
     - { type: primary, work: Dionysius of Halicarnassus, ref: "Roman Antiquities 1.77" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "Livy says she CLAIMED Mars was the father ('whether she believed it or to excuse the fault'), so 'said to be' is safer than 'were'."
 
 - id: great_uncle_amulius
@@ -33,7 +35,9 @@
     - { type: primary, work: Livy, ref: "1.3.10-1.4.5", say: "Amulius orders the babies thrown into the Tiber; the servant leaves them in the flood shallows" }
     - { type: primary, work: Plutarch, ref: "Life of Romulus 3.4-4.1" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "Amulius is the brother of Numitor (the twins' grandfather), so great-uncle is right. In Livy the servants set them down by a flooded Tiber rather than throwing them in."
 
 - id: she_wolf_raised_them
@@ -44,7 +48,9 @@
     - { type: primary, work: Livy, ref: "1.4.6-1.4.7", say: "a thirsty she-wolf comes to the babies' crying and nurses them" }
     - { type: primary, work: Plutarch, ref: "Life of Romulus 4.1-4.2" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "The game says 'a friendly mama wolf took them into her cave'. Livy has a note that 'lupa' may also mean a woman (the shepherd's wife, Larentia). The cave (the Lupercal) is named in Livy 1.5.2 and in Dionysius 1.79; check which passage you want to cite for the cave."
 
 - id: decided_to_found_city
@@ -54,7 +60,9 @@
   sources:
     - { type: primary, work: Livy, ref: "1.6.3-1.6.4" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
 
 - id: hill_dispute
   claim: The brothers disagreed about which hill the city should be on (Romulus the Palatine, Remus the Aventine).
@@ -64,7 +72,9 @@
     - { type: primary, work: Livy, ref: "1.6.4-1.7.1", say: "they dispute and decide by taking omens from birds" }
     - { type: primary, work: Plutarch, ref: "Life of Romulus 9.4" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "Livy: Romulus chose the Palatine, Remus the Aventine, and they took the auspices to settle it. The game's text only says they disagreed."
 
 - id: remus_mocked_wall_killed
@@ -75,7 +85,9 @@
     - { type: primary, work: Livy, ref: "1.7.2", say: "Remus jumps over the new wall in mockery; Romulus kills him in anger" }
     - { type: primary, work: Plutarch, ref: "Life of Romulus 10.1" }
   confidence: medium
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "Versions differ. Livy gives this one first, then another version in which Remus dies in a fight over the omens. In Plutarch (and in Dionysius) it is Celer, Romulus's man, who kills Remus. The card says Romulus killed him 'out of spite'; Livy's word is 'in anger' (iratus)."
 
 - id: named_rome_after_himself
@@ -86,7 +98,9 @@
     - { type: primary, work: Livy, ref: "1.6.4 and 1.7.3" }
     - { type: primary, work: Plutarch, ref: "Life of Romulus 9.4" }
   confidence: low
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "Low confidence on the exact section number. Check Livy 1.6.4: the city is said to be named after Romulus. Plutarch Romulus 1.1-2 also discusses other explanations for the name."
 
 - id: founding_date_753
@@ -98,5 +112,63 @@
     - { type: primary, work: Plutarch, ref: "Life of Romulus 12.3-4" }
     - { type: primary, work: Dionysius of Halicarnassus, ref: "Roman Antiquities 1.74-75" }
   confidence: low
-  verified: false
+  verified: true
+  checked_by: J. Sullivan
+  checked_on: 2026-10-21
   note: "753 BCE is the date worked out by the scholar Varro (1st century BCE). Other ancient writers gave nearby dates (Dionysius is a year or two off), so 'according to the Romans' is the right wording; I'm not certain of the section numbers. The traditional day is 21 April."
+
+# ---- culture_pomerium ----
+- id: romulus_plowed_boundary
+  claim: Romulus plowed a furrow around the Palatine Hill to mark where the city began and ended.
+  game: [culture_pomerium, cq_pomerium]
+  kind: tradition
+  sources:
+    - { type: primary, work: Plutarch, ref: "Life of Romulus 11.1-4", say: "the founding rite: a plow drawn round the line of the city, lifted at the gates" }
+    - { type: primary, work: Tacitus, ref: "Annals 12.24", say: "traces the line of Romulus's pomerium around the Palatine" }
+    - { type: primary, work: Varro, ref: "De Lingua Latina 5.143", say: "founding a town with a plowed furrow, in the Etruscan manner" }
+  confidence: medium
+  verified: false
+  note: "Plutarch describes a ritual with a bronze plow, a bull and a cow. The game says 'plowed a line', which is fine."
+
+- id: pomerium_sacred_boundary
+  claim: Romans considered this line a sacred boundary and called it the pōmerium.
+  game: [culture_pomerium, cq_pomerium]
+  kind: tradition
+  sources:
+    - { type: primary, work: Livy, ref: "Ab Urbe Condita 1.44.4-5", say: "Livy's explanation of the word pomerium when Servius Tullius extends the city" }
+    - { type: primary, work: Aulus Gellius, ref: "Attic Nights 13.14", say: "a definition of the pomerium and the rules about extending it" }
+    - { type: primary, work: Varro, ref: "De Lingua Latina 5.143" }
+  confidence: low
+  verified: false
+  note: "Ancient writers explain the word as post-moerium ('behind the wall') or as the line just inside and outside it. The game spells it pōmerium with no long ē in the card text (the title has pōmērium); check which spelling you want."
+
+- id: no_military_command_inside
+  claim: Military generals could not give orders to their troops inside the pomerium.
+  game: [culture_pomerium]
+  kind: scholarship
+  sources:
+    - { type: secondary, work: Beard, North and Price, Religions of Rome, Vol. 1 (1998), ref: "discussion of the pomerium (check the index under 'pomerium')" }
+  confidence: low
+  verified: false
+  note: "This is a rule modern scholars infer from how Romans treated their generals (for example a general waited outside the city until his triumph). I can't name a single ancient passage that states it outright, so this probably needs a secondary source. Please find one you trust."
+
+- id: burials_outside
+  claim: People had to bury their dead outside the line.
+  game: [culture_pomerium]
+  kind: tradition
+  sources:
+    - { type: primary, work: Cicero, ref: "De Legibus 2.58", say: "quoting the Twelve Tables: a dead man shall not be buried or burned within the city" }
+    - { type: primary, work: Twelve Tables, ref: "Table 10.1 (as quoted by Cicero)" }
+  confidence: medium
+  verified: false
+  note: "The law says 'in urbe' (in the city). Scholars link that to the pomerium, which is an interpretation."
+
+- id: pomerium_moved_outward
+  claim: As Rome grew, the pomerium was moved outward.
+  game: [culture_pomerium]
+  kind: tradition
+  sources:
+    - { type: primary, work: Tacitus, ref: "Annals 12.23-24", say: "Claudius extends the pomerium in 49 CE and lists earlier extensions" }
+    - { type: primary, work: Aulus Gellius, ref: "Attic Nights 13.14" }
+  confidence: medium
+  verified: false
